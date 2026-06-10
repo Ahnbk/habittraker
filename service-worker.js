@@ -1,4 +1,4 @@
-const CACHE_NAME = "habit-tracker-v0.6.7";
+const CACHE_NAME = "habit-tracker-v0.7.0";
 const APP_SHELL = [
   "./",
   "./index.html",

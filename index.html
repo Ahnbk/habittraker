@@ -426,6 +426,21 @@
       line-height: 1.25;
     }
 
+    .title-line {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .month-inline {
+      width: 142px;
+      min-height: 34px;
+      padding: 5px 8px;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
     .panel-title p {
       margin: 3px 0 0;
       color: var(--muted);
@@ -496,15 +511,13 @@
       font-weight: 900;
     }
 
-    .today-check-list,
-    .recent-habit-list {
+    .today-check-list {
       display: grid;
       gap: 8px;
     }
 
     .today-habit-item,
-    .today-task-item,
-    .recent-habit-item {
+    .today-task-item {
       border: 1px solid var(--line);
       border-radius: 9px;
       background: #fff;
@@ -513,7 +526,7 @@
 
     .today-habit-item {
       display: grid;
-      grid-template-columns: 42px minmax(0, 1fr) auto;
+      grid-template-columns: 42px minmax(0, 1fr);
       gap: 9px;
       align-items: center;
       padding: 8px;
@@ -546,38 +559,17 @@
       min-width: 0;
     }
 
-    .today-habit-main strong,
-    .recent-habit-item strong {
+    .today-habit-main strong {
       display: block;
       font-size: 14px;
       line-height: 1.25;
       overflow-wrap: anywhere;
     }
 
-    .today-habit-main small,
-    .recent-habit-item small {
+    .today-habit-main small {
       color: var(--muted);
       font-size: 11px;
       font-weight: 750;
-    }
-
-    .mini-week-dots {
-      display: grid;
-      grid-template-columns: repeat(7, 10px);
-      gap: 4px;
-      align-items: center;
-      justify-content: end;
-    }
-
-    .mini-dot {
-      width: 10px;
-      height: 10px;
-      border-radius: 999px;
-      background: #e5e7eb;
-    }
-
-    .mini-dot.done {
-      background: var(--green);
     }
 
     .today-task-item {
@@ -610,14 +602,6 @@
       color: var(--muted);
       font-size: 11px;
       font-weight: 800;
-    }
-
-    .recent-habit-item {
-      display: grid;
-      grid-template-columns: minmax(0, 1fr) auto;
-      gap: 8px;
-      align-items: center;
-      padding: 9px 10px;
     }
 
     .progress-bar {
@@ -836,7 +820,7 @@
 
     .habit-toolbar {
       display: grid;
-      grid-template-columns: 160px minmax(220px, 1fr) auto auto auto;
+      grid-template-columns: minmax(180px, 1fr) auto auto auto;
       gap: 8px;
       align-items: center;
     }
@@ -912,21 +896,6 @@
     .summary-row td.today-col {
       background: #dff8ef;
       color: var(--mint-deep);
-    }
-
-    .today-badge {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      margin-top: 2px;
-      padding: 1px 4px;
-      border-radius: 999px;
-      background: var(--green);
-      color: #fff;
-      font-size: 8px;
-      font-style: normal;
-      font-weight: 850;
-      line-height: 1.3;
     }
 
     th:first-child,
@@ -1153,173 +1122,126 @@
     }
 
     .mandalart-panel {
-      max-width: 900px;
+      max-width: 1180px;
       margin: 0 auto;
     }
 
-    .mandala-top {
-      display: grid;
-      gap: 8px;
-      margin-bottom: 10px;
-    }
-
-    .goal-box {
-      display: grid;
-      gap: 6px;
-      align-content: start;
-    }
-
-    .goal-box label {
-      justify-self: start;
+    .mandala-board-wrap {
+      overflow: auto;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background:
+        linear-gradient(135deg, rgba(0, 168, 132, 0.12), rgba(255, 255, 255, 0) 36%),
+        #f8fffc;
+      padding: 8px;
+      max-height: calc(100vh - 220px);
+      touch-action: pan-x pan-y;
+      overscroll-behavior: contain;
     }
 
     .mandala-grid {
+      --mandala-zoom: 1;
+      --mandala-cell-size: 74px;
+      --mandala-cell: 74px;
+      --mandala-font-size: 12px;
       display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 7px;
+      grid-template-columns: repeat(9, var(--mandala-cell));
+      grid-template-rows: repeat(9, var(--mandala-cell));
+      gap: 2px;
+      width: max-content;
+      min-width: 100%;
+      justify-content: center;
     }
 
-    .mandala-cell {
-      min-height: clamp(92px, 17vw, 136px);
-      border: 1px solid var(--line);
-      border-radius: 8px;
+    .mandala-tile {
+      position: relative;
+      min-width: 0;
+      min-height: 0;
+      border: 1px solid #d6e9e3;
+      border-radius: 6px;
       background: #fff;
-      padding: 10px;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      gap: 8px;
-      text-align: left;
+      overflow: hidden;
+      box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.46);
+    }
+
+    .mandala-tile textarea {
+      width: 100%;
+      height: 100%;
+      min-height: 0;
+      resize: none;
+      border: 0;
+      border-radius: 0;
+      background: transparent;
+      box-shadow: none;
+      padding: 15px 5px 5px;
+      text-align: center;
       color: var(--text);
-    }
-
-    .mandala-cell.center {
-      background: var(--black);
-      color: #fff;
-      border-color: var(--black);
-    }
-
-    .mandala-cell.active {
-      border-color: var(--green);
-      box-shadow: inset 0 0 0 2px rgba(22, 128, 61, 0.16);
-    }
-
-    .mandala-cell strong {
-      font-size: 15px;
-      line-height: 1.25;
-      font-weight: 850;
+      font-size: clamp(10px, var(--mandala-font-size), 15px);
+      font-weight: 800;
+      line-height: 1.22;
       overflow-wrap: anywhere;
     }
 
-    .mandala-cell small {
-      color: var(--muted);
-      font-size: 11px;
-      font-weight: 800;
+    .mandala-tile textarea:focus {
+      box-shadow: inset 0 0 0 2px rgba(0, 168, 132, 0.42);
     }
 
-    .mandala-cell.center small {
-      color: #d1d5db;
+    .mandala-label {
+      position: absolute;
+      top: 3px;
+      left: 5px;
+      z-index: 1;
+      color: rgba(18, 49, 43, 0.48);
+      font-size: 9px;
+      font-weight: 850;
+      line-height: 1;
+      pointer-events: none;
     }
 
-    .mandala-edit-backdrop {
-      position: fixed;
-      inset: 0;
-      z-index: 130;
-      background: rgba(15, 31, 29, 0.34);
-      display: none;
-      align-items: flex-end;
-      justify-content: center;
-      padding: 12px;
+    .mandala-goal {
+      background: #12352f;
+      border-color: #12352f;
     }
 
-    .mandala-edit-backdrop.show {
-      display: flex;
+    .mandala-goal textarea,
+    .mandala-goal .mandala-label {
+      color: #fff;
     }
 
-    .mandala-edit-sheet {
-      width: min(760px, 100%);
-      max-height: min(86vh, 760px);
-      overflow: auto;
-      border: 1px solid var(--line);
-      border-radius: 12px;
-      background: #fff;
-      box-shadow: 0 22px 60px rgba(15, 31, 29, 0.22);
+    .mandala-goal .mandala-label {
+      opacity: 0.64;
     }
 
-    .mandala-edit-sheet.goal-mode #editActionGrid,
-    .mandala-edit-sheet.goal-mode #mandalaEditorPill {
-      display: none;
+    .mandala-area {
+      background: #dff8ef;
+      border-color: #9bd9c8;
     }
 
-    .mandala-edit-head {
-      position: sticky;
-      top: 0;
+    .mandala-area-core {
+      background: #c9f7e9;
+      border-color: #62cdb1;
+      border-width: 2px;
+    }
+
+    .mandala-action.done {
+      background: #effff9;
+      border-color: #68cdb3;
+    }
+
+    .mandala-done {
+      position: absolute;
+      top: 3px;
+      right: 3px;
       z-index: 2;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 8px;
-      padding: 12px;
-      border-bottom: 1px solid var(--line);
-      background: #fafdfb;
-    }
-
-    .mandala-edit-head h3 {
+      width: 16px;
+      height: 16px;
+      min-height: 16px;
       margin: 0;
-      font-size: 16px;
-      line-height: 1.25;
-    }
-
-    .mandala-edit-body {
-      display: grid;
-      gap: 10px;
-      padding: 12px;
-    }
-
-    .action-grid {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 8px;
-    }
-
-    .action-item {
-      border: 1px solid var(--line);
-      border-radius: 8px;
-      background: #fff;
-      padding: 8px;
-      display: grid;
-      grid-template-columns: 28px minmax(0, 1fr);
-      gap: 8px;
-      align-items: start;
-      min-height: 70px;
-    }
-
-    .action-item input[type="checkbox"] {
-      width: 18px;
-      height: 18px;
-      min-height: 18px;
-      margin-top: 9px;
       accent-color: var(--green);
     }
 
-    .action-item textarea {
-      border: 0;
-      padding: 7px 4px;
-      min-height: 50px;
-      background: transparent;
-      font-size: 13px;
-    }
-
-    .action-item.done {
-      background: var(--green-soft);
-      border-color: #bbdfc8;
-    }
-
-    .mantra-line {
-      display: grid;
-      grid-template-columns: minmax(0, 1fr) auto;
-      gap: 8px;
-      align-items: center;
+    .mandala-action textarea {
+      padding-right: 18px;
     }
 
     .data-grid {
@@ -1393,9 +1315,6 @@
       .data-grid {
         grid-template-columns: 1fr;
       }
-      .mandala-top {
-        grid-template-columns: 1fr;
-      }
       .week-grid {
         grid-template-columns: repeat(7, 220px);
       }
@@ -1457,13 +1376,6 @@
       .today-focus-grid {
         grid-template-columns: 1fr;
       }
-      .today-habit-item {
-        grid-template-columns: 42px minmax(0, 1fr);
-      }
-      .today-habit-item .mini-week-dots {
-        grid-column: 2;
-        justify-content: start;
-      }
       .stat-card {
         padding: 8px;
         min-height: 58px;
@@ -1489,31 +1401,19 @@
         align-items: flex-start;
       }
       .habit-toolbar,
-      .todo-form,
-      .mantra-line {
+      .todo-form {
         grid-template-columns: 1fr;
+      }
+      .mandala-board-wrap {
+        max-height: calc(100vh - 184px - env(safe-area-inset-bottom));
+        padding: 6px;
       }
       .mandala-grid {
-        gap: 5px;
+        --mandala-cell-size: 68px;
       }
-      .mandala-cell {
-        min-height: 92px;
-        padding: 8px;
-      }
-      .mandala-cell strong {
-        font-size: 13px;
-      }
-      .mandala-cell small {
-        font-size: 10px;
-      }
-      .mandala-edit-backdrop {
-        padding: 8px;
-      }
-      .mandala-edit-sheet {
-        max-height: calc(88vh - env(safe-area-inset-bottom));
-      }
-      .action-grid {
-        grid-template-columns: 1fr;
+      .mandala-tile textarea {
+        padding: 14px 4px 4px;
+        font-size: clamp(9px, var(--mandala-font-size), 14px);
       }
       th:first-child,
       td:first-child {
@@ -1623,52 +1523,19 @@
         </section>
 
         <div class="top-grid" id="statGrid"></div>
-        <div class="dashboard-layout" id="dashboardAnalysis">
-          <section class="panel">
-            <div class="panel-head">
-              <div class="panel-title">
-                <h2>월간 습관 체크 현황</h2>
-                <p id="monthSummaryText"></p>
-              </div>
-              <div class="row-actions">
-                <span class="pill green" id="monthRatePill">0%</span>
-                <div class="zoom-controls">
-                  <button class="btn icon" data-action="zoom-out" title="축소">−</button>
-                  <span class="pill zoom-label">100%</span>
-                  <button class="btn icon" data-action="zoom-in" title="확대">＋</button>
-                </div>
-              </div>
-            </div>
-            <div class="panel-body">
-              <div class="progress-bar"><span id="monthProgressBar"></span></div>
-              <div class="month-chart" id="habitMonthChart"></div>
-              <div class="compact-list" id="topHabitList" style="margin-top: 12px;"></div>
-            </div>
-          </section>
-
-          <section class="panel">
-            <div class="panel-head">
-              <div class="panel-title">
-                <h2>최근 7일 흐름</h2>
-                <p id="recentSummaryText"></p>
-              </div>
-            </div>
-            <div class="panel-body">
-              <div class="recent-habit-list" id="recentHabitList"></div>
-            </div>
-          </section>
-        </div>
       </section>
 
       <section class="view" id="view-habits">
         <section class="panel">
           <div class="panel-head">
             <div class="panel-title">
-              <h2>월간 습관</h2>
-                <p>내 데이터는 백업 JSON으로 복원해서 사용합니다.</p>
+              <div class="title-line">
+                <h2>월간 습관</h2>
+                <input class="month-inline" type="month" id="monthInput">
+              </div>
+              <p>내 데이터는 백업 JSON으로 복원해서 사용합니다.</p>
             </div>
             <div class="habit-toolbar">
-              <input type="month" id="monthInput">
               <input type="text" id="newHabitInput" placeholder="새 습관">
               <button class="btn primary" id="addHabitBtn">+ 추가</button>
               <button class="btn" id="habitEditBtn">편집</button>
@@ -1683,6 +1550,22 @@
             <div class="table-wrap">
               <table id="habitTable" aria-label="월간 습관 체크표"></table>
             </div>
+          </div>
+        </section>
+        <section class="panel">
+          <div class="panel-head">
+            <div class="panel-title">
+              <h2>월간 체크 흐름</h2>
+              <p id="monthSummaryText"></p>
+            </div>
+            <div class="row-actions">
+              <span class="pill green" id="monthRatePill">0%</span>
+            </div>
+          </div>
+          <div class="panel-body">
+            <div class="progress-bar"><span id="monthProgressBar"></span></div>
+            <div class="month-chart" id="habitMonthChart"></div>
+            <div class="compact-list" id="topHabitList" style="margin-top: 12px;"></div>
           </div>
         </section>
       </section>
@@ -1730,15 +1613,14 @@
               <h2>만다라트</h2>
               <p id="mandalartSummary"></p>
             </div>
+            <div class="row-actions">
+              <button class="btn primary" id="mandalaPdfBtn" title="PDF 저장">PDF</button>
+            </div>
           </div>
           <div class="panel-body">
-            <div class="mandala-top">
-              <div class="mantra-line">
-                <input id="mantraInput" type="text" aria-label="오늘 만트라">
-                <button class="btn dark" id="copyMantraBtn">복사</button>
-              </div>
+            <div class="mandala-board-wrap" id="mandalaBoardWrap">
+              <div class="mandala-grid" id="mandalaGrid" aria-label="만다라트 9x9 보드"></div>
             </div>
-            <div class="mandala-grid" id="mandalaGrid"></div>
           </div>
         </section>
       </section>
@@ -1792,7 +1674,7 @@
       <div class="app-menu-head">
         <div>
           <strong id="appMenuTitle">앱 메뉴</strong>
-          <small id="menuVersionText">v0.6.7</small>
+          <small id="menuVersionText">v0.7.0</small>
         </div>
         <button class="btn icon" id="closeMenuBtn" title="닫기">×</button>
       </div>
@@ -1810,32 +1692,24 @@
       </div>
     </section>
   </div>
-  <div class="mandala-edit-backdrop" id="mandalaEditor" aria-hidden="true">
-    <section class="mandala-edit-sheet" role="dialog" aria-modal="true" aria-labelledby="mandalaEditorTitle">
-      <div class="mandala-edit-head">
-        <div>
-          <h3 id="mandalaEditorTitle">핵심축</h3>
-          <small id="mandalaEditorSummary">0/8</small>
-        </div>
-        <div class="row-actions">
-          <span class="pill green" id="mandalaEditorPill">0/8</span>
-          <button class="btn icon" id="closeMandalaEditorBtn" title="닫기">×</button>
-        </div>
-      </div>
-      <div class="mandala-edit-body">
-        <input type="text" id="editAreaNameInput" aria-label="핵심축 이름">
-        <div class="action-grid" id="editActionGrid"></div>
-      </div>
-    </section>
-  </div>
-
   <script>
-    const APP_CACHE_VERSION = "habit-tracker-v0.6.7";
-    const APP_DISPLAY_VERSION = "v0.6.7";
+    const APP_CACHE_VERSION = "habit-tracker-v0.7.0";
+    const APP_DISPLAY_VERSION = "v0.7.0";
     const STORAGE_KEY = "habitTracker.appData.v2";
     const ZOOM_KEY = "habitTracker.zoom.v3";
     const ZOOM_RESET_KEY = "habitTracker.zoomReset.v0.6.6";
+    const MANDALA_ZOOM_KEY = "habitTracker.mandalaZoom.v1";
     const DAY_NAMES = ["일", "월", "화", "수", "목", "금", "토"];
+    const MANDALA_RING_POSITIONS = [
+      { row: 0, col: 0 },
+      { row: 0, col: 1 },
+      { row: 0, col: 2 },
+      { row: 1, col: 0 },
+      { row: 1, col: 2 },
+      { row: 2, col: 0 },
+      { row: 2, col: 1 },
+      { row: 2, col: 2 }
+    ];
 
     const INITIAL_DATA = {
       schemaVersion: 1,
@@ -1876,10 +1750,10 @@
     let swRegistration = null;
     let deferredInstallPrompt = null;
     let habitZoom = loadZoom();
+    let mandalaZoom = loadMandalaZoom();
     let habitEditMode = false;
     let previousFocus = null;
-    let editingMandalaArea = null;
-    let mandalaPreviousFocus = null;
+    let mandalaPinch = null;
     let habitTodayScrollKey = "";
     let chartTodayScrollKey = "";
     let weekTodayScrollKey = "";
@@ -1895,11 +1769,12 @@
         return 1;
       }
       const saved = Number(localStorage.getItem(ZOOM_KEY));
-      return Number.isFinite(saved) ? Math.min(1.5, Math.max(0.65, saved)) : 1;
+      return Number.isFinite(saved) ? Math.min(1.5, Math.max(0.65, Math.round(saved * 100) / 100)) : 1;
     }
 
     function setHabitZoom(nextZoom) {
-      habitZoom = Math.min(1.5, Math.max(0.65, Math.round(nextZoom * 20) / 20));
+      const nextPercent = Math.min(150, Math.max(65, Math.round(nextZoom * 100)));
+      habitZoom = nextPercent / 100;
       localStorage.setItem(ZOOM_KEY, String(habitZoom));
       applyHabitZoom();
       renderDashboard();
@@ -1915,6 +1790,31 @@
       document.querySelectorAll(".zoom-label").forEach(label => {
         label.textContent = `${Math.round(habitZoom * 100)}%`;
       });
+    }
+
+    function loadMandalaZoom() {
+      const saved = Number(localStorage.getItem(MANDALA_ZOOM_KEY));
+      return Number.isFinite(saved) ? Math.min(1.8, Math.max(0.72, Math.round(saved * 100) / 100)) : 1;
+    }
+
+    function setMandalaZoom(nextZoom) {
+      mandalaZoom = Math.min(1.8, Math.max(0.72, Math.round(nextZoom * 100) / 100));
+      localStorage.setItem(MANDALA_ZOOM_KEY, String(mandalaZoom));
+      applyMandalaZoom();
+    }
+
+    function applyMandalaZoom() {
+      const grid = document.getElementById("mandalaGrid");
+      if (!grid) return;
+      const baseCell = parseFloat(getComputedStyle(grid).getPropertyValue("--mandala-cell-size")) || 74;
+      grid.style.setProperty("--mandala-zoom", String(mandalaZoom));
+      grid.style.setProperty("--mandala-cell", `${Math.round(baseCell * mandalaZoom)}px`);
+      grid.style.setProperty("--mandala-font-size", `${Math.round(12 * mandalaZoom)}px`);
+    }
+
+    function touchDistance(touches) {
+      const [first, second] = touches;
+      return Math.hypot(first.clientX - second.clientX, first.clientY - second.clientY);
     }
 
     function loadData() {
@@ -2268,23 +2168,6 @@
       });
     }
 
-    function recentHabitDayIndexes(dayIndex) {
-      const totalDays = daysInMonth(appData.month);
-      const end = dayIndex === null ? totalDays - 1 : Math.min(totalDays - 1, Math.max(0, dayIndex));
-      const start = Math.max(0, end - 6);
-      return Array.from({ length: end - start + 1 }, (_, index) => start + index);
-    }
-
-    function miniWeekDots(habit, indexes) {
-      return `
-        <div class="mini-week-dots" aria-label="최근 체크 흐름">
-          ${indexes.map(index => `
-            <span class="mini-dot ${habit.checks[index] ? "done" : ""}" title="${index + 1}일"></span>
-          `).join("")}
-        </div>
-      `;
-    }
-
     function dataSummary(data) {
       const weekTasks = data.week.days.flatMap(day => day.tasks || []).filter(task => task.title && task.title.trim()).length;
       const mandalartActions = data.mandalart.areas.flatMap(area => area.actions || []).filter(action => action.text && action.text.trim()).length;
@@ -2301,6 +2184,7 @@
       renderWeek();
       renderCompleted();
       renderMandalart();
+      applyMandalaZoom();
     }
 
     function renderTabs() {
@@ -2316,7 +2200,6 @@
 
     function renderDashboard() {
       const habits = habitStats();
-      const habitMonth = habitMonthGraphStats();
       const week = weeklyStats();
       const mandalart = mandalartStats();
       const todayContext = getTodayDayContext();
@@ -2326,7 +2209,6 @@
         .filter(task => task.title.trim());
       const todayDone = todayTasks.filter(task => task.done).length;
       const todayHabitDayIndex = getTodayHabitDayIndex();
-      const recentIndexes = recentHabitDayIndexes(todayHabitDayIndex);
       const todayHabitDone = todayHabitDayIndex === null
         ? 0
         : appData.habits.reduce((sum, habit) => sum + (habit.checks[todayHabitDayIndex] ? 1 : 0), 0);
@@ -2335,7 +2217,6 @@
       document.getElementById("onboardingCard").classList.toggle("show", isBlank);
       document.getElementById("todayFocusPanel").hidden = isBlank;
       document.getElementById("statGrid").hidden = isBlank;
-      document.getElementById("dashboardAnalysis").hidden = isBlank;
       const stats = [
         { label: "월간 습관", value: `${habits.rate}%`, sub: `${habits.done}/${habits.possible}칸` },
         { label: "관리 습관", value: `${appData.habits.length}개`, sub: `${appData.month.replace("-", "년 ")}월` },
@@ -2349,23 +2230,6 @@
           <div class="sub">${stat.sub}</div>
         </div>
       `).join("");
-      document.getElementById("monthSummaryText").textContent = habitMonth.days.length
-        ? `${habitMonth.startDate} ~ ${habitMonth.endDate} · ${habitMonth.done}/${habitMonth.possible}칸 완료`
-        : "습관을 추가하면 월간 곡선 그래프가 표시됩니다.";
-      document.getElementById("monthRatePill").textContent = `${habitMonth.rate}%`;
-      document.getElementById("monthProgressBar").style.width = `${habitMonth.rate}%`;
-      document.getElementById("habitMonthChart").innerHTML = renderMonthCurveChart(habitMonth);
-      if (activeView === "dashboard") scrollMonthChartToToday();
-      document.getElementById("topHabitList").classList.add("month-habit-list");
-      document.getElementById("topHabitList").innerHTML = habitMonth.habitRows.map(habit => `
-        <div class="month-habit-item">
-          <div>
-            <strong>${escapeHtml(habit.name)}</strong>
-            <div class="mini-progress"><span style="width:${habit.rate}%"></span></div>
-          </div>
-          <small>${habit.done}/${habit.total}</small>
-        </div>
-      `).join("") || emptyLine("습관이 없습니다.");
       document.getElementById("todayDatePill").textContent = todayDay.date || "오늘";
       document.getElementById("todayHabitRatePill").textContent = todayHabitDayIndex === null ? "이번 달 아님" : `${todayHabitRate}%`;
       document.getElementById("todaySummaryText").textContent = todayHabitDayIndex === null
@@ -2375,15 +2239,13 @@
         ? emptyLine("월간 습관에서 이번 달로 바꾸면 오늘 체크가 열립니다.")
         : appData.habits.map((habit, habitIndex) => {
           const checked = Boolean(habit.checks[todayHabitDayIndex]);
-          const doneInRecent = recentIndexes.reduce((sum, index) => sum + (habit.checks[index] ? 1 : 0), 0);
           return `
             <div class="today-habit-item ${checked ? "checked" : ""}">
               <button class="today-check-btn" data-action="toggle-today-habit" data-habit="${habitIndex}" data-day="${todayHabitDayIndex}" title="오늘 체크">${checked ? "✓" : ""}</button>
               <div class="today-habit-main">
                 <strong>${escapeHtml(habit.name)}</strong>
-                <small>최근 ${recentIndexes.length}일 ${doneInRecent}/${recentIndexes.length}</small>
+                <small>${checked ? "완료" : "대기"}</small>
               </div>
-              ${miniWeekDots(habit, recentIndexes)}
             </div>
           `;
         }).join("") || emptyLine("오늘 체크할 습관이 없습니다.");
@@ -2396,19 +2258,27 @@
           </label>
         `).join("")
         : emptyLine("오늘 등록된 할 일이 없습니다.");
-      document.getElementById("recentSummaryText").textContent = `${appData.month} · ${recentIndexes[0] + 1}일~${recentIndexes[recentIndexes.length - 1] + 1}일`;
-      document.getElementById("recentHabitList").innerHTML = appData.habits.map(habit => {
-        const doneInRecent = recentIndexes.reduce((sum, index) => sum + (habit.checks[index] ? 1 : 0), 0);
-        return `
-          <div class="recent-habit-item">
-            <div>
-              <strong>${escapeHtml(habit.name)}</strong>
-              <small>${doneInRecent}/${recentIndexes.length} 완료</small>
-            </div>
-            ${miniWeekDots(habit, recentIndexes)}
+    }
+
+    function renderHabitAnalysis() {
+      const habitMonth = habitMonthGraphStats();
+      document.getElementById("monthSummaryText").textContent = habitMonth.days.length
+        ? `${habitMonth.startDate} ~ ${habitMonth.endDate} · ${habitMonth.done}/${habitMonth.possible}칸 완료`
+        : "습관을 추가하면 월간 곡선 그래프가 표시됩니다.";
+      document.getElementById("monthRatePill").textContent = `${habitMonth.rate}%`;
+      document.getElementById("monthProgressBar").style.width = `${habitMonth.rate}%`;
+      document.getElementById("habitMonthChart").innerHTML = renderMonthCurveChart(habitMonth);
+      if (activeView === "habits") scrollMonthChartToToday();
+      document.getElementById("topHabitList").classList.add("month-habit-list");
+      document.getElementById("topHabitList").innerHTML = habitMonth.habitRows.map(habit => `
+        <div class="month-habit-item">
+          <div>
+            <strong>${escapeHtml(habit.name)}</strong>
+            <div class="mini-progress"><span style="width:${habit.rate}%"></span></div>
           </div>
-        `;
-      }).join("") || emptyLine("최근 흐름을 볼 습관이 없습니다.");
+          <small>${habit.done}/${habit.total}</small>
+        </div>
+      `).join("") || emptyLine("습관이 없습니다.");
     }
 
     function renderHabits() {
@@ -2421,7 +2291,7 @@
       const headerDays = Array.from({ length: days }, (_, index) => {
         const date = parseLocalDate(dateForMonthDay(appData.month, index + 1));
         const isToday = index === todayIndex;
-        return `<th class="${isToday ? "today-col" : ""}"><div>${index + 1}</div><small>${DAY_NAMES[date.getDay()]}</small>${isToday ? '<em class="today-badge">오늘</em>' : ""}</th>`;
+        return `<th class="${isToday ? "today-col" : ""}"><div>${index + 1}</div><small>${DAY_NAMES[date.getDay()]}</small></th>`;
       }).join("");
       const body = appData.habits.map((habit, habitIndex) => {
         const cells = habit.checks.map((checked, dayIndex) => `
@@ -2457,6 +2327,7 @@
         </tbody>
       `;
       if (activeView === "habits") scrollHabitTableToToday();
+      renderHabitAnalysis();
     }
 
     function renderWeek() {
@@ -2503,113 +2374,390 @@
         : emptyLine("완료 목록이 없습니다.");
     }
 
+    function mandalaPosition(blockPosition, innerPosition) {
+      return {
+        row: blockPosition.row * 3 + innerPosition.row + 1,
+        col: blockPosition.col * 3 + innerPosition.col + 1
+      };
+    }
+
+    function mandalaTile({ position, className, label, value, placeholder, action, areaIndex, actionIndex, done = false }) {
+      const areaAttr = Number.isInteger(areaIndex) ? ` data-area="${areaIndex}"` : "";
+      const indexAttr = Number.isInteger(actionIndex) ? ` data-index="${actionIndex}"` : "";
+      const doneControl = action === "mandala-action"
+        ? `<input class="mandala-done" type="checkbox" ${done ? "checked" : ""} data-action="mandala-action-done"${areaAttr}${indexAttr} title="완료">`
+        : "";
+      return `
+        <div class="mandala-tile ${className} ${done ? "done" : ""}" style="grid-row:${position.row};grid-column:${position.col};">
+          <span class="mandala-label">${escapeHtml(label)}</span>
+          ${doneControl}
+          <textarea rows="2" data-action="${action}"${areaAttr}${indexAttr} placeholder="${escapeHtml(placeholder)}" aria-label="${escapeHtml(placeholder)}">${escapeHtml(value)}</textarea>
+        </div>
+      `;
+    }
+
+    function updateMandalartSummary() {
+      const stats = mandalartStats();
+      document.getElementById("mandalartSummary").textContent = `작성 ${stats.total}/64 · 완료 ${stats.done}/${stats.total || 0} (${stats.rate}%)`;
+    }
+
     function renderMandalart() {
       normalizeMandalart(appData.mandalart);
       const mandalart = appData.mandalart;
-      const stats = mandalartStats();
-      document.getElementById("mantraInput").value = mandalart.mantra;
-      document.getElementById("mandalartSummary").textContent = `실행칸 ${stats.done}/${stats.total} 완료`;
-      const gridOrder = [0, 1, 2, 3, "center", 4, 5, 6, 7];
-      document.getElementById("mandalaGrid").innerHTML = gridOrder.map(item => {
-        if (item === "center") {
-          return `
-            <button type="button" class="mandala-cell center ${editingMandalaArea === "goal" ? "active" : ""}" data-action="open-mandala-goal" title="중앙 목표">
-              <strong>${escapeHtml(mandalart.goal || "중앙 목표")}</strong>
-              <small>터치해서 편집</small>
-            </button>
-          `;
-        }
-        const area = mandalart.areas[item];
-        const filled = area.actions.filter(action => action.text.trim());
-        const done = filled.filter(action => action.done).length;
-        return `
-          <button type="button" class="mandala-cell ${mandalart.activeArea === item ? "active" : ""}" data-action="open-mandala-area" data-area="${item}">
-            <strong>${escapeHtml(area.name || `핵심축 ${item + 1}`)}</strong>
-            <small>${done}/${filled.length || 8}</small>
-          </button>
-        `;
-      }).join("");
-      renderMandalaEditor();
+      const tiles = [];
+      const centerBlock = { row: 1, col: 1 };
+      tiles.push(mandalaTile({
+        position: mandalaPosition(centerBlock, { row: 1, col: 1 }),
+        className: "mandala-goal",
+        label: "GOAL",
+        value: mandalart.goal,
+        placeholder: "중앙 목표",
+        action: "mandala-goal"
+      }));
+
+      MANDALA_RING_POSITIONS.forEach((innerPosition, areaIndex) => {
+        const area = mandalart.areas[areaIndex];
+        tiles.push(mandalaTile({
+          position: mandalaPosition(centerBlock, innerPosition),
+          className: "mandala-area",
+          label: `축 ${areaIndex + 1}`,
+          value: area.name,
+          placeholder: `핵심축 ${areaIndex + 1}`,
+          action: "mandala-area",
+          areaIndex
+        }));
+      });
+
+      MANDALA_RING_POSITIONS.forEach((blockPosition, areaIndex) => {
+        const area = mandalart.areas[areaIndex];
+        tiles.push(mandalaTile({
+          position: mandalaPosition(blockPosition, { row: 1, col: 1 }),
+          className: "mandala-area mandala-area-core",
+          label: `축 ${areaIndex + 1}`,
+          value: area.name,
+          placeholder: `핵심축 ${areaIndex + 1}`,
+          action: "mandala-area",
+          areaIndex
+        }));
+
+        MANDALA_RING_POSITIONS.forEach((innerPosition, actionIndex) => {
+          const action = area.actions[actionIndex];
+          tiles.push(mandalaTile({
+            position: mandalaPosition(blockPosition, innerPosition),
+            className: "mandala-action",
+            label: `${areaIndex + 1}-${actionIndex + 1}`,
+            value: action.text,
+            placeholder: `실행 ${actionIndex + 1}`,
+            action: "mandala-action",
+            areaIndex,
+            actionIndex,
+            done: action.done
+          }));
+        });
+      });
+
+      document.getElementById("mandalaGrid").innerHTML = tiles.join("");
+      updateMandalartSummary();
+      applyMandalaZoom();
     }
 
-    function renderMandalaEditor() {
-      if (editingMandalaArea === null) return;
-      const sheet = document.querySelector(".mandala-edit-sheet");
-      const isGoal = editingMandalaArea === "goal";
-      sheet.classList.toggle("goal-mode", isGoal);
-      if (isGoal) {
-        document.getElementById("mandalaEditorTitle").textContent = "중앙 목표";
-        document.getElementById("mandalaEditorSummary").textContent = "만다라트의 중심 문장";
-        document.getElementById("mandalaEditorPill").textContent = "Goal";
-        document.getElementById("editAreaNameInput").value = appData.mandalart.goal;
-        document.getElementById("editAreaNameInput").placeholder = "중앙 목표";
-        document.getElementById("editActionGrid").innerHTML = "";
+    function syncMandalaAreaInputs(areaIndex, value, source) {
+      document.querySelectorAll(`[data-action="mandala-area"][data-area="${areaIndex}"]`).forEach(input => {
+        if (input !== source) input.value = value;
+      });
+    }
+
+    function saveMandalartDraft() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(appData));
+    }
+
+    function handleMandalaInput(target) {
+      const action = target.dataset.action;
+      if (action === "mandala-goal") {
+        appData.mandalart.goal = target.value;
+        saveMandalartDraft();
         return;
       }
-      const area = appData.mandalart.areas[editingMandalaArea];
+      const areaIndex = Number(target.dataset.area);
+      const area = appData.mandalart.areas[areaIndex];
       if (!area) return;
-      document.getElementById("editAreaNameInput").placeholder = "핵심축 이름";
-      const filled = area.actions.filter(action => action.text.trim());
-      const done = filled.filter(action => action.done).length;
-      document.getElementById("mandalaEditorTitle").textContent = area.name || `핵심축 ${editingMandalaArea + 1}`;
-      document.getElementById("mandalaEditorSummary").textContent = `8개 실행칸 중 ${done}개 완료`;
-      document.getElementById("mandalaEditorPill").textContent = `${done}/${filled.length || 8}`;
-      document.getElementById("editAreaNameInput").value = area.name;
-      document.getElementById("editActionGrid").innerHTML = area.actions.map((action, index) => `
-        <label class="action-item ${action.done ? "done" : ""}">
-          <input type="checkbox" ${action.done ? "checked" : ""} data-action="edit-mandala-done" data-index="${index}">
-          <textarea data-action="edit-mandala-text" data-index="${index}" aria-label="실행칸 ${index + 1}">${escapeHtml(action.text)}</textarea>
-        </label>
-      `).join("");
-    }
-
-    function updateMandalaEditorMeta() {
-      if (editingMandalaArea === null || editingMandalaArea === "goal") return;
-      const area = appData.mandalart.areas[editingMandalaArea];
-      const filled = area.actions.filter(action => action.text.trim());
-      const done = filled.filter(action => action.done).length;
-      document.getElementById("mandalaEditorTitle").textContent = area.name || `핵심축 ${editingMandalaArea + 1}`;
-      document.getElementById("mandalaEditorSummary").textContent = `8개 실행칸 중 ${done}개 완료`;
-      document.getElementById("mandalaEditorPill").textContent = `${done}/${filled.length || 8}`;
-      const boardCell = document.querySelector(`[data-action="open-mandala-area"][data-area="${editingMandalaArea}"]`);
-      if (boardCell) {
-        boardCell.querySelector("strong").textContent = area.name || `핵심축 ${editingMandalaArea + 1}`;
-        boardCell.querySelector("small").textContent = `${done}/${filled.length || 8}`;
+      if (action === "mandala-area") {
+        area.name = target.value;
+        syncMandalaAreaInputs(areaIndex, target.value, target);
+        saveMandalartDraft();
+        return;
+      }
+      if (action === "mandala-action") {
+        const actionIndex = Number(target.dataset.index);
+        if (!area.actions[actionIndex]) return;
+        area.actions[actionIndex].text = target.value;
+        saveMandalartDraft();
+        updateMandalartSummary();
+        renderDashboard();
       }
     }
 
-    function openMandalaEditor(areaIndex) {
-      editingMandalaArea = areaIndex;
-      appData.mandalart.activeArea = areaIndex;
-      mandalaPreviousFocus = document.activeElement;
-      renderMandalart();
-      const editor = document.getElementById("mandalaEditor");
-      editor.classList.add("show");
-      editor.setAttribute("aria-hidden", "false");
-      document.body.classList.add("menu-open");
-      window.setTimeout(() => document.getElementById("editAreaNameInput").focus(), 0);
+    function handleMandalaDone(target) {
+      const areaIndex = Number(target.dataset.area);
+      const actionIndex = Number(target.dataset.index);
+      const action = appData.mandalart.areas[areaIndex]?.actions[actionIndex];
+      if (!action) return;
+      action.done = target.checked;
+      target.closest(".mandala-action")?.classList.toggle("done", target.checked);
+      saveMandalartDraft();
+      updateMandalartSummary();
+      renderDashboard();
     }
 
-    function openMandalaGoalEditor() {
-      editingMandalaArea = "goal";
-      mandalaPreviousFocus = document.activeElement;
-      renderMandalart();
-      const editor = document.getElementById("mandalaEditor");
-      editor.classList.add("show");
-      editor.setAttribute("aria-hidden", "false");
-      document.body.classList.add("menu-open");
-      window.setTimeout(() => document.getElementById("editAreaNameInput").focus(), 0);
+    function mandalaPrintTile({ position, className, label, value, fallback, done = false }) {
+      const text = String(value || "").trim();
+      return `
+        <div class="print-cell ${className} ${done ? "done" : ""} ${text ? "" : "empty"}" style="grid-row:${position.row};grid-column:${position.col};">
+          <span>${escapeHtml(label)}</span>
+          <p>${escapeHtml(text || fallback)}</p>
+        </div>
+      `;
     }
 
-    function closeMandalaEditor() {
-      const editor = document.getElementById("mandalaEditor");
-      editor.classList.remove("show");
-      editor.setAttribute("aria-hidden", "true");
-      document.querySelector(".mandala-edit-sheet").classList.remove("goal-mode");
-      document.body.classList.remove("menu-open");
-      editingMandalaArea = null;
-      if (mandalaPreviousFocus && typeof mandalaPreviousFocus.focus === "function") mandalaPreviousFocus.focus();
-      renderMandalart();
+    function buildMandalartPrintGrid() {
+      normalizeMandalart(appData.mandalart);
+      const mandalart = appData.mandalart;
+      const tiles = [];
+      const centerBlock = { row: 1, col: 1 };
+      tiles.push(mandalaPrintTile({
+        position: mandalaPosition(centerBlock, { row: 1, col: 1 }),
+        className: "print-goal",
+        label: "GOAL",
+        value: mandalart.goal,
+        fallback: "중앙 목표"
+      }));
+
+      MANDALA_RING_POSITIONS.forEach((innerPosition, areaIndex) => {
+        const area = mandalart.areas[areaIndex];
+        tiles.push(mandalaPrintTile({
+          position: mandalaPosition(centerBlock, innerPosition),
+          className: "print-area",
+          label: `AREA ${areaIndex + 1}`,
+          value: area.name,
+          fallback: `핵심축 ${areaIndex + 1}`
+        }));
+      });
+
+      MANDALA_RING_POSITIONS.forEach((blockPosition, areaIndex) => {
+        const area = mandalart.areas[areaIndex];
+        tiles.push(mandalaPrintTile({
+          position: mandalaPosition(blockPosition, { row: 1, col: 1 }),
+          className: "print-area print-core",
+          label: `AREA ${areaIndex + 1}`,
+          value: area.name,
+          fallback: `핵심축 ${areaIndex + 1}`
+        }));
+        MANDALA_RING_POSITIONS.forEach((innerPosition, actionIndex) => {
+          const action = area.actions[actionIndex];
+          tiles.push(mandalaPrintTile({
+            position: mandalaPosition(blockPosition, innerPosition),
+            className: "print-action",
+            label: `${areaIndex + 1}-${actionIndex + 1}`,
+            value: action.text,
+            fallback: `실행 ${actionIndex + 1}`,
+            done: action.done
+          }));
+        });
+      });
+      return tiles.join("");
+    }
+
+    function buildMandalartPrintHtml() {
+      const stats = mandalartStats();
+      const goal = appData.mandalart.goal.trim() || "만다라트";
+      const printedAt = new Date().toLocaleString("ko-KR");
+      return `<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <title>${escapeHtml(goal)} PDF</title>
+  <style>
+    @page { size: A4 landscape; margin: 10mm; }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: #eefbf7;
+      color: #12312b;
+      font-family: "Pretendard", "Apple SD Gothic Neo", "Malgun Gothic", system-ui, -apple-system, sans-serif;
+      letter-spacing: 0;
+    }
+    .sheet {
+      min-height: 190mm;
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+      gap: 6mm;
+      padding: 9mm;
+      border: 1px solid #a9ded0;
+      background:
+        linear-gradient(135deg, rgba(16, 208, 161, 0.18), rgba(255, 255, 255, 0) 34%),
+        #ffffff;
+    }
+    .print-head,
+    .print-foot {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 8mm;
+    }
+    .eyebrow {
+      margin: 0 0 2mm;
+      color: #04745f;
+      font-size: 8pt;
+      font-weight: 900;
+      text-transform: uppercase;
+    }
+    h1 {
+      margin: 0;
+      color: #0f1f1d;
+      font-size: 18pt;
+      line-height: 1.14;
+    }
+    .meta {
+      min-width: 44mm;
+      color: #52645f;
+      font-size: 8pt;
+      line-height: 1.55;
+      text-align: right;
+    }
+    .print-grid {
+      align-self: center;
+      justify-self: center;
+      display: grid;
+      grid-template-columns: repeat(9, 1fr);
+      grid-template-rows: repeat(9, 1fr);
+      gap: 1.15mm;
+      width: min(100%, 171mm);
+      aspect-ratio: 1;
+    }
+    .print-cell {
+      position: relative;
+      display: grid;
+      place-items: center;
+      min-width: 0;
+      min-height: 0;
+      padding: 4mm 1.6mm 1.5mm;
+      border: 0.35mm solid #d7e8e3;
+      border-radius: 1.7mm;
+      background: #ffffff;
+      overflow: hidden;
+      text-align: center;
+      page-break-inside: avoid;
+    }
+    .print-cell span {
+      position: absolute;
+      top: 1.2mm;
+      left: 1.5mm;
+      color: rgba(18, 49, 43, 0.48);
+      font-size: 5.6pt;
+      font-weight: 900;
+      line-height: 1;
+    }
+    .print-cell p {
+      display: -webkit-box;
+      -webkit-box-orient: vertical;
+      -webkit-line-clamp: 4;
+      margin: 0;
+      color: #12312b;
+      font-size: 7.6pt;
+      font-weight: 850;
+      line-height: 1.18;
+      overflow: hidden;
+      overflow-wrap: anywhere;
+      word-break: keep-all;
+    }
+    .print-goal {
+      background: #12352f;
+      border-color: #12352f;
+    }
+    .print-goal span,
+    .print-goal p {
+      color: #ffffff;
+    }
+    .print-goal p {
+      font-size: 8.6pt;
+      font-weight: 950;
+    }
+    .print-area {
+      background: #dff8ef;
+      border-color: #8fd8c5;
+    }
+    .print-core {
+      background: #b9f2e2;
+      border-color: #00a884;
+    }
+    .print-action.done::after {
+      content: "✓";
+      position: absolute;
+      right: 1.3mm;
+      top: 1mm;
+      color: #00a884;
+      font-size: 8pt;
+      font-weight: 900;
+    }
+    .print-cell.empty p {
+      color: rgba(18, 49, 43, 0.34);
+      font-weight: 700;
+    }
+    .print-foot {
+      align-items: center;
+      color: #52645f;
+      font-size: 8pt;
+    }
+    .signature {
+      min-width: 42mm;
+      padding-top: 2mm;
+      border-top: 0.3mm solid #a9ded0;
+      text-align: right;
+    }
+    @media print {
+      body { background: #ffffff; }
+      .sheet { border: 0; }
+    }
+  </style>
+</head>
+<body>
+  <main class="sheet">
+    <header class="print-head">
+      <div>
+        <p class="eyebrow">Mandalart Goal Planner</p>
+        <h1>${escapeHtml(goal)}</h1>
+      </div>
+      <div class="meta">
+        <div>작성 ${stats.total}/64</div>
+        <div>완료 ${stats.done}/${stats.total || 0} (${stats.rate}%)</div>
+        <div>${escapeHtml(printedAt)}</div>
+      </div>
+    </header>
+    <section class="print-grid" aria-label="만다라트 PDF">
+      ${buildMandalartPrintGrid()}
+    </section>
+    <footer class="print-foot">
+      <span>Habit Tracker · 9x9 Mandalart</span>
+      <span class="signature">Review</span>
+    </footer>
+  </main>
+  <script>
+    window.addEventListener("load", () => setTimeout(() => window.print(), 250));
+  <\/script>
+</body>
+</html>`;
+    }
+
+    function downloadMandalartPdf() {
+      const printWindow = window.open("", "_blank");
+      if (!printWindow) {
+        showToast("새 창을 허용하면 PDF 저장 화면을 열 수 있습니다.");
+        return;
+      }
+      printWindow.document.open();
+      printWindow.document.write(buildMandalartPrintHtml());
+      printWindow.document.close();
+      showToast("PDF 저장 화면을 열었습니다.");
     }
 
     function emptyLine(text) {
@@ -2619,8 +2767,10 @@
     function switchView(view) {
       activeView = view;
       renderTabs();
-      if (view === "dashboard") scrollMonthChartToToday(true);
-      if (view === "habits") scrollHabitTableToToday(true);
+      if (view === "habits") {
+        scrollHabitTableToToday(true);
+        scrollMonthChartToToday(true);
+      }
       if (view === "week") scrollWeekToToday(true);
     }
 
@@ -2716,6 +2866,30 @@
       saveData("초기 데이터로 복구했습니다.");
     }
 
+    function bindMandalaPinchZoom() {
+      const board = document.getElementById("mandalaBoardWrap");
+      board.addEventListener("touchstart", event => {
+        if (event.touches.length !== 2) return;
+        mandalaPinch = {
+          distance: touchDistance(event.touches),
+          zoom: mandalaZoom
+        };
+      }, { passive: true });
+      board.addEventListener("touchmove", event => {
+        if (!mandalaPinch || event.touches.length !== 2) return;
+        event.preventDefault();
+        const distance = touchDistance(event.touches);
+        if (!mandalaPinch.distance) return;
+        setMandalaZoom(mandalaPinch.zoom * (distance / mandalaPinch.distance));
+      }, { passive: false });
+      board.addEventListener("touchend", event => {
+        if (event.touches.length < 2) mandalaPinch = null;
+      }, { passive: true });
+      board.addEventListener("touchcancel", () => {
+        mandalaPinch = null;
+      }, { passive: true });
+    }
+
     function bindEvents() {
       document.querySelector(".tabs").addEventListener("click", event => {
         const button = event.target.closest(".tab-btn");
@@ -2760,19 +2934,16 @@
       });
       document.addEventListener("keydown", event => {
         if (event.key !== "Escape") return;
-        if (document.getElementById("mandalaEditor").classList.contains("show")) {
-          closeMandalaEditor();
-          return;
-        }
         closeMenu();
       });
 
       document.addEventListener("click", event => {
         const button = event.target.closest("[data-action='zoom-in'], [data-action='zoom-out']");
         if (!button) return;
-        const direction = button.dataset.action === "zoom-in" ? 0.1 : -0.1;
+        const direction = button.dataset.action === "zoom-in" ? 0.05 : -0.05;
         setHabitZoom(habitZoom + direction);
       });
+      window.addEventListener("resize", applyMandalaZoom);
 
       document.getElementById("applyUpdateBtn").addEventListener("click", () => {
         if (!waitingWorker) return;
@@ -2835,6 +3006,7 @@
         if (target.dataset.action !== "habit-name") return;
         appData.habits[Number(target.dataset.habit)].name = target.value;
         localStorage.setItem(STORAGE_KEY, JSON.stringify(appData));
+        renderHabitAnalysis();
       });
 
       document.getElementById("weekGrid").addEventListener("input", event => {
@@ -2893,70 +3065,17 @@
         saveData("완료 항목을 삭제했습니다.");
       });
 
-      document.getElementById("mantraInput").addEventListener("input", event => {
-        appData.mandalart.mantra = event.target.value;
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(appData));
+      document.getElementById("mandalaPdfBtn").addEventListener("click", downloadMandalartPdf);
+      document.getElementById("mandalaGrid").addEventListener("input", event => {
+        if (!(event.target instanceof HTMLTextAreaElement)) return;
+        handleMandalaInput(event.target);
       });
-
-      document.getElementById("copyMantraBtn").addEventListener("click", async () => {
-        const text = appData.mandalart.mantra || appData.mandalart.goal;
-        try {
-          await navigator.clipboard.writeText(text);
-          showToast("만트라를 복사했습니다.");
-        } catch {
-          showToast("복사를 지원하지 않는 환경입니다.");
-        }
-      });
-
-      document.getElementById("mandalaGrid").addEventListener("click", event => {
-        const goalButton = event.target.closest("[data-action='open-mandala-goal']");
-        if (goalButton) {
-          openMandalaGoalEditor();
-          return;
-        }
-        const button = event.target.closest("[data-action='open-mandala-area']");
-        if (!button) return;
-        openMandalaEditor(Number(button.dataset.area));
-      });
-
-      document.getElementById("closeMandalaEditorBtn").addEventListener("click", closeMandalaEditor);
-      document.getElementById("mandalaEditor").addEventListener("click", event => {
-        if (event.target.id === "mandalaEditor") closeMandalaEditor();
-      });
-
-      document.getElementById("editAreaNameInput").addEventListener("input", event => {
-        if (editingMandalaArea === null) return;
-        if (editingMandalaArea === "goal") {
-          appData.mandalart.goal = event.target.value;
-          localStorage.setItem(STORAGE_KEY, JSON.stringify(appData));
-          document.getElementById("mandalaEditorTitle").textContent = event.target.value || "중앙 목표";
-          const center = document.querySelector("[data-action='open-mandala-goal'] strong");
-          if (center) center.textContent = event.target.value || "중앙 목표";
-          return;
-        }
-        appData.mandalart.areas[editingMandalaArea].name = event.target.value;
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(appData));
-        updateMandalaEditorMeta();
-      });
-
-      document.getElementById("editActionGrid").addEventListener("input", event => {
+      document.getElementById("mandalaGrid").addEventListener("change", event => {
         const target = event.target;
-        if (target.dataset.action !== "edit-mandala-text" || !Number.isInteger(editingMandalaArea)) return;
-        const index = Number(target.dataset.index);
-        appData.mandalart.areas[editingMandalaArea].actions[index].text = target.value;
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(appData));
-        updateMandalaEditorMeta();
+        if (target.dataset.action !== "mandala-action-done") return;
+        handleMandalaDone(target);
       });
-
-      document.getElementById("editActionGrid").addEventListener("change", event => {
-        const target = event.target;
-        if (target.dataset.action !== "edit-mandala-done" || !Number.isInteger(editingMandalaArea)) return;
-        const index = Number(target.dataset.index);
-        appData.mandalart.areas[editingMandalaArea].actions[index].done = target.checked;
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(appData));
-        updateMandalaEditorMeta();
-        renderDashboard();
-      });
+      bindMandalaPinchZoom();
     }
 
     bindEvents();
