@@ -37,6 +37,8 @@
       --lemon: #e7b94e;
       --lemon-soft: #fff5d4;
       --tape: #f3d28d;
+      --deep-paper-bg: url("assets/paper-bold-crumpled-bg.webp");
+      --card-paper-bg: url("assets/paper-card-bg.webp");
       --shadow: 0 16px 34px rgba(71, 52, 30, 0.12);
       --radius: 8px;
       --habit-cell-size: 36px;
@@ -52,9 +54,9 @@
       margin: 0;
       min-height: 100vh;
       background:
-        radial-gradient(circle at 16% 8%, rgba(255, 255, 255, 0.5), transparent 28%),
-        linear-gradient(180deg, rgba(246, 229, 198, 0.22), rgba(229, 210, 176, 0.18)),
-        url("assets/paper-diary-bg.webp") center / cover fixed,
+        radial-gradient(circle at 16% 8%, rgba(255, 250, 230, 0.22), transparent 30%),
+        linear-gradient(180deg, rgba(255, 246, 224, 0.04), rgba(73, 42, 18, 0.14)),
+        var(--deep-paper-bg) center / cover fixed,
         var(--bg);
       color: var(--text);
       letter-spacing: 0;
@@ -66,12 +68,9 @@
       inset: 0;
       z-index: 0;
       pointer-events: none;
-      background:
-        linear-gradient(90deg, rgba(84, 65, 42, 0.035) 1px, transparent 1px),
-        linear-gradient(180deg, rgba(84, 65, 42, 0.026) 1px, transparent 1px);
-      background-size: 34px 34px;
-      mix-blend-mode: multiply;
-      opacity: 0.46;
+      background: linear-gradient(180deg, rgba(255, 247, 229, 0.08), rgba(82, 51, 24, 0.08));
+      mix-blend-mode: soft-light;
+      opacity: 0.58;
     }
 
     body.menu-open {
@@ -484,9 +483,23 @@
       100% { transform: translateY(0); opacity: 1; }
     }
 
-    @keyframes coachFloat {
-      0%, 100% { transform: translateY(0) rotate(-1deg); }
-      50% { transform: translateY(-5px) rotate(1deg); }
+    @keyframes topMascotFloat {
+      0%, 100% { transform: translateY(0) rotate(-2deg); }
+      50% { transform: translateY(-6px) rotate(2deg); }
+    }
+
+    .top-mascot {
+      position: fixed;
+      top: 48px;
+      right: clamp(28px, 5vw, 84px);
+      z-index: 79;
+      width: 64px;
+      height: auto;
+      pointer-events: none;
+      user-select: none;
+      filter: drop-shadow(0 12px 16px rgba(42, 28, 14, 0.3));
+      transform-origin: 50% 100%;
+      animation: topMascotFloat 3.9s ease-in-out infinite;
     }
 
     .top-grid {
@@ -497,7 +510,10 @@
     }
 
     .stat-card {
-      background: var(--panel);
+      background:
+        linear-gradient(135deg, rgba(255, 255, 255, 0.68), rgba(255, 250, 239, 0.48)),
+        var(--card-paper-bg) center / cover,
+        var(--panel);
       border: 1px solid var(--line);
       border-radius: var(--radius);
       padding: 8px 9px;
@@ -544,7 +560,10 @@
     }
 
     .panel {
-      background: var(--panel);
+      background:
+        linear-gradient(135deg, rgba(255, 255, 255, 0.7), rgba(255, 250, 239, 0.5)),
+        var(--card-paper-bg) center / cover,
+        var(--panel);
       border: 1px solid var(--line);
       border-radius: var(--radius);
       box-shadow: 0 10px 26px rgba(71, 52, 30, 0.08), inset 0 0 0 1px rgba(255, 255, 255, 0.34);
@@ -615,6 +634,7 @@
       border-radius: 10px;
       background:
         linear-gradient(135deg, rgba(255, 255, 255, 0.48), rgba(255, 255, 255, 0) 44%),
+        var(--card-paper-bg) center / cover,
         var(--panel);
       box-shadow: 0 8px 22px rgba(71, 52, 30, 0.08);
     }
@@ -635,87 +655,12 @@
       font-weight: 550;
     }
 
-    .coach-card {
-      position: relative;
-      display: grid;
-      grid-template-columns: minmax(0, 1fr) 116px;
-      align-items: end;
-      gap: 12px;
-      min-height: 126px;
-      margin-bottom: 10px;
-      padding: 14px 14px 12px;
-      border: 1px solid rgba(189, 169, 142, 0.76);
-      border-radius: 12px;
-      background:
-        linear-gradient(135deg, rgba(255, 255, 255, 0.62), rgba(255, 247, 231, 0.1) 38%),
-        linear-gradient(180deg, rgba(243, 210, 141, 0.26), rgba(228, 242, 235, 0.32)),
-        var(--panel);
-      box-shadow: 0 14px 30px rgba(71, 52, 30, 0.1), inset 0 0 0 1px rgba(255, 255, 255, 0.42);
-      overflow: hidden;
-      isolation: isolate;
-      animation: softLift 240ms ease both;
-    }
-
-    .coach-card::before {
-      content: "";
-      position: absolute;
-      top: -9px;
-      left: 18px;
-      width: 76px;
-      height: 20px;
-      background: linear-gradient(90deg, rgba(243, 210, 141, 0.86), rgba(255, 238, 180, 0.76));
-      border: 1px solid rgba(189, 169, 142, 0.5);
-      border-radius: 4px;
-      transform: rotate(-2deg);
-      box-shadow: 0 4px 10px rgba(71, 52, 30, 0.08);
-      opacity: 0.88;
-    }
-
-    .coach-copy {
-      position: relative;
-      z-index: 1;
-      min-width: 0;
-    }
-
-    .coach-copy strong {
-      display: block;
-      margin-top: 7px;
-      font-size: clamp(20px, 3.4vw, 30px);
-      line-height: 1.05;
-      color: var(--black);
-      overflow-wrap: break-word;
-      word-break: keep-all;
-    }
-
-    .coach-copy p {
-      margin: 8px 0 0;
-      color: var(--muted);
-      font-size: 13px;
-      line-height: 1.45;
-      font-weight: 650;
-      max-width: 48rem;
-      overflow-wrap: break-word;
-      word-break: keep-all;
-    }
-
-    .coach-character {
-      position: relative;
-      z-index: 1;
-      width: min(116px, 26vw);
-      justify-self: end;
-      align-self: end;
-      filter: drop-shadow(0 12px 18px rgba(71, 52, 30, 0.24));
-      transform-origin: 50% 100%;
-      animation: coachFloat 3.8s ease-in-out infinite;
-      pointer-events: none;
-      user-select: none;
-    }
-
     .today-focus-panel {
       margin-bottom: 10px;
       border-color: rgba(47, 127, 116, 0.32);
       background:
         linear-gradient(135deg, rgba(228, 242, 235, 0.72), rgba(255, 255, 255, 0) 44%),
+        var(--card-paper-bg) center / cover,
         var(--panel);
     }
 
@@ -747,7 +692,10 @@
     .today-task-item {
       border: 1px solid var(--line);
       border-radius: 9px;
-      background: rgba(255, 253, 246, 0.88);
+      background:
+        linear-gradient(135deg, rgba(255, 255, 255, 0.74), rgba(255, 253, 246, 0.52)),
+        var(--card-paper-bg) center / cover,
+        rgba(255, 253, 246, 0.88);
       min-height: 48px;
       position: relative;
       overflow: hidden;
@@ -868,6 +816,7 @@
       border-radius: 8px;
       background:
         linear-gradient(180deg, rgba(255, 255, 255, 0.38), rgba(255, 255, 255, 0)),
+        var(--card-paper-bg) center / cover,
         var(--stone);
       min-height: 178px;
       overflow-x: auto;
@@ -1498,6 +1447,7 @@
       border-radius: 8px;
       background:
         linear-gradient(135deg, rgba(47, 127, 116, 0.12), rgba(255, 255, 255, 0) 36%),
+        var(--card-paper-bg) center / cover,
         var(--stone);
       padding: 8px;
       max-height: calc(100vh - 220px);
@@ -1623,7 +1573,10 @@
       border: 1px solid var(--line);
       border-radius: 8px;
       padding: 12px;
-      background: rgba(255, 253, 246, 0.88);
+      background:
+        linear-gradient(135deg, rgba(255, 255, 255, 0.72), rgba(255, 253, 246, 0.5)),
+        var(--card-paper-bg) center / cover,
+        rgba(255, 253, 246, 0.88);
     }
 
     .data-box.primary-action {
@@ -1887,6 +1840,11 @@
         align-items: center;
         top: 6px;
       }
+      .top-mascot {
+        top: 52px;
+        right: 18px;
+        width: 48px;
+      }
       .brand h1 {
         font-size: 16px;
       }
@@ -1919,22 +1877,6 @@
       .top-grid {
         grid-template-columns: 1fr 1fr;
         gap: 7px;
-      }
-      .coach-card {
-        grid-template-columns: minmax(0, 1fr) 82px;
-        min-height: 108px;
-        padding: 13px 12px 10px;
-        gap: 8px;
-      }
-      .coach-copy strong {
-        font-size: 20px;
-      }
-      .coach-copy p {
-        font-size: 12px;
-        line-height: 1.4;
-      }
-      .coach-character {
-        width: 82px;
       }
       .onboarding-card {
         align-items: stretch;
@@ -2072,6 +2014,11 @@
         border-radius: 8px;
         font-size: 19px;
       }
+      .top-mascot {
+        top: 42px;
+        right: 28px;
+        width: 44px;
+      }
       .tabs {
         position: sticky;
         top: 52px;
@@ -2097,21 +2044,6 @@
       }
       .top-grid {
         grid-template-columns: repeat(4, minmax(120px, 1fr));
-      }
-      .coach-card {
-        min-height: 94px;
-        grid-template-columns: minmax(0, 1fr) 76px;
-        padding: 10px 12px;
-      }
-      .coach-copy strong {
-        font-size: 18px;
-      }
-      .coach-copy p {
-        font-size: 12px;
-        margin-top: 5px;
-      }
-      .coach-character {
-        width: 72px;
       }
       .today-focus-grid {
         grid-template-columns: minmax(0, 1fr) minmax(260px, 0.8fr);
@@ -2162,6 +2094,8 @@
       </div>
     </header>
 
+    <img class="top-mascot" src="assets/avocado-coach.webp" alt="" decoding="async">
+
     <div class="update-banner" id="updateBanner">
       <span>새 버전이 준비됐습니다.</span>
       <button class="btn primary" id="applyUpdateBtn">업데이트</button>
@@ -2187,15 +2121,6 @@
             <button class="btn" id="onboardingStartBtn">새 습관</button>
           </div>
         </div>
-
-        <section class="coach-card" id="coachCard" aria-live="polite">
-          <div class="coach-copy">
-            <span class="section-label">다이어리 코치</span>
-            <strong id="coachHeadline">오늘의 한 칸부터</strong>
-            <p id="coachMessage">습관을 하나 체크하면 이 종이 위에 오늘의 리듬이 남아요.</p>
-          </div>
-          <img class="coach-character" src="assets/avocado-coach.webp" alt="" decoding="async">
-        </section>
 
         <section class="panel today-focus-panel" id="todayFocusPanel">
           <div class="panel-head">
@@ -2451,8 +2376,8 @@
     </section>
   </div>
   <script>
-    const APP_CACHE_VERSION = "habit-tracker-v0.9.6";
-    const APP_DISPLAY_VERSION = "v0.9.6";
+    const APP_CACHE_VERSION = "habit-tracker-v0.9.7";
+    const APP_DISPLAY_VERSION = "v0.9.7";
     const STORAGE_KEY = "habitTracker.appData.v2";
     const ZOOM_KEY = "habitTracker.zoom.v3";
     const ZOOM_RESET_KEY = "habitTracker.zoomReset.v0.6.6";
@@ -3242,44 +3167,6 @@
       });
     }
 
-    function dashboardCoachCopy({ isBlank, todayHabitRate, todayHabitDone, totalHabits, todayDone, todayTaskCount, mandalart }) {
-      const mantra = (appData.mandalart.mantra || "").trim();
-      if (isBlank) {
-        return {
-          headline: "첫 장을 펼쳤어요",
-          message: "습관 하나만 추가하면 오늘 체크판과 그래프가 살아나요."
-        };
-      }
-      if (mantra) {
-        return {
-          headline: mantra,
-          message: "오늘은 이 문장을 기준점으로 잡고, 가장 작은 행동 한 칸만 남겨봐요."
-        };
-      }
-      if (totalHabits && todayHabitRate === 100) {
-        return {
-          headline: "오늘 습관은 전부 완료",
-          message: `${todayHabitDone}개를 모두 채웠어요. 이제 한 일 탭에 오늘의 느낌을 짧게 남겨두면 좋아요.`
-        };
-      }
-      if (todayTaskCount && todayDone === todayTaskCount) {
-        return {
-          headline: "할 일 흐름이 좋아요",
-          message: "체크가 끝난 날은 기록이 오래 남아요. 저녁에는 한 일 탭에서 하루를 정리해봐요."
-        };
-      }
-      if (mandalart.rate < 30) {
-        return {
-          headline: "목표 지도를 천천히 채워요",
-          message: "만다라트는 한 번에 완성하지 않아도 괜찮아요. 핵심축 하나만 더 채워도 방향이 선명해져요."
-        };
-      }
-      return {
-        headline: "오늘의 리듬을 이어가는 중",
-        message: `습관 ${todayHabitDone}/${totalHabits}개, 할 일 ${todayDone}/${todayTaskCount}개가 오늘 종이에 남았어요.`
-      };
-    }
-
     function renderDashboard() {
       const habits = habitStats();
       const week = weeklyStats();
@@ -3300,17 +3187,6 @@
       document.getElementById("onboardingCard").classList.toggle("show", isBlank);
       document.getElementById("todayFocusPanel").hidden = isBlank;
       document.getElementById("statGrid").hidden = isBlank;
-      const coachCopy = dashboardCoachCopy({
-        isBlank,
-        todayHabitRate,
-        todayHabitDone,
-        totalHabits: appData.habits.length,
-        todayDone,
-        todayTaskCount: todayTasks.length,
-        mandalart
-      });
-      document.getElementById("coachHeadline").textContent = coachCopy.headline;
-      document.getElementById("coachMessage").textContent = coachCopy.message;
       const stats = [
         { label: "월간 습관", value: `${habits.rate}%`, sub: `${habits.done}/${habits.possible}칸` },
         { label: "관리 습관", value: `${appData.habits.length}개`, sub: `${appData.month.replace("-", "년 ")}월` },
@@ -3707,40 +3583,84 @@
           width: 794px;
           height: 1123px;
           padding: 30px;
-          background: #ffffff;
+          background:
+            linear-gradient(180deg, rgba(255, 248, 232, 0.28), rgba(165, 105, 47, 0.16)),
+            url("assets/paper-bold-crumpled-bg.webp") center / cover,
+            #c89355;
           color: #1c1917;
           font-family: "Pretendard", "Apple SD Gothic Neo", "Malgun Gothic", "Noto Sans KR", sans-serif;
-          border: 1px solid #d6d3d1;
+          border: 1px solid #8b5e35;
           display: flex;
           flex-direction: column;
           justify-content: space-between;
           overflow: hidden;
           letter-spacing: 0;
+          position: relative;
+          isolation: isolate;
         }
+        .mandalart-pdf-page::before {
+          content: "";
+          position: absolute;
+          inset: 18px;
+          border: 1px solid rgba(75, 47, 24, 0.34);
+          border-radius: 14px;
+          pointer-events: none;
+          z-index: 0;
+        }
+        .mandalart-pdf-page > * { position: relative; z-index: 1; }
         .pdf-report-main { flex: 1 1 auto; display: flex; flex-direction: column; min-height: 0; }
         .pdf-report-header {
           display: flex;
           justify-content: space-between;
-          align-items: flex-end;
-          gap: 24px;
-          border-bottom: 2px solid #292524;
-          padding-bottom: 10px;
+          align-items: center;
+          gap: 16px;
+          border: 1px solid rgba(94, 65, 36, 0.42);
+          border-bottom: 3px solid #2f2117;
+          border-radius: 12px;
+          padding: 12px 156px 12px 14px;
           margin-bottom: 14px;
           flex-shrink: 0;
+          min-height: 112px;
+          background:
+            linear-gradient(135deg, rgba(255, 255, 255, 0.78), rgba(255, 246, 228, 0.54)),
+            url("assets/paper-card-bg.webp") center / cover,
+            #fff8ea;
+          box-shadow: 0 10px 22px rgba(77, 48, 23, 0.16);
+          position: relative;
+          overflow: hidden;
         }
-        .pdf-report-kicker { margin: 0 0 5px; color: #3b5bdb; font-size: 10px; line-height: 1; font-weight: 900; }
+        .pdf-report-kicker { margin: 0 0 5px; color: #1f6f58; font-size: 10px; line-height: 1; font-weight: 900; }
         .pdf-report-title { margin: 0; color: #292524; font-size: 24px; line-height: 1.05; font-weight: 950; }
         .pdf-report-subtitle { margin: 6px 0 0; color: #57534e; font-size: 11px; line-height: 1.35; font-weight: 700; }
-        .pdf-report-meta { min-width: 178px; text-align: right; color: #292524; font-size: 11px; line-height: 1.45; font-weight: 750; }
+        .pdf-report-meta { min-width: 118px; text-align: right; color: #292524; font-size: 10px; line-height: 1.45; font-weight: 750; }
         .pdf-report-meta p { margin: 0; }
+        .pdf-hut {
+          position: absolute;
+          right: 12px;
+          bottom: 0;
+          width: 104px;
+          filter: drop-shadow(0 8px 10px rgba(77, 48, 23, 0.28));
+        }
+        .pdf-coach {
+          position: absolute;
+          right: 110px;
+          bottom: 8px;
+          width: 54px;
+          filter: drop-shadow(0 7px 9px rgba(77, 48, 23, 0.22));
+        }
         .pdf-grid-wrap {
           width: 650px;
           height: 650px;
           margin: 0 auto;
           padding: 8px;
-          border: 1px solid #d6d3d1;
-          background: #fafaf9;
+          border: 1px solid rgba(94, 65, 36, 0.44);
+          border-radius: 10px;
+          background:
+            linear-gradient(135deg, rgba(255, 255, 255, 0.72), rgba(255, 250, 239, 0.44)),
+            url("assets/paper-card-bg.webp") center / cover,
+            #fff8ea;
           flex: 0 0 auto;
+          box-shadow: 0 12px 26px rgba(77, 48, 23, 0.14);
         }
         .print-grid {
           position: relative;
@@ -3768,7 +3688,10 @@
           padding: 13px 4px 4px;
           border: 1px solid #d6d3d1;
           border-radius: 3px;
-          background: #ffffff;
+          background:
+            linear-gradient(135deg, rgba(255, 255, 255, 0.76), rgba(255, 253, 246, 0.48)),
+            url("assets/paper-card-bg.webp") center / cover,
+            #ffffff;
           overflow: hidden;
           text-align: center;
           page-break-inside: avoid;
@@ -3795,11 +3718,11 @@
           overflow-wrap: anywhere;
           word-break: keep-all;
         }
-        .print-goal { background: #26231f; border-color: #26231f; }
+        .print-goal { background: #2d251c; border-color: #2d251c; }
         .print-goal span, .print-goal p { color: #ffffff; }
         .print-goal p { font-size: 9.5px; font-weight: 950; }
-        .print-area { background: #eef2ff; border-color: #cfd8ff; }
-        .print-core { background: #dfe6ff; border-color: #3b5bdb; }
+        .print-area { background: #e4f2eb; border-color: #b9dccc; }
+        .print-core { background: #d7eadf; border-color: #2f7f74; }
         .pdf-cell.empty p { color: rgba(41, 37, 36, 0.32); font-weight: 700; }
         .pdf-note-row {
           display: grid;
@@ -3811,10 +3734,14 @@
         }
         .pdf-note-box {
           min-height: 122px;
-          border: 1px solid #d6d3d1;
+          border: 1px solid rgba(94, 65, 36, 0.4);
           border-radius: 8px;
-          background: #fafaf9;
+          background:
+            linear-gradient(135deg, rgba(255, 255, 255, 0.7), rgba(255, 250, 239, 0.48)),
+            url("assets/paper-card-bg.webp") center / cover,
+            #fff8ea;
           padding: 10px 12px;
+          box-shadow: 0 8px 16px rgba(77, 48, 23, 0.12);
         }
         .pdf-note-box h3 {
           margin: 0 0 8px;
@@ -3845,7 +3772,7 @@
           width: 16px;
           height: 16px;
           border-radius: 4px;
-          background: #26231f;
+          background: #2d251c;
           color: #ffffff;
           font-size: 8px;
           font-weight: 900;
@@ -3869,16 +3796,20 @@
         .pdf-report-footer {
           margin-top: 14px;
           padding: 10px 12px;
+          border: 1px solid rgba(94, 65, 36, 0.42);
           border-top: 3px solid #292524;
           border-radius: 8px;
-          background: #f5f5f4;
+          background:
+            linear-gradient(135deg, rgba(255, 255, 255, 0.7), rgba(255, 250, 239, 0.5)),
+            url("assets/paper-card-bg.webp") center / cover,
+            #fff8ea;
           display: flex;
           justify-content: space-between;
           align-items: center;
           flex-shrink: 0;
         }
         .pdf-footer-left { display: flex; align-items: center; gap: 10px; }
-        .pdf-logo { padding: 7px 9px; border-radius: 6px; background: #26231f; color: #8ea0ff; font-size: 13px; line-height: 1; font-weight: 950; }
+        .pdf-logo { padding: 7px 9px; border-radius: 6px; background: #2d251c; color: #c5f0dc; font-size: 13px; line-height: 1; font-weight: 950; }
         .pdf-footer-title { margin: 0 0 2px; color: #292524; font-size: 12px; line-height: 1.2; font-weight: 850; }
         .pdf-footer-desc { margin: 0; color: #78716c; font-size: 9px; line-height: 1.25; }
         .pdf-print-date { color: #57534e; font-size: 9px; font-weight: 700; white-space: nowrap; }
@@ -3903,6 +3834,8 @@
                 <p>작성률 ${stats.rate}%</p>
                 <p>출력일 ${printDate}</p>
               </div>
+              <img class="pdf-coach" src="assets/avocado-coach.webp" alt="">
+              <img class="pdf-hut" src="assets/avocado-hut.webp" alt="">
             </header>
             <section class="pdf-grid-wrap">
               <div class="print-grid" aria-label="만다라트 PDF">
@@ -4013,6 +3946,17 @@
       showToast("PDF 저장 화면을 열었습니다.");
     }
 
+    function waitForImages(root) {
+      const images = Array.from(root.querySelectorAll("img"));
+      return Promise.all(images.map(image => {
+        if (image.complete && image.naturalWidth > 0) return Promise.resolve();
+        return new Promise(resolve => {
+          image.addEventListener("load", resolve, { once: true });
+          image.addEventListener("error", resolve, { once: true });
+        });
+      }));
+    }
+
     async function downloadMandalartPdf() {
       const filename = `habit-mandalart-${todayDateString()}.pdf`;
       if (typeof window.html2pdf !== "function") {
@@ -4033,6 +3977,7 @@
 
       try {
         showToast("PDF 문서 생성 중입니다.");
+        await waitForImages(holder);
         await window.html2pdf().set({
           margin: 0,
           filename,
