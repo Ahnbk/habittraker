@@ -8,6 +8,7 @@
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="icon" href="icons/icon.svg" type="image/svg+xml">
   <link rel="apple-touch-icon" href="icons/icon-192.png">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js" crossorigin="anonymous"></script>
   <style>
     :root {
       color-scheme: light;
@@ -1026,7 +1027,7 @@
     .day-card.today-card {
       border: 2px solid #00a884;
       background: #ecfff8;
-      box-shadow: inset 4px 0 0 #00a884, 0 8px 22px rgba(0, 168, 132, 0.14);
+      box-shadow: 0 0 0 2px rgba(0, 168, 132, 0.1), 0 8px 22px rgba(0, 168, 132, 0.12);
     }
 
     .day-head {
@@ -1144,6 +1145,7 @@
       --mandala-cell-size: 74px;
       --mandala-cell: 74px;
       --mandala-font-size: 12px;
+      position: relative;
       display: grid;
       grid-template-columns: repeat(9, var(--mandala-cell));
       grid-template-rows: repeat(9, var(--mandala-cell));
@@ -1155,6 +1157,7 @@
 
     .mandala-tile {
       position: relative;
+      z-index: 1;
       min-width: 0;
       min-height: 0;
       border: 1px solid #d6e9e3;
@@ -1162,6 +1165,19 @@
       background: #fff;
       overflow: hidden;
       box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.46);
+    }
+
+    .mandala-block-frame {
+      z-index: 3;
+      pointer-events: none;
+      border: 2px solid rgba(4, 116, 95, 0.45);
+      border-radius: 8px;
+      box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.7);
+    }
+
+    .mandala-block-frame.center-frame {
+      border-color: rgba(15, 31, 29, 0.72);
+      box-shadow: 0 0 0 1px rgba(15, 31, 29, 0.08), inset 0 0 0 1px rgba(255, 255, 255, 0.35);
     }
 
     .mandala-tile textarea {
@@ -1223,27 +1239,6 @@
       border-width: 2px;
     }
 
-    .mandala-action.done {
-      background: #effff9;
-      border-color: #68cdb3;
-    }
-
-    .mandala-done {
-      position: absolute;
-      top: 3px;
-      right: 3px;
-      z-index: 2;
-      width: 16px;
-      height: 16px;
-      min-height: 16px;
-      margin: 0;
-      accent-color: var(--green);
-    }
-
-    .mandala-action textarea {
-      padding-right: 18px;
-    }
-
     .data-grid {
       display: grid;
       grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -1301,6 +1296,77 @@
     .toast.show {
       opacity: 1;
       transform: translateX(-50%) translateY(0);
+    }
+
+    .pdf-preview-backdrop {
+      position: fixed;
+      inset: 0;
+      z-index: 140;
+      display: none;
+      background: rgba(15, 31, 29, 0.94);
+      color: #fff;
+    }
+
+    .pdf-preview-backdrop.show {
+      display: block;
+    }
+
+    .pdf-preview-modal {
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .pdf-preview-head {
+      min-height: 58px;
+      padding: 10px 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+      background: rgba(15, 31, 29, 0.98);
+    }
+
+    .pdf-preview-title {
+      min-width: 0;
+      display: grid;
+      gap: 2px;
+    }
+
+    .pdf-preview-title strong {
+      font-size: 14px;
+      line-height: 1.2;
+      font-weight: 900;
+    }
+
+    .pdf-preview-title small {
+      color: #cbd5d1;
+      font-size: 10px;
+      font-weight: 750;
+    }
+
+    .pdf-preview-stage {
+      flex: 1 1 auto;
+      min-height: 0;
+      overflow: auto;
+      display: grid;
+      place-items: center;
+      padding: 14px;
+    }
+
+    .pdf-preview-box {
+      position: relative;
+      flex: 0 0 auto;
+    }
+
+    .pdf-scale-wrapper {
+      width: 794px;
+      height: 1123px;
+      background: #fff;
+      transform-origin: top left;
+      box-shadow: 0 20px 70px rgba(0, 0, 0, 0.38);
+      overflow: hidden;
     }
 
     .hidden-file {
@@ -1614,7 +1680,7 @@
               <p id="mandalartSummary"></p>
             </div>
             <div class="row-actions">
-              <button class="btn primary" id="mandalaPdfBtn" title="PDF 저장">PDF</button>
+              <button class="btn primary" id="mandalaPdfBtn" title="PDF 저장">PDF 저장</button>
             </div>
           </div>
           <div class="panel-body">
@@ -1674,7 +1740,7 @@
       <div class="app-menu-head">
         <div>
           <strong id="appMenuTitle">앱 메뉴</strong>
-          <small id="menuVersionText">v0.7.0</small>
+          <small id="menuVersionText">v0.7.1</small>
         </div>
         <button class="btn icon" id="closeMenuBtn" title="닫기">×</button>
       </div>
@@ -1692,9 +1758,28 @@
       </div>
     </section>
   </div>
+  <div class="pdf-preview-backdrop" id="mandalaPdfPreview" aria-hidden="true">
+    <section class="pdf-preview-modal" role="dialog" aria-modal="true" aria-labelledby="mandalaPdfPreviewTitle">
+      <div class="pdf-preview-head">
+        <div class="pdf-preview-title">
+          <strong id="mandalaPdfPreviewTitle">만다라트 PDF 미리보기</strong>
+          <small>1 / 1 페이지</small>
+        </div>
+        <div class="row-actions">
+          <button class="btn primary" id="mandalaPdfDownloadBtn">다운로드</button>
+          <button class="btn icon ghost" id="closeMandalaPdfPreviewBtn" title="닫기">×</button>
+        </div>
+      </div>
+      <div class="pdf-preview-stage" id="mandalaPdfPreviewStage">
+        <div class="pdf-preview-box" id="mandalaPdfPreviewBox">
+          <div class="pdf-scale-wrapper" id="mandalaPdfPreviewPage"></div>
+        </div>
+      </div>
+    </section>
+  </div>
   <script>
-    const APP_CACHE_VERSION = "habit-tracker-v0.7.0";
-    const APP_DISPLAY_VERSION = "v0.7.0";
+    const APP_CACHE_VERSION = "habit-tracker-v0.7.1";
+    const APP_DISPLAY_VERSION = "v0.7.1";
     const STORAGE_KEY = "habitTracker.appData.v2";
     const ZOOM_KEY = "habitTracker.zoom.v3";
     const ZOOM_RESET_KEY = "habitTracker.zoomReset.v0.6.6";
@@ -2093,9 +2178,9 @@
     }
 
     function mandalartStats() {
-      const actions = appData.mandalart.areas.flatMap(area => area.actions.filter(action => action.text.trim()));
-      const done = actions.filter(action => action.done).length;
-      return { total: actions.length, done, rate: percent(done, actions.length) };
+      const actions = appData.mandalart.areas.flatMap(area => area.actions || []);
+      const filled = actions.filter(action => action.text && action.text.trim()).length;
+      return { total: 64, filled, rate: percent(filled, 64) };
     }
 
     function todayDateString() {
@@ -2213,7 +2298,7 @@
         ? 0
         : appData.habits.reduce((sum, habit) => sum + (habit.checks[todayHabitDayIndex] ? 1 : 0), 0);
       const todayHabitRate = percent(todayHabitDone, appData.habits.length);
-      const isBlank = appData.habits.length === 0 && week.total === 0 && appData.completed.length === 0 && mandalart.total === 0;
+      const isBlank = appData.habits.length === 0 && week.total === 0 && appData.completed.length === 0 && mandalart.filled === 0;
       document.getElementById("onboardingCard").classList.toggle("show", isBlank);
       document.getElementById("todayFocusPanel").hidden = isBlank;
       document.getElementById("statGrid").hidden = isBlank;
@@ -2221,7 +2306,7 @@
         { label: "월간 습관", value: `${habits.rate}%`, sub: `${habits.done}/${habits.possible}칸` },
         { label: "관리 습관", value: `${appData.habits.length}개`, sub: `${appData.month.replace("-", "년 ")}월` },
         { label: "주간 할 일", value: `${week.done}/${week.total}`, sub: `완료율 ${week.rate}%` },
-        { label: "만다라트", value: `${mandalart.done}/${mandalart.total}`, sub: `완료율 ${mandalart.rate}%` }
+        { label: "만다라트", value: `${mandalart.filled}/${mandalart.total}`, sub: `작성률 ${mandalart.rate}%` }
       ];
       document.getElementById("statGrid").innerHTML = stats.map(stat => `
         <div class="stat-card">
@@ -2381,16 +2466,18 @@
       };
     }
 
-    function mandalaTile({ position, className, label, value, placeholder, action, areaIndex, actionIndex, done = false }) {
+    function mandalaBlockFrame(blockPosition, className = "") {
+      return `
+        <div class="mandala-block-frame ${className}" style="grid-row:${blockPosition.row * 3 + 1} / span 3;grid-column:${blockPosition.col * 3 + 1} / span 3;"></div>
+      `;
+    }
+
+    function mandalaTile({ position, className, label, value, placeholder, action, areaIndex, actionIndex }) {
       const areaAttr = Number.isInteger(areaIndex) ? ` data-area="${areaIndex}"` : "";
       const indexAttr = Number.isInteger(actionIndex) ? ` data-index="${actionIndex}"` : "";
-      const doneControl = action === "mandala-action"
-        ? `<input class="mandala-done" type="checkbox" ${done ? "checked" : ""} data-action="mandala-action-done"${areaAttr}${indexAttr} title="완료">`
-        : "";
       return `
-        <div class="mandala-tile ${className} ${done ? "done" : ""}" style="grid-row:${position.row};grid-column:${position.col};">
+        <div class="mandala-tile ${className}" style="grid-row:${position.row};grid-column:${position.col};">
           <span class="mandala-label">${escapeHtml(label)}</span>
-          ${doneControl}
           <textarea rows="2" data-action="${action}"${areaAttr}${indexAttr} placeholder="${escapeHtml(placeholder)}" aria-label="${escapeHtml(placeholder)}">${escapeHtml(value)}</textarea>
         </div>
       `;
@@ -2398,14 +2485,15 @@
 
     function updateMandalartSummary() {
       const stats = mandalartStats();
-      document.getElementById("mandalartSummary").textContent = `작성 ${stats.total}/64 · 완료 ${stats.done}/${stats.total || 0} (${stats.rate}%)`;
+      document.getElementById("mandalartSummary").textContent = `실행칸 작성 ${stats.filled}/${stats.total} (${stats.rate}%)`;
     }
 
     function renderMandalart() {
       normalizeMandalart(appData.mandalart);
       const mandalart = appData.mandalart;
-      const tiles = [];
       const centerBlock = { row: 1, col: 1 };
+      const frames = [mandalaBlockFrame(centerBlock, "center-frame")];
+      const tiles = [];
       tiles.push(mandalaTile({
         position: mandalaPosition(centerBlock, { row: 1, col: 1 }),
         className: "mandala-goal",
@@ -2430,6 +2518,7 @@
 
       MANDALA_RING_POSITIONS.forEach((blockPosition, areaIndex) => {
         const area = mandalart.areas[areaIndex];
+        frames.push(mandalaBlockFrame(blockPosition));
         tiles.push(mandalaTile({
           position: mandalaPosition(blockPosition, { row: 1, col: 1 }),
           className: "mandala-area mandala-area-core",
@@ -2450,13 +2539,12 @@
             placeholder: `실행 ${actionIndex + 1}`,
             action: "mandala-action",
             areaIndex,
-            actionIndex,
-            done: action.done
+            actionIndex
           }));
         });
       });
 
-      document.getElementById("mandalaGrid").innerHTML = tiles.join("");
+      document.getElementById("mandalaGrid").innerHTML = `${frames.join("")}${tiles.join("")}`;
       updateMandalartSummary();
       applyMandalaZoom();
     }
@@ -2497,22 +2585,16 @@
       }
     }
 
-    function handleMandalaDone(target) {
-      const areaIndex = Number(target.dataset.area);
-      const actionIndex = Number(target.dataset.index);
-      const action = appData.mandalart.areas[areaIndex]?.actions[actionIndex];
-      if (!action) return;
-      action.done = target.checked;
-      target.closest(".mandala-action")?.classList.toggle("done", target.checked);
-      saveMandalartDraft();
-      updateMandalartSummary();
-      renderDashboard();
+    function mandalaPdfBlockFrame(blockPosition, className = "") {
+      return `
+        <div class="pdf-block-frame ${className}" style="grid-row:${blockPosition.row * 3 + 1} / span 3;grid-column:${blockPosition.col * 3 + 1} / span 3;"></div>
+      `;
     }
 
-    function mandalaPrintTile({ position, className, label, value, fallback, done = false }) {
+    function mandalaPrintTile({ position, className, label, value, fallback }) {
       const text = String(value || "").trim();
       return `
-        <div class="print-cell ${className} ${done ? "done" : ""} ${text ? "" : "empty"}" style="grid-row:${position.row};grid-column:${position.col};">
+        <div class="pdf-cell ${className} ${text ? "" : "empty"}" style="grid-row:${position.row};grid-column:${position.col};">
           <span>${escapeHtml(label)}</span>
           <p>${escapeHtml(text || fallback)}</p>
         </div>
@@ -2522,6 +2604,7 @@
     function buildMandalartPrintGrid() {
       normalizeMandalart(appData.mandalart);
       const mandalart = appData.mandalart;
+      const frames = [mandalaPdfBlockFrame({ row: 1, col: 1 }, "pdf-center-frame")];
       const tiles = [];
       const centerBlock = { row: 1, col: 1 };
       tiles.push(mandalaPrintTile({
@@ -2545,6 +2628,7 @@
 
       MANDALA_RING_POSITIONS.forEach((blockPosition, areaIndex) => {
         const area = mandalart.areas[areaIndex];
+        frames.push(mandalaPdfBlockFrame(blockPosition));
         tiles.push(mandalaPrintTile({
           position: mandalaPosition(blockPosition, { row: 1, col: 1 }),
           className: "print-area print-core",
@@ -2559,188 +2643,268 @@
             className: "print-action",
             label: `${areaIndex + 1}-${actionIndex + 1}`,
             value: action.text,
-            fallback: `실행 ${actionIndex + 1}`,
-            done: action.done
+            fallback: `실행 ${actionIndex + 1}`
           }));
         });
       });
-      return tiles.join("");
+      return `${frames.join("")}${tiles.join("")}`;
+    }
+
+    function buildMandalartPillarList() {
+      return appData.mandalart.areas.map((area, index) => `
+        <li><span>${index + 1}</span><p>${escapeHtml(area.name || `핵심축 ${index + 1}`)}</p></li>
+      `).join("");
+    }
+
+    function buildMandalartPdfStyles() {
+      return `
+        .mandalart-pdf-page, .mandalart-pdf-page * { box-sizing: border-box; }
+        .mandalart-pdf-page {
+          width: 794px;
+          height: 1123px;
+          padding: 30px;
+          background: #ffffff;
+          color: #1c1917;
+          font-family: "Pretendard", "Apple SD Gothic Neo", "Malgun Gothic", "Noto Sans KR", sans-serif;
+          border: 1px solid #d6d3d1;
+          display: flex;
+          flex-direction: column;
+          justify-content: space-between;
+          overflow: hidden;
+          letter-spacing: 0;
+        }
+        .pdf-report-main { flex: 1 1 auto; display: flex; flex-direction: column; min-height: 0; }
+        .pdf-report-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: flex-end;
+          gap: 24px;
+          border-bottom: 2px solid #292524;
+          padding-bottom: 10px;
+          margin-bottom: 14px;
+          flex-shrink: 0;
+        }
+        .pdf-report-kicker { margin: 0 0 5px; color: #04745f; font-size: 10px; line-height: 1; font-weight: 900; }
+        .pdf-report-title { margin: 0; color: #292524; font-size: 24px; line-height: 1.05; font-weight: 950; }
+        .pdf-report-subtitle { margin: 6px 0 0; color: #57534e; font-size: 11px; line-height: 1.35; font-weight: 700; }
+        .pdf-report-meta { min-width: 178px; text-align: right; color: #292524; font-size: 11px; line-height: 1.45; font-weight: 750; }
+        .pdf-report-meta p { margin: 0; }
+        .pdf-grid-wrap {
+          width: 650px;
+          height: 650px;
+          margin: 0 auto;
+          padding: 8px;
+          border: 1px solid #d6d3d1;
+          background: #fafaf9;
+          flex: 0 0 auto;
+        }
+        .print-grid {
+          position: relative;
+          display: grid;
+          grid-template-columns: repeat(9, 1fr);
+          grid-template-rows: repeat(9, 1fr);
+          gap: 1px;
+          width: 100%;
+          height: 100%;
+        }
+        .pdf-block-frame {
+          z-index: 3;
+          pointer-events: none;
+          border: 2px solid #a8a29e;
+          border-radius: 5px;
+        }
+        .pdf-center-frame { border-color: #292524; }
+        .pdf-cell {
+          position: relative;
+          z-index: 1;
+          display: grid;
+          place-items: center;
+          min-width: 0;
+          min-height: 0;
+          padding: 13px 4px 4px;
+          border: 1px solid #d6d3d1;
+          border-radius: 3px;
+          background: #ffffff;
+          overflow: hidden;
+          text-align: center;
+          page-break-inside: avoid;
+        }
+        .pdf-cell span {
+          position: absolute;
+          top: 3px;
+          left: 4px;
+          color: rgba(41, 37, 36, 0.48);
+          font-size: 6px;
+          font-weight: 900;
+          line-height: 1;
+        }
+        .pdf-cell p {
+          display: -webkit-box;
+          -webkit-box-orient: vertical;
+          -webkit-line-clamp: 4;
+          margin: 0;
+          color: #292524;
+          font-size: 8.2px;
+          font-weight: 850;
+          line-height: 1.15;
+          overflow: hidden;
+          overflow-wrap: anywhere;
+          word-break: keep-all;
+        }
+        .print-goal { background: #12352f; border-color: #12352f; }
+        .print-goal span, .print-goal p { color: #ffffff; }
+        .print-goal p { font-size: 9.5px; font-weight: 950; }
+        .print-area { background: #dff8ef; border-color: #9bd9c8; }
+        .print-core { background: #b9f2e2; border-color: #00a884; }
+        .pdf-cell.empty p { color: rgba(41, 37, 36, 0.32); font-weight: 700; }
+        .pdf-note-row {
+          display: grid;
+          grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
+          gap: 12px;
+          margin: 14px auto 0;
+          width: 650px;
+          flex: 0 0 auto;
+        }
+        .pdf-note-box {
+          min-height: 122px;
+          border: 1px solid #d6d3d1;
+          border-radius: 8px;
+          background: #fafaf9;
+          padding: 10px 12px;
+        }
+        .pdf-note-box h3 {
+          margin: 0 0 8px;
+          color: #292524;
+          font-size: 10px;
+          line-height: 1;
+          font-weight: 900;
+          letter-spacing: 0.02em;
+        }
+        .pdf-pillars {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 5px 10px;
+          list-style: none;
+          margin: 0;
+          padding: 0;
+        }
+        .pdf-pillars li {
+          display: grid;
+          grid-template-columns: 16px minmax(0, 1fr);
+          gap: 5px;
+          align-items: center;
+          min-width: 0;
+        }
+        .pdf-pillars span {
+          display: grid;
+          place-items: center;
+          width: 16px;
+          height: 16px;
+          border-radius: 4px;
+          background: #12352f;
+          color: #ffffff;
+          font-size: 8px;
+          font-weight: 900;
+        }
+        .pdf-pillars p {
+          margin: 0;
+          color: #44403c;
+          font-size: 8.6px;
+          font-weight: 750;
+          line-height: 1.2;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
+        .pdf-memo-lines {
+          display: grid;
+          gap: 13px;
+          padding-top: 5px;
+        }
+        .pdf-memo-lines span { display: block; border-bottom: 1px solid #d6d3d1; height: 1px; }
+        .pdf-report-footer {
+          margin-top: 14px;
+          padding: 10px 12px;
+          border-top: 3px solid #292524;
+          border-radius: 8px;
+          background: #f5f5f4;
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          flex-shrink: 0;
+        }
+        .pdf-footer-left { display: flex; align-items: center; gap: 10px; }
+        .pdf-logo { padding: 7px 9px; border-radius: 6px; background: #12352f; color: #10d0a1; font-size: 13px; line-height: 1; font-weight: 950; }
+        .pdf-footer-title { margin: 0 0 2px; color: #292524; font-size: 12px; line-height: 1.2; font-weight: 850; }
+        .pdf-footer-desc { margin: 0; color: #78716c; font-size: 9px; line-height: 1.25; }
+        .pdf-print-date { color: #57534e; font-size: 9px; font-weight: 700; white-space: nowrap; }
+      `;
+    }
+
+    function buildMandalartPdfPage() {
+      const stats = mandalartStats();
+      const goal = appData.mandalart.goal.trim() || "중앙 목표";
+      const printDate = todayDateString().replaceAll("-", ".");
+      return `
+        <div class="mandalart-pdf-page">
+          <div class="pdf-report-main">
+            <header class="pdf-report-header">
+              <div>
+                <p class="pdf-report-kicker">MANDALART GOAL PLANNER</p>
+                <h1 class="pdf-report-title">${escapeHtml(goal)}</h1>
+                <p class="pdf-report-subtitle">1개의 중심 목표, 8개의 핵심축, 64개의 실행칸을 한 장으로 정리합니다.</p>
+              </div>
+              <div class="pdf-report-meta">
+                <p>작성칸 ${stats.filled} / ${stats.total}</p>
+                <p>작성률 ${stats.rate}%</p>
+                <p>출력일 ${printDate}</p>
+              </div>
+            </header>
+            <section class="pdf-grid-wrap">
+              <div class="print-grid" aria-label="만다라트 PDF">
+                ${buildMandalartPrintGrid()}
+              </div>
+            </section>
+            <section class="pdf-note-row">
+              <div class="pdf-note-box">
+                <h3>8 PILLARS</h3>
+                <ol class="pdf-pillars">${buildMandalartPillarList()}</ol>
+              </div>
+              <div class="pdf-note-box">
+                <h3>REVIEW MEMO</h3>
+                <div class="pdf-memo-lines"><span></span><span></span><span></span><span></span><span></span></div>
+              </div>
+            </section>
+          </div>
+          <footer class="pdf-report-footer">
+            <div class="pdf-footer-left">
+              <div class="pdf-logo">HBT</div>
+              <div>
+                <h4 class="pdf-footer-title">해빗트래커 만다라트 플래너</h4>
+                <p class="pdf-footer-desc">목표와 실행을 한 장으로 점검하는 개인 목표 관리 문서입니다.</p>
+              </div>
+            </div>
+            <div class="pdf-print-date">인쇄 일자: ${printDate}</div>
+          </footer>
+        </div>
+      `;
     }
 
     function buildMandalartPrintHtml() {
-      const stats = mandalartStats();
       const goal = appData.mandalart.goal.trim() || "만다라트";
-      const printedAt = new Date().toLocaleString("ko-KR");
       return `<!doctype html>
 <html lang="ko">
 <head>
   <meta charset="utf-8">
   <title>${escapeHtml(goal)} PDF</title>
   <style>
-    @page { size: A4 landscape; margin: 10mm; }
-    * { box-sizing: border-box; }
-    body {
-      margin: 0;
-      background: #eefbf7;
-      color: #12312b;
-      font-family: "Pretendard", "Apple SD Gothic Neo", "Malgun Gothic", system-ui, -apple-system, sans-serif;
-      letter-spacing: 0;
-    }
-    .sheet {
-      min-height: 190mm;
-      display: grid;
-      grid-template-rows: auto 1fr auto;
-      gap: 6mm;
-      padding: 9mm;
-      border: 1px solid #a9ded0;
-      background:
-        linear-gradient(135deg, rgba(16, 208, 161, 0.18), rgba(255, 255, 255, 0) 34%),
-        #ffffff;
-    }
-    .print-head,
-    .print-foot {
-      display: flex;
-      align-items: flex-end;
-      justify-content: space-between;
-      gap: 8mm;
-    }
-    .eyebrow {
-      margin: 0 0 2mm;
-      color: #04745f;
-      font-size: 8pt;
-      font-weight: 900;
-      text-transform: uppercase;
-    }
-    h1 {
-      margin: 0;
-      color: #0f1f1d;
-      font-size: 18pt;
-      line-height: 1.14;
-    }
-    .meta {
-      min-width: 44mm;
-      color: #52645f;
-      font-size: 8pt;
-      line-height: 1.55;
-      text-align: right;
-    }
-    .print-grid {
-      align-self: center;
-      justify-self: center;
-      display: grid;
-      grid-template-columns: repeat(9, 1fr);
-      grid-template-rows: repeat(9, 1fr);
-      gap: 1.15mm;
-      width: min(100%, 171mm);
-      aspect-ratio: 1;
-    }
-    .print-cell {
-      position: relative;
-      display: grid;
-      place-items: center;
-      min-width: 0;
-      min-height: 0;
-      padding: 4mm 1.6mm 1.5mm;
-      border: 0.35mm solid #d7e8e3;
-      border-radius: 1.7mm;
-      background: #ffffff;
-      overflow: hidden;
-      text-align: center;
-      page-break-inside: avoid;
-    }
-    .print-cell span {
-      position: absolute;
-      top: 1.2mm;
-      left: 1.5mm;
-      color: rgba(18, 49, 43, 0.48);
-      font-size: 5.6pt;
-      font-weight: 900;
-      line-height: 1;
-    }
-    .print-cell p {
-      display: -webkit-box;
-      -webkit-box-orient: vertical;
-      -webkit-line-clamp: 4;
-      margin: 0;
-      color: #12312b;
-      font-size: 7.6pt;
-      font-weight: 850;
-      line-height: 1.18;
-      overflow: hidden;
-      overflow-wrap: anywhere;
-      word-break: keep-all;
-    }
-    .print-goal {
-      background: #12352f;
-      border-color: #12352f;
-    }
-    .print-goal span,
-    .print-goal p {
-      color: #ffffff;
-    }
-    .print-goal p {
-      font-size: 8.6pt;
-      font-weight: 950;
-    }
-    .print-area {
-      background: #dff8ef;
-      border-color: #8fd8c5;
-    }
-    .print-core {
-      background: #b9f2e2;
-      border-color: #00a884;
-    }
-    .print-action.done::after {
-      content: "✓";
-      position: absolute;
-      right: 1.3mm;
-      top: 1mm;
-      color: #00a884;
-      font-size: 8pt;
-      font-weight: 900;
-    }
-    .print-cell.empty p {
-      color: rgba(18, 49, 43, 0.34);
-      font-weight: 700;
-    }
-    .print-foot {
-      align-items: center;
-      color: #52645f;
-      font-size: 8pt;
-    }
-    .signature {
-      min-width: 42mm;
-      padding-top: 2mm;
-      border-top: 0.3mm solid #a9ded0;
-      text-align: right;
-    }
-    @media print {
-      body { background: #ffffff; }
-      .sheet { border: 0; }
-    }
+    @page { size: A4 portrait; margin: 0; }
+    body { margin: 0; background: #ffffff; }
+    ${buildMandalartPdfStyles()}
   </style>
 </head>
 <body>
-  <main class="sheet">
-    <header class="print-head">
-      <div>
-        <p class="eyebrow">Mandalart Goal Planner</p>
-        <h1>${escapeHtml(goal)}</h1>
-      </div>
-      <div class="meta">
-        <div>작성 ${stats.total}/64</div>
-        <div>완료 ${stats.done}/${stats.total || 0} (${stats.rate}%)</div>
-        <div>${escapeHtml(printedAt)}</div>
-      </div>
-    </header>
-    <section class="print-grid" aria-label="만다라트 PDF">
-      ${buildMandalartPrintGrid()}
-    </section>
-    <footer class="print-foot">
-      <span>Habit Tracker · 9x9 Mandalart</span>
-      <span class="signature">Review</span>
-    </footer>
-  </main>
+  ${buildMandalartPdfPage()}
   <script>
     window.addEventListener("load", () => setTimeout(() => window.print(), 250));
   <\/script>
@@ -2748,7 +2912,52 @@
 </html>`;
     }
 
-    function downloadMandalartPdf() {
+    function renderMandalartPdfPreview() {
+      const page = document.getElementById("mandalaPdfPreviewPage");
+      page.innerHTML = `<style>${buildMandalartPdfStyles()}</style>${buildMandalartPdfPage()}`;
+    }
+
+    function resizeMandalartPdfPreview() {
+      const stage = document.getElementById("mandalaPdfPreviewStage");
+      const box = document.getElementById("mandalaPdfPreviewBox");
+      const page = document.getElementById("mandalaPdfPreviewPage");
+      if (!stage || !box || !page) return;
+      const scale = Math.min(
+        Math.max(0.2, (stage.clientWidth - 20) / 794),
+        Math.max(0.2, (stage.clientHeight - 20) / 1123),
+        1
+      );
+      page.style.transform = `scale(${scale})`;
+      box.style.width = `${Math.round(794 * scale)}px`;
+      box.style.height = `${Math.round(1123 * scale)}px`;
+    }
+
+    function openMandalartPdfPreview() {
+      renderMandalartPdfPreview();
+      const modal = document.getElementById("mandalaPdfPreview");
+      modal.classList.add("show");
+      modal.setAttribute("aria-hidden", "false");
+      document.body.classList.add("menu-open");
+      window.addEventListener("resize", resizeMandalartPdfPreview);
+      modal.offsetHeight;
+      resizeMandalartPdfPreview();
+      requestAnimationFrame(() => {
+        resizeMandalartPdfPreview();
+        requestAnimationFrame(resizeMandalartPdfPreview);
+      });
+      window.setTimeout(resizeMandalartPdfPreview, 80);
+      window.setTimeout(resizeMandalartPdfPreview, 240);
+    }
+
+    function closeMandalartPdfPreview() {
+      const modal = document.getElementById("mandalaPdfPreview");
+      modal.classList.remove("show");
+      modal.setAttribute("aria-hidden", "true");
+      window.removeEventListener("resize", resizeMandalartPdfPreview);
+      document.body.classList.remove("menu-open");
+    }
+
+    function openMandalartPrintWindow() {
       const printWindow = window.open("", "_blank");
       if (!printWindow) {
         showToast("새 창을 허용하면 PDF 저장 화면을 열 수 있습니다.");
@@ -2758,6 +2967,44 @@
       printWindow.document.write(buildMandalartPrintHtml());
       printWindow.document.close();
       showToast("PDF 저장 화면을 열었습니다.");
+    }
+
+    async function downloadMandalartPdf() {
+      const filename = `habit-mandalart-${todayDateString()}.pdf`;
+      if (typeof window.html2pdf !== "function") {
+        openMandalartPrintWindow();
+        return;
+      }
+
+      const style = document.createElement("style");
+      style.textContent = buildMandalartPdfStyles();
+      const holder = document.createElement("div");
+      holder.style.position = "fixed";
+      holder.style.left = "-10000px";
+      holder.style.top = "0";
+      holder.style.width = "794px";
+      holder.innerHTML = buildMandalartPdfPage();
+      document.head.appendChild(style);
+      document.body.appendChild(holder);
+
+      try {
+        showToast("PDF 문서 생성 중입니다.");
+        await window.html2pdf().set({
+          margin: 0,
+          filename,
+          image: { type: "jpeg", quality: 0.98 },
+          html2canvas: { scale: 2, useCORS: true, backgroundColor: "#ffffff" },
+          jsPDF: { unit: "px", format: [794, 1123], orientation: "portrait" }
+        }).from(holder.querySelector(".mandalart-pdf-page")).save();
+        showToast("PDF를 다운로드했습니다.");
+      } catch (error) {
+        console.error(error);
+        showToast("PDF 생성 대신 인쇄 화면을 엽니다.");
+        openMandalartPrintWindow();
+      } finally {
+        style.remove();
+        holder.remove();
+      }
     }
 
     function emptyLine(text) {
@@ -2934,6 +3181,10 @@
       });
       document.addEventListener("keydown", event => {
         if (event.key !== "Escape") return;
+        if (document.getElementById("mandalaPdfPreview").classList.contains("show")) {
+          closeMandalartPdfPreview();
+          return;
+        }
         closeMenu();
       });
 
@@ -3065,15 +3316,15 @@
         saveData("완료 항목을 삭제했습니다.");
       });
 
-      document.getElementById("mandalaPdfBtn").addEventListener("click", downloadMandalartPdf);
+      document.getElementById("mandalaPdfBtn").addEventListener("click", openMandalartPdfPreview);
+      document.getElementById("mandalaPdfDownloadBtn").addEventListener("click", downloadMandalartPdf);
+      document.getElementById("closeMandalaPdfPreviewBtn").addEventListener("click", closeMandalartPdfPreview);
+      document.getElementById("mandalaPdfPreview").addEventListener("click", event => {
+        if (event.target.id === "mandalaPdfPreview") closeMandalartPdfPreview();
+      });
       document.getElementById("mandalaGrid").addEventListener("input", event => {
         if (!(event.target instanceof HTMLTextAreaElement)) return;
         handleMandalaInput(event.target);
-      });
-      document.getElementById("mandalaGrid").addEventListener("change", event => {
-        const target = event.target;
-        if (target.dataset.action !== "mandala-action-done") return;
-        handleMandalaDone(target);
       });
       bindMandalaPinchZoom();
     }
