@@ -31,6 +31,9 @@
       --mint-deep: #04745f;
       --shadow: 0 12px 28px rgba(15, 31, 29, 0.09);
       --radius: 8px;
+      --habit-cell-size: 42px;
+      --habit-name-width: 250px;
+      --chart-day-width: 38px;
       font-family: "Pretendard", "Apple SD Gothic Neo", "Malgun Gothic", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
     }
 
@@ -352,71 +355,84 @@
       transition: width 160ms ease;
     }
 
-    .week-chart {
-      display: grid;
-      grid-template-columns: repeat(7, minmax(34px, 1fr));
-      gap: 6px;
+    .month-chart {
       margin-top: 10px;
       padding: 10px;
       border: 1px solid var(--line);
       border-radius: 8px;
       background: #f8fffc;
-      min-height: 132px;
+      min-height: 178px;
+      overflow-x: auto;
+      scrollbar-width: thin;
     }
 
-    .week-bar {
+    .line-chart-canvas {
+      min-width: 100%;
+    }
+
+    .line-chart-svg {
+      display: block;
+      width: 100%;
+      height: 126px;
+      overflow: visible;
+    }
+
+    .chart-grid-line {
+      stroke: #d9eee7;
+      stroke-width: 1;
+    }
+
+    .chart-area {
+      fill: rgba(16, 208, 161, 0.15);
+    }
+
+    .chart-line {
+      fill: none;
+      stroke: var(--green);
+      stroke-width: 4;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .chart-dot {
+      fill: #fff;
+      stroke: var(--green);
+      stroke-width: 3;
+    }
+
+    .chart-x-labels {
       display: grid;
-      grid-template-rows: 18px 72px 16px 16px;
-      gap: 4px;
-      align-items: end;
-      text-align: center;
-      min-width: 0;
-    }
-
-    .week-bar strong,
-    .week-bar small {
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
-
-    .week-bar strong {
-      color: var(--muted);
-      font-size: 11px;
-      font-weight: 900;
-    }
-
-    .week-bar small {
+      gap: 0;
+      margin-top: 6px;
       color: var(--muted);
       font-size: 10px;
       font-weight: 800;
+      text-align: center;
     }
 
-    .bar-track {
-      height: 72px;
-      border-radius: 7px;
-      background: #e5f4ef;
-      border: 1px solid #c8eadf;
-      display: flex;
-      align-items: end;
+    .chart-x-labels span {
       overflow: hidden;
+      text-overflow: clip;
+      white-space: nowrap;
     }
 
-    .bar-fill {
-      width: 100%;
-      min-height: 2px;
-      border-radius: 7px 7px 0 0;
-      background: linear-gradient(180deg, var(--mint-strong), var(--green));
+    .chart-empty {
+      min-height: 126px;
+      display: grid;
+      place-items: center;
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 800;
     }
 
-    .week-habit-list {
+    .month-habit-list {
       margin-top: 10px;
       max-height: 260px;
       overflow: auto;
       padding-right: 2px;
     }
 
-    .week-habit-item {
+    .month-habit-item {
       border: 1px solid var(--line);
       border-radius: 8px;
       background: #fff;
@@ -428,7 +444,7 @@
       min-height: 44px;
     }
 
-    .week-habit-item strong {
+    .month-habit-item strong {
       display: block;
       font-size: 13px;
       line-height: 1.3;
@@ -451,11 +467,22 @@
       background: var(--green);
     }
 
-    .week-habit-item small {
+    .month-habit-item small {
       color: var(--mint-deep);
       font-size: 12px;
       font-weight: 900;
       text-align: right;
+    }
+
+    .zoom-controls {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .zoom-controls .pill {
+      min-width: 54px;
+      height: 32px;
     }
 
     .compact-list {
@@ -517,7 +544,7 @@
 
     .habit-toolbar {
       display: grid;
-      grid-template-columns: 160px minmax(220px, 1fr) auto;
+      grid-template-columns: 160px minmax(220px, 1fr) auto auto;
       gap: 8px;
       align-items: center;
     }
@@ -552,8 +579,8 @@
       color: #374151;
       font-size: 12px;
       font-weight: 900;
-      min-width: 44px;
-      height: 44px;
+      min-width: var(--habit-cell-size);
+      height: var(--habit-cell-size);
     }
 
     th:first-child,
@@ -561,8 +588,8 @@
       position: sticky;
       left: 0;
       z-index: 3;
-      min-width: 260px;
-      max-width: 260px;
+      min-width: var(--habit-name-width);
+      max-width: var(--habit-name-width);
       text-align: left;
       background: #fff;
     }
@@ -592,9 +619,9 @@
     }
 
     .cell-toggle {
-      width: 42px;
-      height: 40px;
-      min-height: 40px;
+      width: var(--habit-cell-size);
+      height: calc(var(--habit-cell-size) - 2px);
+      min-height: calc(var(--habit-cell-size) - 2px);
       background: transparent;
       color: transparent;
       border-radius: 0;
@@ -961,16 +988,11 @@
         font-size: 10px;
         margin-top: 4px;
       }
-      .week-chart {
-        grid-template-columns: repeat(7, minmax(28px, 1fr));
-        gap: 4px;
+      .month-chart {
         padding: 8px;
       }
-      .week-bar {
-        grid-template-rows: 16px 58px 14px 14px;
-      }
-      .bar-track {
-        height: 58px;
+      .line-chart-svg {
+        height: 112px;
       }
       .panel-head {
         align-items: flex-start;
@@ -982,8 +1004,8 @@
       }
       th:first-child,
       td:first-child {
-        min-width: 190px;
-        max-width: 190px;
+        min-width: var(--habit-name-width);
+        max-width: var(--habit-name-width);
       }
       .habit-name-row {
         grid-template-columns: minmax(0, 1fr);
@@ -1046,14 +1068,21 @@
           <section class="panel">
             <div class="panel-head">
               <div class="panel-title">
-                <h2>주간 습관 체크 현황</h2>
+                <h2>월간 습관 체크 현황</h2>
                 <p id="monthSummaryText"></p>
               </div>
-              <span class="pill green" id="monthRatePill">0%</span>
+              <div class="row-actions">
+                <span class="pill green" id="monthRatePill">0%</span>
+                <div class="zoom-controls">
+                  <button class="btn icon" data-action="zoom-out" title="축소">−</button>
+                  <span class="pill zoom-label">100%</span>
+                  <button class="btn icon" data-action="zoom-in" title="확대">＋</button>
+                </div>
+              </div>
             </div>
             <div class="panel-body">
               <div class="progress-bar"><span id="monthProgressBar"></span></div>
-              <div class="week-chart" id="habitWeekChart"></div>
+              <div class="month-chart" id="habitMonthChart"></div>
               <div class="compact-list" id="topHabitList" style="margin-top: 12px;"></div>
             </div>
           </section>
@@ -1084,6 +1113,11 @@
               <input type="month" id="monthInput">
               <input type="text" id="newHabitInput" placeholder="새 습관">
               <button class="btn primary" id="addHabitBtn">+ 추가</button>
+              <div class="zoom-controls">
+                <button class="btn icon" data-action="zoom-out" title="축소">−</button>
+                <span class="pill zoom-label">100%</span>
+                <button class="btn icon" data-action="zoom-in" title="확대">＋</button>
+              </div>
             </div>
           </div>
           <div class="panel-body">
@@ -1216,9 +1250,10 @@
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
   <script>
-    const APP_CACHE_VERSION = "habit-tracker-v0.4.0";
-    const APP_DISPLAY_VERSION = "v0.4.0";
+    const APP_CACHE_VERSION = "habit-tracker-v0.5.0";
+    const APP_DISPLAY_VERSION = "v0.5.0";
     const STORAGE_KEY = "habitTracker.appData.v2";
+    const ZOOM_KEY = "habitTracker.zoom.v1";
     const DAY_NAMES = ["일", "월", "화", "수", "목", "금", "토"];
 
     const INITIAL_DATA = {
@@ -1259,9 +1294,33 @@
     let waitingWorker = null;
     let swRegistration = null;
     let deferredInstallPrompt = null;
+    let habitZoom = loadZoom();
 
     function clone(value) {
       return JSON.parse(JSON.stringify(value));
+    }
+
+    function loadZoom() {
+      const saved = Number(localStorage.getItem(ZOOM_KEY));
+      return Number.isFinite(saved) ? Math.min(1.5, Math.max(0.65, saved)) : 1;
+    }
+
+    function setHabitZoom(nextZoom) {
+      habitZoom = Math.min(1.5, Math.max(0.65, Math.round(nextZoom * 20) / 20));
+      localStorage.setItem(ZOOM_KEY, String(habitZoom));
+      applyHabitZoom();
+      renderDashboard();
+      renderHabits();
+    }
+
+    function applyHabitZoom() {
+      const root = document.documentElement;
+      root.style.setProperty("--habit-cell-size", `${Math.round(42 * habitZoom)}px`);
+      root.style.setProperty("--habit-name-width", `${Math.round(250 * habitZoom)}px`);
+      root.style.setProperty("--chart-day-width", `${Math.round(38 * habitZoom)}px`);
+      document.querySelectorAll(".zoom-label").forEach(label => {
+        label.textContent = `${Math.round(habitZoom * 100)}%`;
+      });
     }
 
     function loadData() {
@@ -1431,31 +1490,9 @@
       return { days, possible, done, rate: percent(done, possible), best };
     }
 
-    function habitWeekStats() {
+    function habitMonthGraphStats() {
       const totalDays = daysInMonth(appData.month);
-      let focusIndex = -1;
-      const today = todayDateString();
-      if (today.startsWith(`${appData.month}-`)) {
-        focusIndex = Number(today.slice(-2)) - 1;
-      }
-      if (focusIndex < 0) {
-        for (let index = totalDays - 1; index >= 0; index -= 1) {
-          if (appData.habits.some(habit => habit.checks[index])) {
-            focusIndex = index;
-            break;
-          }
-        }
-      }
-      if (focusIndex < 0) focusIndex = 0;
-
-      const focusDate = parseLocalDate(dateForMonthDay(appData.month, focusIndex + 1));
-      const dayOffset = focusDate.getDay() === 0 ? 6 : focusDate.getDay() - 1;
-      let startIndex = focusIndex - dayOffset;
-      if (startIndex < 0) startIndex = 0;
-      if (startIndex + 6 >= totalDays) startIndex = Math.max(0, totalDays - 7);
-
-      const days = Array.from({ length: Math.min(7, totalDays - startIndex) }, (_, offset) => {
-        const dayIndex = startIndex + offset;
+      const days = Array.from({ length: totalDays }, (_, dayIndex) => {
         const date = parseLocalDate(dateForMonthDay(appData.month, dayIndex + 1));
         const checked = appData.habits.reduce((sum, habit) => sum + (habit.checks[dayIndex] ? 1 : 0), 0);
         return {
@@ -1472,13 +1509,13 @@
       const possible = appData.habits.length * days.length;
       const done = days.reduce((sum, day) => sum + day.checked, 0);
       const habitRows = appData.habits.map(habit => {
-        const weekDone = days.reduce((sum, day) => sum + (habit.checks[day.index] ? 1 : 0), 0);
+        const monthDone = days.reduce((sum, day) => sum + (habit.checks[day.index] ? 1 : 0), 0);
         return {
           id: habit.id,
           name: habit.name,
-          done: weekDone,
+          done: monthDone,
           total: days.length,
-          rate: percent(weekDone, days.length)
+          rate: percent(monthDone, days.length)
         };
       });
 
@@ -1491,6 +1528,67 @@
         startDate: days[0]?.date || "",
         endDate: days[days.length - 1]?.date || ""
       };
+    }
+
+    function smoothPath(points) {
+      if (!points.length) return "";
+      if (points.length === 1) return `M ${points[0].x} ${points[0].y}`;
+      let path = `M ${points[0].x} ${points[0].y}`;
+      for (let index = 1; index < points.length; index += 1) {
+        const prev = points[index - 1];
+        const current = points[index];
+        const midX = (prev.x + current.x) / 2;
+        path += ` C ${midX} ${prev.y}, ${midX} ${current.y}, ${current.x} ${current.y}`;
+      }
+      return path;
+    }
+
+    function renderMonthCurveChart(stats) {
+      if (!stats.days.length) {
+        return `<div class="chart-empty">습관을 추가하면 월간 곡선 그래프가 표시됩니다.</div>`;
+      }
+      const dayWidth = Math.round(38 * habitZoom);
+      const width = Math.max(320, stats.days.length * dayWidth);
+      const height = 126;
+      const padding = { top: 12, right: 12, bottom: 14, left: 12 };
+      const plotWidth = width - padding.left - padding.right;
+      const plotHeight = height - padding.top - padding.bottom;
+      const step = stats.days.length > 1 ? plotWidth / (stats.days.length - 1) : plotWidth;
+      const points = stats.days.map((day, index) => ({
+        x: Math.round(padding.left + step * index),
+        y: Math.round(padding.top + plotHeight - (plotHeight * day.rate / 100)),
+        day
+      }));
+      const line = smoothPath(points);
+      const baseY = height - padding.bottom;
+      const area = `${line} L ${points[points.length - 1].x} ${baseY} L ${points[0].x} ${baseY} Z`;
+      const grid = [0, 25, 50, 75, 100].map(rate => {
+        const y = Math.round(padding.top + plotHeight - (plotHeight * rate / 100));
+        return `<line class="chart-grid-line" x1="${padding.left}" x2="${width - padding.right}" y1="${y}" y2="${y}"></line>`;
+      }).join("");
+      const dots = points.map(point => `
+        <circle class="chart-dot" cx="${point.x}" cy="${point.y}" r="4">
+          <title>${point.day.date} · ${point.day.checked}/${point.day.total} · ${point.day.rate}%</title>
+        </circle>
+      `).join("");
+      const labels = stats.days.map(day => `<span title="${day.date}">${day.label.replace("일", "")}</span>`).join("");
+      return `
+        <div class="line-chart-canvas" style="width:${width}px;">
+          <svg class="line-chart-svg" viewBox="0 0 ${width} ${height}" preserveAspectRatio="none" aria-label="월간 습관 달성률 곡선 그래프">
+            <defs>
+              <linearGradient id="habitAreaGradient" x1="0" x2="0" y1="0" y2="1">
+                <stop offset="0%" stop-color="#10d0a1" stop-opacity="0.38"></stop>
+                <stop offset="100%" stop-color="#10d0a1" stop-opacity="0.04"></stop>
+              </linearGradient>
+            </defs>
+            ${grid}
+            <path class="chart-area" d="${area}" fill="url(#habitAreaGradient)"></path>
+            <path class="chart-line" d="${line}"></path>
+            ${dots}
+          </svg>
+          <div class="chart-x-labels" style="grid-template-columns: repeat(${stats.days.length}, 1fr);">${labels}</div>
+        </div>
+      `;
     }
 
     function weeklyStats() {
@@ -1515,6 +1613,7 @@
     }
 
     function render() {
+      applyHabitZoom();
       document.getElementById("versionText").textContent = `${APP_DISPLAY_VERSION} · ${APP_CACHE_VERSION}`;
       renderTabs();
       renderDashboard();
@@ -1535,14 +1634,14 @@
 
     function renderDashboard() {
       const habits = habitStats();
-      const habitWeek = habitWeekStats();
+      const habitMonth = habitMonthGraphStats();
       const week = weeklyStats();
       const mandalart = mandalartStats();
       const todayDay = getTodayDay();
       const todayTasks = todayDay.tasks.filter(task => task.title.trim());
       const todayDone = todayTasks.filter(task => task.done).length;
       const stats = [
-        { label: "주간 습관", value: `${habitWeek.rate}%`, sub: `${habitWeek.done}/${habitWeek.possible}칸` },
+        { label: "월간 습관", value: `${habits.rate}%`, sub: `${habits.done}/${habits.possible}칸` },
         { label: "관리 습관", value: `${appData.habits.length}개`, sub: `${appData.month.replace("-", "년 ")}월` },
         { label: "주간 할 일", value: `${week.done}/${week.total}`, sub: `완료율 ${week.rate}%` },
         { label: "만다라트", value: `${mandalart.done}/${mandalart.total}`, sub: `완료율 ${mandalart.rate}%` }
@@ -1554,26 +1653,15 @@
           <div class="sub">${stat.sub}</div>
         </div>
       `).join("");
-      document.getElementById("monthSummaryText").textContent = habitWeek.days.length
-        ? `${habitWeek.startDate} ~ ${habitWeek.endDate} · ${habitWeek.done}/${habitWeek.possible}칸 완료`
-        : "습관을 추가하면 주간 체크 그래프가 표시됩니다.";
-      document.getElementById("monthRatePill").textContent = `${habitWeek.rate}%`;
-      document.getElementById("monthProgressBar").style.width = `${habitWeek.rate}%`;
-      document.getElementById("habitWeekChart").innerHTML = habitWeek.days.length
-        ? habitWeek.days.map(day => `
-          <div class="week-bar">
-            <strong>${day.dayName}</strong>
-            <div class="bar-track" title="${day.date} ${day.checked}/${day.total}">
-              <div class="bar-fill" style="height:${day.rate}%"></div>
-            </div>
-            <small>${day.label}</small>
-            <small>${day.checked}/${day.total}</small>
-          </div>
-        `).join("")
-        : `<div class="list-item" style="grid-column: 1 / -1;"><strong>습관이 없습니다.</strong><small></small></div>`;
-      document.getElementById("topHabitList").classList.add("week-habit-list");
-      document.getElementById("topHabitList").innerHTML = habitWeek.habitRows.map(habit => `
-        <div class="week-habit-item">
+      document.getElementById("monthSummaryText").textContent = habitMonth.days.length
+        ? `${habitMonth.startDate} ~ ${habitMonth.endDate} · ${habitMonth.done}/${habitMonth.possible}칸 완료`
+        : "습관을 추가하면 월간 곡선 그래프가 표시됩니다.";
+      document.getElementById("monthRatePill").textContent = `${habitMonth.rate}%`;
+      document.getElementById("monthProgressBar").style.width = `${habitMonth.rate}%`;
+      document.getElementById("habitMonthChart").innerHTML = renderMonthCurveChart(habitMonth);
+      document.getElementById("topHabitList").classList.add("month-habit-list");
+      document.getElementById("topHabitList").innerHTML = habitMonth.habitRows.map(habit => `
+        <div class="month-habit-item">
           <div>
             <strong>${escapeHtml(habit.name)}</strong>
             <div class="mini-progress"><span style="width:${habit.rate}%"></span></div>
@@ -1770,6 +1858,13 @@
       document.getElementById("todayBtn").addEventListener("click", () => {
         switchView("dashboard");
         showToast("오늘 화면으로 이동했습니다.");
+      });
+
+      document.addEventListener("click", event => {
+        const button = event.target.closest("[data-action='zoom-in'], [data-action='zoom-out']");
+        if (!button) return;
+        const direction = button.dataset.action === "zoom-in" ? 0.1 : -0.1;
+        setHabitZoom(habitZoom + direction);
       });
 
       document.getElementById("installBtn").addEventListener("click", async () => {
