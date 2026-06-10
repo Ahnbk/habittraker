@@ -1400,6 +1400,11 @@
       background: #f7f8ff;
     }
 
+    .data-box.cloud-zone {
+      border-color: #cfd8ff;
+      background: #f7f8ff;
+    }
+
     .data-box.danger-zone {
       border-color: #fecaca;
       background: #fffafa;
@@ -1415,6 +1420,30 @@
       color: var(--muted);
       font-size: 13px;
       line-height: 1.45;
+    }
+
+    .cloud-form {
+      display: grid;
+      gap: 8px;
+    }
+
+    .cloud-form input {
+      min-height: 36px;
+      padding: 8px 9px;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .cloud-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6px;
+    }
+
+    .cloud-actions .btn {
+      min-height: 36px;
+      padding: 8px 9px;
+      font-size: 12px;
     }
 
     .toast {
@@ -1977,6 +2006,21 @@
                 <p>설치된 앱에서 새 버전을 확인하고 준비되면 상단 배너로 적용합니다.</p>
                 <button class="btn primary" id="checkUpdateBtn">업데이트 확인</button>
               </div>
+              <div class="data-box cloud-zone">
+                <h3>클라우드 동기화</h3>
+                <p id="cloudStatusText">로그인하면 이 기기의 데이터를 클라우드에 동기화합니다.</p>
+                <div class="cloud-form">
+                  <input type="email" id="cloudEmailInput" placeholder="이메일" autocomplete="email">
+                  <input type="password" id="cloudPasswordInput" placeholder="비밀번호" autocomplete="current-password">
+                  <div class="cloud-actions">
+                    <button class="btn primary" id="cloudLoginBtn">로그인</button>
+                    <button class="btn" id="cloudSignupBtn">계정 만들기</button>
+                    <button class="btn dark" id="cloudSyncBtn" hidden>지금 동기화</button>
+                    <button class="btn" id="cloudLogoutBtn" hidden>로그아웃</button>
+                  </div>
+                  <span class="pill blue" id="cloudSyncPill">클라우드 OFF</span>
+                </div>
+              </div>
               <div class="data-box danger-zone">
                 <h3>기기 초기화</h3>
                 <p>현재 기기에 저장된 데이터를 초기 상태로 되돌립니다.</p>
@@ -1996,7 +2040,7 @@
       <div class="app-menu-head">
         <div>
           <strong id="appMenuTitle">앱 메뉴</strong>
-          <small id="menuVersionText">v0.8.2</small>
+          <small id="menuVersionText">v0.9.0</small>
         </div>
         <button class="btn icon" id="closeMenuBtn" title="닫기">×</button>
       </div>
@@ -2031,12 +2075,22 @@
     </section>
   </div>
   <script>
-    const APP_CACHE_VERSION = "habit-tracker-v0.8.2";
-    const APP_DISPLAY_VERSION = "v0.8.2";
+    const APP_CACHE_VERSION = "habit-tracker-v0.9.0";
+    const APP_DISPLAY_VERSION = "v0.9.0";
     const STORAGE_KEY = "habitTracker.appData.v2";
     const ZOOM_KEY = "habitTracker.zoom.v3";
     const ZOOM_RESET_KEY = "habitTracker.zoomReset.v0.6.6";
     const MANDALA_ZOOM_KEY = "habitTracker.mandalaZoom.v1";
+    const CLOUD_EMAIL_KEY = "habitTracker.cloudEmail.v1";
+    const FIREBASE_SDK_VERSION = "11.6.1";
+    const FIREBASE_CONFIG = {
+      projectId: "ptmanager-1552d",
+      appId: "1:615657179263:web:89830b25ed76468b90174a",
+      storageBucket: "ptmanager-1552d.firebasestorage.app",
+      apiKey: "AIzaSyCi4gVdwSIWgt5BYVBMo0P0PxzZBTNkSWU",
+      authDomain: "ptmanager-1552d.firebaseapp.com",
+      messagingSenderId: "615657179263"
+    };
     const DAY_NAMES = ["일", "월", "화", "수", "목", "금", "토"];
     const MANDALA_RING_POSITIONS = [
       { row: 0, col: 0 },
@@ -2086,6 +2140,18 @@
     let toastTimer = null;
     let waitingWorker = null;
     let swRegistration = null;
+    let firebaseApp = null;
+    let firebaseAuth = null;
+    let firebaseDb = null;
+    let firebaseApi = {};
+    let cloudUser = null;
+    let cloudReady = false;
+    let cloudAuthReady = false;
+    let cloudApplyingRemote = false;
+    let cloudSyncTimer = null;
+    let cloudUnsubscribe = null;
+    let cloudLastSyncedAt = 0;
+    let cloudLastError = "";
     let habitZoom = loadZoom();
     let mandalaZoom = loadMandalaZoom();
     let habitEditMode = false;
@@ -2178,9 +2244,20 @@
       return normalized;
     }
 
-    function saveData(message) {
+    function stampAppData() {
       appData.appVersion = APP_DISPLAY_VERSION;
+      appData.updatedAtMs = Date.now();
+      appData.updatedAt = new Date(appData.updatedAtMs).toISOString();
+    }
+
+    function persistDataDraft() {
+      stampAppData();
       localStorage.setItem(STORAGE_KEY, JSON.stringify(appData));
+      scheduleCloudSync();
+    }
+
+    function saveData(message) {
+      persistDataDraft();
       if (message) showToast(message);
       render();
     }
@@ -2578,6 +2655,7 @@
       renderMandalart();
       applyMandalaZoom();
       focusPendingHabitName();
+      renderCloudState();
     }
 
     function renderTabs() {
@@ -2865,7 +2943,7 @@
     }
 
     function saveMandalartDraft() {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(appData));
+      persistDataDraft();
     }
 
     function handleMandalaInput(target) {
@@ -3347,6 +3425,260 @@
       if (previousFocus && typeof previousFocus.focus === "function") previousFocus.focus();
     }
 
+    function cloudMessage(error) {
+      const code = error?.code || "";
+      if (code.includes("permission-denied")) return "허용된 클라우드 계정만 동기화할 수 있습니다.";
+      if (code.includes("auth/invalid-credential") || code.includes("auth/wrong-password")) return "이메일 또는 비밀번호를 확인해 주세요.";
+      if (code.includes("auth/email-already-in-use")) return "이미 가입된 이메일입니다. 로그인해 주세요.";
+      if (code.includes("auth/weak-password")) return "비밀번호는 6자 이상으로 입력해 주세요.";
+      if (code.includes("auth/invalid-email")) return "이메일 형식을 확인해 주세요.";
+      return "클라우드 연결을 확인해 주세요.";
+    }
+
+    function formatSyncTime(timestamp) {
+      if (!timestamp) return "";
+      return new Date(timestamp).toLocaleTimeString("ko-KR", { hour: "2-digit", minute: "2-digit", hour12: false });
+    }
+
+    function renderCloudState() {
+      const emailInput = document.getElementById("cloudEmailInput");
+      const passwordInput = document.getElementById("cloudPasswordInput");
+      const loginBtn = document.getElementById("cloudLoginBtn");
+      const signupBtn = document.getElementById("cloudSignupBtn");
+      const syncBtn = document.getElementById("cloudSyncBtn");
+      const logoutBtn = document.getElementById("cloudLogoutBtn");
+      const status = document.getElementById("cloudStatusText");
+      const pill = document.getElementById("cloudSyncPill");
+      if (!emailInput || !status || !pill) return;
+      const signedIn = Boolean(cloudUser);
+      const savedEmail = localStorage.getItem(CLOUD_EMAIL_KEY) || "";
+      if (!signedIn && !emailInput.value) emailInput.value = savedEmail;
+      emailInput.hidden = signedIn;
+      passwordInput.hidden = signedIn;
+      loginBtn.hidden = signedIn;
+      signupBtn.hidden = signedIn;
+      syncBtn.hidden = !signedIn;
+      logoutBtn.hidden = !signedIn;
+      if (cloudLastError) {
+        status.textContent = cloudLastError;
+        pill.textContent = "클라우드 오류";
+        pill.className = "pill amber";
+        return;
+      }
+      if (signedIn) {
+        const time = cloudLastSyncedAt ? ` · 최근 ${formatSyncTime(cloudLastSyncedAt)}` : "";
+        status.textContent = `${cloudUser.email || "클라우드 계정"} 동기화 중${time}`;
+        pill.textContent = cloudLastSyncedAt ? `동기화 ${formatSyncTime(cloudLastSyncedAt)}` : "클라우드 ON";
+        pill.className = "pill green";
+        return;
+      }
+      status.textContent = "로그인하면 이 기기의 데이터를 클라우드에 동기화합니다.";
+      pill.textContent = "클라우드 OFF";
+      pill.className = "pill blue";
+    }
+
+    async function ensureFirebase(silent = false) {
+      if (cloudReady && firebaseAuth && firebaseDb) return true;
+      try {
+        const sdkLoad = Promise.all([
+          import(`https://www.gstatic.com/firebasejs/${FIREBASE_SDK_VERSION}/firebase-app.js`),
+          import(`https://www.gstatic.com/firebasejs/${FIREBASE_SDK_VERSION}/firebase-auth.js`),
+          import(`https://www.gstatic.com/firebasejs/${FIREBASE_SDK_VERSION}/firebase-firestore.js`)
+        ]);
+        const timeout = new Promise((_, reject) => window.setTimeout(() => reject(new Error("firebase-timeout")), 9000));
+        const [appMod, authMod, firestoreMod] = await Promise.race([sdkLoad, timeout]);
+        firebaseApi = { ...appMod, ...authMod, ...firestoreMod };
+        firebaseApp = appMod.getApps().length ? appMod.getApp() : appMod.initializeApp(FIREBASE_CONFIG);
+        firebaseAuth = authMod.getAuth(firebaseApp);
+        firebaseDb = firestoreMod.getFirestore(firebaseApp);
+        await authMod.setPersistence(firebaseAuth, authMod.browserLocalPersistence).catch(() => {});
+        firestoreMod.enableIndexedDbPersistence(firebaseDb).catch(() => {});
+        cloudReady = true;
+        cloudLastError = "";
+        renderCloudState();
+        return true;
+      } catch (error) {
+        console.error(error);
+        cloudReady = false;
+        if (!silent) {
+          cloudLastError = "Firebase 연결 준비 실패";
+          renderCloudState();
+          showToast("클라우드 연결 준비에 실패했습니다.");
+        }
+        return false;
+      }
+    }
+
+    function getCloudDocRef() {
+      if (!cloudUser || !firebaseDb) return null;
+      return firebaseApi.doc(firebaseDb, "users", cloudUser.uid, "habitTracker", "app");
+    }
+
+    function applyRemoteCloudData(remoteData, message) {
+      if (!remoteData) return;
+      cloudApplyingRemote = true;
+      appData = normalizeData(remoteData);
+      appData.appVersion = APP_DISPLAY_VERSION;
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(appData));
+      render();
+      cloudApplyingRemote = false;
+      cloudLastSyncedAt = Date.now();
+      cloudLastError = "";
+      renderCloudState();
+      if (message) showToast(message);
+    }
+
+    async function pushCloudSync(showMessage = false) {
+      if (cloudApplyingRemote || !cloudUser) return;
+      if (!(await ensureFirebase())) return;
+      const ref = getCloudDocRef();
+      if (!ref) return;
+      try {
+        if (!appData.updatedAtMs) stampAppData();
+        await firebaseApi.setDoc(ref, {
+          appData: clone(appData),
+          appVersion: APP_DISPLAY_VERSION,
+          ownerEmail: cloudUser.email || "",
+          updatedAt: appData.updatedAt || new Date().toISOString(),
+          updatedAtMs: appData.updatedAtMs || Date.now(),
+          cloudUpdatedAt: firebaseApi.serverTimestamp()
+        }, { merge: true });
+        cloudLastSyncedAt = Date.now();
+        cloudLastError = "";
+        renderCloudState();
+        if (showMessage) showToast("클라우드에 동기화했습니다.");
+      } catch (error) {
+        console.error(error);
+        cloudLastError = cloudMessage(error);
+        renderCloudState();
+        if (showMessage) showToast(cloudLastError);
+      }
+    }
+
+    function scheduleCloudSync() {
+      if (cloudApplyingRemote || !cloudUser || !cloudReady) return;
+      clearTimeout(cloudSyncTimer);
+      cloudSyncTimer = window.setTimeout(() => pushCloudSync(false), 1200);
+    }
+
+    async function pullCloudData(showMessage = false) {
+      if (!(await ensureFirebase()) || !cloudUser) return;
+      const ref = getCloudDocRef();
+      if (!ref) return;
+      try {
+        const snap = await firebaseApi.getDoc(ref);
+        if (!snap.exists()) {
+          await pushCloudSync(showMessage);
+          return;
+        }
+        const remote = snap.data();
+        const remoteData = remote.appData || null;
+        const remoteMs = Number(remoteData?.updatedAtMs || remote.updatedAtMs) || 0;
+        const localMs = Number(appData.updatedAtMs) || 0;
+        if (remoteData && remoteMs > localMs + 500) {
+          applyRemoteCloudData(remoteData, "클라우드 데이터를 불러왔습니다.");
+          return;
+        }
+        if (localMs > remoteMs + 500) {
+          await pushCloudSync(showMessage);
+          return;
+        }
+        cloudLastSyncedAt = Date.now();
+        cloudLastError = "";
+        renderCloudState();
+        if (showMessage) showToast("현재 데이터가 동기화되어 있습니다.");
+      } catch (error) {
+        console.error(error);
+        cloudLastError = cloudMessage(error);
+        renderCloudState();
+        if (showMessage) showToast(cloudLastError);
+      }
+    }
+
+    function subscribeCloudData() {
+      if (cloudUnsubscribe) {
+        cloudUnsubscribe();
+        cloudUnsubscribe = null;
+      }
+      const ref = getCloudDocRef();
+      if (!ref || !firebaseApi.onSnapshot) return;
+      cloudUnsubscribe = firebaseApi.onSnapshot(ref, snapshot => {
+        if (!snapshot.exists() || snapshot.metadata.hasPendingWrites) return;
+        const remoteData = snapshot.data().appData;
+        const remoteMs = Number(remoteData?.updatedAtMs || snapshot.data().updatedAtMs) || 0;
+        const localMs = Number(appData.updatedAtMs) || 0;
+        if (remoteData && remoteMs > localMs + 500) {
+          applyRemoteCloudData(remoteData, "다른 기기의 변경사항을 불러왔습니다.");
+        }
+      }, error => {
+        console.error(error);
+        cloudLastError = cloudMessage(error);
+        renderCloudState();
+      });
+    }
+
+    async function initCloudAuth() {
+      if (cloudAuthReady) return;
+      if (!(await ensureFirebase(true))) return;
+      cloudAuthReady = true;
+      firebaseApi.onAuthStateChanged(firebaseAuth, async user => {
+        cloudUser = user;
+        cloudLastError = "";
+        if (user?.email) localStorage.setItem(CLOUD_EMAIL_KEY, user.email);
+        if (!user && cloudUnsubscribe) {
+          cloudUnsubscribe();
+          cloudUnsubscribe = null;
+        }
+        renderCloudState();
+        if (user) {
+          subscribeCloudData();
+          await pullCloudData(false);
+        }
+      });
+    }
+
+    async function submitCloudAuth(mode) {
+      const email = document.getElementById("cloudEmailInput").value.trim();
+      const password = document.getElementById("cloudPasswordInput").value;
+      if (!email || !password) {
+        showToast("이메일과 비밀번호를 입력해 주세요.");
+        return;
+      }
+      if (!(await ensureFirebase())) return;
+      try {
+        cloudLastError = "";
+        localStorage.setItem(CLOUD_EMAIL_KEY, email);
+        if (mode === "signup") {
+          await firebaseApi.createUserWithEmailAndPassword(firebaseAuth, email, password);
+          showToast("계정을 만들었습니다.");
+        } else {
+          await firebaseApi.signInWithEmailAndPassword(firebaseAuth, email, password);
+          showToast("클라우드에 로그인했습니다.");
+        }
+        document.getElementById("cloudPasswordInput").value = "";
+        await initCloudAuth();
+      } catch (error) {
+        console.error(error);
+        cloudLastError = cloudMessage(error);
+        renderCloudState();
+        showToast(cloudLastError);
+      }
+    }
+
+    async function logoutCloudUser() {
+      if (!firebaseAuth && !(await ensureFirebase())) return;
+      await firebaseApi.signOut(firebaseAuth);
+      cloudUser = null;
+      cloudLastSyncedAt = 0;
+      cloudLastError = "";
+      if (cloudUnsubscribe) {
+        cloudUnsubscribe();
+        cloudUnsubscribe = null;
+      }
+      renderCloudState();
+      showToast("클라우드에서 로그아웃했습니다.");
+    }
+
     async function checkForUpdate() {
       if (!swRegistration) {
         showToast("업데이트 확인은 배포 환경에서 사용할 수 있습니다.");
@@ -3540,6 +3872,13 @@
       });
       document.getElementById("resetBtn").addEventListener("click", resetData);
       document.getElementById("checkUpdateBtn").addEventListener("click", checkForUpdate);
+      document.getElementById("cloudLoginBtn").addEventListener("click", () => submitCloudAuth("login"));
+      document.getElementById("cloudSignupBtn").addEventListener("click", () => submitCloudAuth("signup"));
+      document.getElementById("cloudSyncBtn").addEventListener("click", () => pullCloudData(true));
+      document.getElementById("cloudLogoutBtn").addEventListener("click", logoutCloudUser);
+      document.getElementById("cloudPasswordInput").addEventListener("keydown", event => {
+        if (event.key === "Enter") submitCloudAuth("login");
+      });
 
       document.getElementById("monthInput").addEventListener("change", event => {
         appData.month = event.target.value || currentMonth();
@@ -3580,7 +3919,7 @@
         const target = event.target;
         if (target.dataset.action !== "habit-name") return;
         appData.habits[Number(target.dataset.habit)].name = target.value;
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(appData));
+        persistDataDraft();
         renderHabitAnalysis();
       });
 
@@ -3590,7 +3929,7 @@
         const taskIndex = Number(target.dataset.task);
         if (target.dataset.action === "weekly-title") {
           appData.week.days[dayIndex].tasks[taskIndex].title = target.value;
-          localStorage.setItem(STORAGE_KEY, JSON.stringify(appData));
+          persistDataDraft();
           renderDashboard();
         }
       });
@@ -3650,6 +3989,11 @@
 
     bindEvents();
     render();
+    initCloudAuth().catch(error => {
+      console.warn("cloud auth", error);
+      cloudLastError = "클라우드 로그인 확인 실패";
+      renderCloudState();
+    });
 
     window.addEventListener("appinstalled", () => {
       showToast("앱이 설치됐습니다.");
