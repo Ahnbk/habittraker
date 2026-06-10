@@ -1282,6 +1282,10 @@
       overflow: hidden;
     }
 
+    .task-row.note-row {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
     .task-row:last-child {
       border-bottom: 0;
     }
@@ -1300,6 +1304,11 @@
       border-radius: 0;
       min-height: 43px;
       background: transparent;
+    }
+
+    .task-row.note-row input[type="text"] {
+      border-left: 0;
+      padding-left: 10px;
     }
 
     .task-row.done input[type="text"] {
@@ -1738,7 +1747,7 @@
         bottom: calc(8px + env(safe-area-inset-bottom));
         z-index: 80;
         display: grid;
-        grid-template-columns: repeat(4, minmax(0, 1fr));
+        grid-template-columns: repeat(5, minmax(0, 1fr));
         gap: 5px;
         padding: 6px;
         border: 1px solid var(--line);
@@ -1980,6 +1989,7 @@
       <button class="tab-btn active" data-view="dashboard">오늘</button>
       <button class="tab-btn" data-view="habits">습관</button>
       <button class="tab-btn" data-view="week">할 일</button>
+      <button class="tab-btn" data-view="done-week">한 일</button>
       <button class="tab-btn" data-view="mandalart">만다라트</button>
     </nav>
 
@@ -2086,6 +2096,29 @@
           </div>
           <div class="panel-body">
             <div class="week-grid" id="weekGrid"></div>
+          </div>
+        </section>
+      </section>
+
+      <section class="view" id="view-done-week">
+        <section class="panel">
+          <div class="panel-head">
+            <div class="panel-title">
+              <h2>주간 한 일</h2>
+              <p>그날 저녁, 오늘 실제로 한 일과 있었던 일을 적어둡니다.</p>
+            </div>
+            <div class="toolbar week-toolbar">
+              <button class="btn icon" id="prevDoneWeekBtn" title="이전 주">‹</button>
+              <label class="btn week-date-btn" title="날짜 선택">
+                <span id="doneWeekDateLabel"></span>
+                <input class="week-date-input" type="date" id="doneWeekDateInput" aria-label="한 일 날짜 선택">
+              </label>
+              <button class="btn icon" id="nextDoneWeekBtn" title="다음 주">›</button>
+              <button class="btn primary today-week-btn" id="currentDoneWeekBtn"></button>
+            </div>
+          </div>
+          <div class="panel-body">
+            <div class="week-grid" id="doneWeekGrid"></div>
           </div>
         </section>
       </section>
@@ -2227,8 +2260,8 @@
     </section>
   </div>
   <script>
-    const APP_CACHE_VERSION = "habit-tracker-v0.9.1";
-    const APP_DISPLAY_VERSION = "v0.9.1";
+    const APP_CACHE_VERSION = "habit-tracker-v0.9.2";
+    const APP_DISPLAY_VERSION = "v0.9.2";
     const STORAGE_KEY = "habitTracker.appData.v2";
     const ZOOM_KEY = "habitTracker.zoom.v3";
     const ZOOM_RESET_KEY = "habitTracker.zoomReset.v0.6.6";
@@ -2268,7 +2301,13 @@
       completed: [],
       week: {
         startDate: getWeekStart(new Date()),
-        days: []
+        days: [],
+        entries: {}
+      },
+      doneWeek: {
+        startDate: getWeekStart(new Date()),
+        days: [],
+        entries: {}
       },
       mandalart: {
         goal: "",
@@ -2312,6 +2351,7 @@
     let habitTodayScrollKey = "";
     let chartTodayScrollKey = "";
     let weekTodayScrollKey = "";
+    let doneWeekTodayScrollKey = "";
     let pendingHabitFocusId = "";
 
     function clone(value) {
@@ -2388,10 +2428,12 @@
       const normalized = { ...clone(INITIAL_DATA), ...data };
       normalized.habits = Array.isArray(data.habits) ? data.habits : clone(INITIAL_DATA.habits);
       normalized.completed = Array.isArray(data.completed) ? data.completed.filter(item => item.title) : clone(INITIAL_DATA.completed);
-      normalized.week = data.week && Array.isArray(data.week.days) ? data.week : clone(INITIAL_DATA.week);
+      normalized.week = data.week && (Array.isArray(data.week.days) || data.week.entries) ? data.week : clone(INITIAL_DATA.week);
+      normalized.doneWeek = data.doneWeek && (Array.isArray(data.doneWeek.days) || data.doneWeek.entries) ? data.doneWeek : clone(INITIAL_DATA.doneWeek);
       normalized.mandalart = data.mandalart && Array.isArray(data.mandalart.areas) ? data.mandalart : clone(INITIAL_DATA.mandalart);
       normalizeMonthChecks(normalized);
       normalizeWeek(normalized.week);
+      normalizeDoneWeek(normalized.doneWeek);
       normalizeMandalart(normalized.mandalart);
       return normalized;
     }
@@ -2403,6 +2445,7 @@
     }
 
     function persistDataDraft() {
+      syncCurrentWeekEntries();
       stampAppData();
       localStorage.setItem(STORAGE_KEY, JSON.stringify(appData));
       scheduleCloudSync();
@@ -2543,25 +2586,88 @@
       });
     }
 
-    function normalizeWeek(week) {
-      if (!week.startDate) week.startDate = getWeekStart(new Date());
-      const generated = buildWeek(week.startDate);
-      week.days = generated.days.map((day, index) => {
-        const existing = week.days[index] || {};
-        const tasks = Array.isArray(existing.tasks) ? existing.tasks : [];
-        while (tasks.length < 10) {
-          tasks.push({ id: makeId(`w${index + 1}`), title: "", done: false });
-        }
+    function safeWeekStart(value) {
+      const fallback = getWeekStart(new Date());
+      if (!value) return fallback;
+      const parsed = parseLocalDate(value);
+      return Number.isNaN(parsed.getTime()) ? fallback : getWeekStart(parsed);
+    }
+
+    function normalizeWeekTask(task, dayIndex, taskIndex, prefix, includeDone) {
+      const normalized = {
+        id: task?.id || `${prefix}${dayIndex + 1}-${taskIndex + 1}`,
+        title: task?.title || ""
+      };
+      if (includeDone) normalized.done = Boolean(task?.done);
+      return normalized;
+    }
+
+    function normalizeWeekTasks(tasks, dayIndex, prefix, includeDone) {
+      const normalized = Array.isArray(tasks) ? tasks.slice(0, 10) : [];
+      while (normalized.length < 10) {
+        normalized.push({ id: makeId(`${prefix}${dayIndex + 1}`), title: "", done: false });
+      }
+      return normalized.map((task, taskIndex) => normalizeWeekTask(task, dayIndex, taskIndex, prefix, includeDone));
+    }
+
+    function normalizeWeekEntry(startDate, days, options = {}) {
+      const includeDone = options.includeDone !== false;
+      const prefix = options.prefix || "w";
+      const generated = buildWeek(startDate);
+      return generated.days.map((day, index) => {
+        const existing = Array.isArray(days) ? days[index] || {} : {};
         return {
           ...day,
           id: existing.id || day.id,
-          tasks: tasks.map((task, taskIndex) => ({
-            id: task.id || `w${index + 1}-${taskIndex + 1}`,
-            title: task.title || "",
-            done: Boolean(task.done)
-          }))
+          tasks: normalizeWeekTasks(existing.tasks, index, prefix, includeDone)
         };
       });
+    }
+
+    function weekHasContent(days) {
+      return Array.isArray(days) && days.some(day => (
+        Array.isArray(day.tasks) && day.tasks.some(task => task.title?.trim() || task.done)
+      ));
+    }
+
+    function normalizeWeekStore(week, options = {}) {
+      const startDate = safeWeekStart(week.startDate);
+      const entries = {};
+      const sourceEntries = week.entries && typeof week.entries === "object" ? week.entries : {};
+      Object.entries(sourceEntries).forEach(([key, days]) => {
+        const entryStart = safeWeekStart(key);
+        entries[entryStart] = normalizeWeekEntry(entryStart, days, options);
+      });
+
+      const currentDays = normalizeWeekEntry(startDate, week.days, options);
+      if (!entries[startDate] || weekHasContent(currentDays)) {
+        entries[startDate] = currentDays;
+      }
+
+      week.startDate = startDate;
+      week.entries = entries;
+      week.days = normalizeWeekEntry(startDate, entries[startDate], options);
+    }
+
+    function normalizeWeek(week) {
+      normalizeWeekStore(week, { includeDone: true, prefix: "w" });
+    }
+
+    function normalizeDoneWeek(doneWeek) {
+      normalizeWeekStore(doneWeek, { includeDone: false, prefix: "dw" });
+    }
+
+    function syncWeekEntry(week, options = {}) {
+      const startDate = safeWeekStart(week.startDate);
+      week.startDate = startDate;
+      week.days = normalizeWeekEntry(startDate, week.days, options);
+      week.entries = week.entries && typeof week.entries === "object" ? week.entries : {};
+      week.entries[startDate] = clone(week.days);
+    }
+
+    function syncCurrentWeekEntries() {
+      syncWeekEntry(appData.week, { includeDone: true, prefix: "w" });
+      syncWeekEntry(appData.doneWeek, { includeDone: false, prefix: "dw" });
     }
 
     function normalizeMandalart(mandalart) {
@@ -2637,18 +2743,38 @@
       return { startDate, days };
     }
 
+    function setWeekStart(week, nextStartDate, options = {}) {
+      syncWeekEntry(week, options);
+      const startDate = safeWeekStart(nextStartDate);
+      week.startDate = startDate;
+      week.entries = week.entries && typeof week.entries === "object" ? week.entries : {};
+      week.days = normalizeWeekEntry(startDate, week.entries[startDate], options);
+      week.entries[startDate] = clone(week.days);
+    }
+
     function moveWeek(delta) {
       const next = parseLocalDate(appData.week.startDate || getWeekStart(new Date()));
       next.setDate(next.getDate() + (delta * 7));
-      appData.week.startDate = formatDate(next);
-      normalizeWeek(appData.week);
+      setWeekStart(appData.week, formatDate(next), { includeDone: true, prefix: "w" });
       saveData(delta > 0 ? "다음 주로 이동했습니다." : "이전 주로 이동했습니다.");
     }
 
     function moveWeekToDate(dateString, message = "선택한 날짜의 주로 이동했습니다.") {
       if (!dateString) return;
-      appData.week.startDate = getWeekStart(parseLocalDate(dateString));
-      normalizeWeek(appData.week);
+      setWeekStart(appData.week, getWeekStart(parseLocalDate(dateString)), { includeDone: true, prefix: "w" });
+      saveData(message);
+    }
+
+    function moveDoneWeek(delta) {
+      const next = parseLocalDate(appData.doneWeek.startDate || getWeekStart(new Date()));
+      next.setDate(next.getDate() + (delta * 7));
+      setWeekStart(appData.doneWeek, formatDate(next), { includeDone: false, prefix: "dw" });
+      saveData(delta > 0 ? "다음 주 한 일로 이동했습니다." : "이전 주 한 일로 이동했습니다.");
+    }
+
+    function moveDoneWeekToDate(dateString, message = "선택한 날짜의 한 일 주로 이동했습니다.") {
+      if (!dateString) return;
+      setWeekStart(appData.doneWeek, getWeekStart(parseLocalDate(dateString)), { includeDone: false, prefix: "dw" });
       saveData(message);
     }
 
@@ -2792,6 +2918,11 @@
       return { total: tasks.length, done, rate: percent(done, tasks.length) };
     }
 
+    function doneWeekStats() {
+      const tasks = appData.doneWeek.days.flatMap(day => day.tasks.filter(task => task.title.trim()));
+      return { total: tasks.length };
+    }
+
     function mandalartStats() {
       const actions = appData.mandalart.areas.flatMap(area => area.actions || []);
       const filled = actions.filter(action => action.text && action.text.trim()).length;
@@ -2868,10 +2999,24 @@
       });
     }
 
+    function scrollDoneWeekToToday(force = false) {
+      const weekGrid = document.getElementById("doneWeekGrid");
+      const todayCard = weekGrid?.querySelector(".today-card");
+      if (!weekGrid || !todayCard || weekGrid.clientWidth === 0) return;
+      const key = `${appData.doneWeek.startDate}:${weekGrid.clientWidth}`;
+      if (!force && doneWeekTodayScrollKey === key) return;
+      doneWeekTodayScrollKey = key;
+      requestAnimationFrame(() => {
+        const target = todayCard.offsetLeft - (weekGrid.clientWidth / 2) + (todayCard.offsetWidth / 2);
+        weekGrid.scrollLeft = Math.max(0, target);
+      });
+    }
+
     function dataSummary(data) {
-      const weekTasks = data.week.days.flatMap(day => day.tasks || []).filter(task => task.title && task.title.trim()).length;
+      const weekTasks = (data.week?.days || []).flatMap(day => day.tasks || []).filter(task => task.title && task.title.trim()).length;
+      const doneWeekTasks = (data.doneWeek?.days || []).flatMap(day => day.tasks || []).filter(task => task.title && task.title.trim()).length;
       const mandalartActions = data.mandalart.areas.flatMap(area => area.actions || []).filter(action => action.text && action.text.trim()).length;
-      return `습관 ${data.habits.length}개, 주간 할 일 ${weekTasks}개, 완료 기록 ${data.completed.length}개, 만다라트 실행칸 ${mandalartActions}개`;
+      return `습관 ${data.habits.length}개, 주간 할 일 ${weekTasks}개, 주간 한 일 ${doneWeekTasks}개, 완료 기록 ${data.completed.length}개, 만다라트 실행칸 ${mandalartActions}개`;
     }
 
     function render() {
@@ -2882,6 +3027,7 @@
       renderDashboard();
       renderHabits();
       renderWeek();
+      renderDoneWeek();
       renderCompleted();
       renderMandalart();
       applyMandalaZoom();
@@ -2902,6 +3048,7 @@
     function renderDashboard() {
       const habits = habitStats();
       const week = weeklyStats();
+      const doneWeek = doneWeekStats();
       const mandalart = mandalartStats();
       const todayContext = getTodayDayContext();
       const todayDay = todayContext.day || { day: "오늘", date: todayDateString(), tasks: [] };
@@ -2914,7 +3061,7 @@
         ? 0
         : appData.habits.reduce((sum, habit) => sum + (habit.checks[todayHabitDayIndex] ? 1 : 0), 0);
       const todayHabitRate = percent(todayHabitDone, appData.habits.length);
-      const isBlank = appData.habits.length === 0 && week.total === 0 && appData.completed.length === 0 && mandalart.filled === 0;
+      const isBlank = appData.habits.length === 0 && week.total === 0 && doneWeek.total === 0 && appData.completed.length === 0 && mandalart.filled === 0;
       document.getElementById("onboardingCard").classList.toggle("show", isBlank);
       document.getElementById("todayFocusPanel").hidden = isBlank;
       document.getElementById("statGrid").hidden = isBlank;
@@ -3063,6 +3210,38 @@
         `;
       }).join("");
       if (activeView === "week") scrollWeekToToday();
+    }
+
+    function renderDoneWeek() {
+      normalizeDoneWeek(appData.doneWeek);
+      const first = appData.doneWeek.days[0]?.date || "";
+      const last = appData.doneWeek.days[6]?.date || "";
+      document.getElementById("doneWeekDateLabel").textContent = first && last ? formatWeekRangeLabel(first, last) : "날짜 선택";
+      document.getElementById("doneWeekDateInput").value = appData.doneWeek.startDate || "";
+      document.getElementById("currentDoneWeekBtn").textContent = `오늘 ${formatShortDate(todayDateString())}`;
+      document.getElementById("doneWeekGrid").innerHTML = appData.doneWeek.days.map((day, dayIndex) => {
+        const filled = day.tasks.filter(task => task.title.trim());
+        const isToday = day.date === todayDateString();
+        return `
+          <section class="day-card ${isToday ? "today-card" : ""}">
+            <div class="day-head">
+              <div><strong>${day.day}</strong><br><small>${day.date}</small></div>
+              <div class="row-actions">
+                ${isToday ? '<span class="pill green">오늘</span>' : ""}
+                <span class="pill ${filled.length ? "green" : "amber"}">기록 ${filled.length}</span>
+              </div>
+            </div>
+            <div class="task-list">
+              ${day.tasks.map((task, taskIndex) => `
+                <div class="task-row note-row">
+                  <input type="text" value="${escapeHtml(task.title)}" data-action="done-week-title" data-day="${dayIndex}" data-task="${taskIndex}" aria-label="한 일" placeholder="오늘 한 일, 있었던 일">
+                </div>
+              `).join("")}
+            </div>
+          </section>
+        `;
+      }).join("");
+      if (activeView === "done-week") scrollDoneWeekToToday();
     }
 
     function renderCompleted() {
@@ -3637,6 +3816,7 @@
         scrollMonthChartToToday(true);
       }
       if (view === "week") scrollWeekToToday(true);
+      if (view === "done-week") scrollDoneWeekToToday(true);
     }
 
     function openMenu() {
@@ -4084,6 +4264,7 @@
         scrollHabitTableToToday(true);
         scrollMonthChartToToday(true);
         scrollWeekToToday(true);
+        scrollDoneWeekToToday(true);
       });
       window.addEventListener("orientationchange", () => {
         window.setTimeout(() => {
@@ -4091,6 +4272,7 @@
           scrollHabitTableToToday(true);
           scrollMonthChartToToday(true);
           scrollWeekToToday(true);
+          scrollDoneWeekToToday(true);
         }, 240);
       });
 
@@ -4184,6 +4366,16 @@
         if (target.checked) playJoyBurst(rect, "할 일 완료");
       });
 
+      document.getElementById("doneWeekGrid").addEventListener("input", event => {
+        const target = event.target;
+        const dayIndex = Number(target.dataset.day);
+        const taskIndex = Number(target.dataset.task);
+        if (target.dataset.action === "done-week-title") {
+          appData.doneWeek.days[dayIndex].tasks[taskIndex].title = target.value;
+          persistDataDraft();
+        }
+      });
+
       document.getElementById("prevWeekBtn").addEventListener("click", () => moveWeek(-1));
       document.getElementById("nextWeekBtn").addEventListener("click", () => moveWeek(1));
       document.getElementById("weekDateInput").addEventListener("change", event => {
@@ -4191,6 +4383,14 @@
       });
       document.getElementById("currentWeekBtn").addEventListener("click", () => {
         moveWeekToDate(todayDateString(), "오늘이 포함된 주로 이동했습니다.");
+      });
+      document.getElementById("prevDoneWeekBtn").addEventListener("click", () => moveDoneWeek(-1));
+      document.getElementById("nextDoneWeekBtn").addEventListener("click", () => moveDoneWeek(1));
+      document.getElementById("doneWeekDateInput").addEventListener("change", event => {
+        moveDoneWeekToDate(event.target.value);
+      });
+      document.getElementById("currentDoneWeekBtn").addEventListener("click", () => {
+        moveDoneWeekToDate(todayDateString(), "오늘이 포함된 한 일 주로 이동했습니다.");
       });
 
       document.getElementById("completedForm").addEventListener("submit", event => {
