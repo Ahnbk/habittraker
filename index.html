@@ -679,7 +679,35 @@
     }
 
     .line-chart-canvas {
+      min-width: 0;
+      position: relative;
+      margin-left: 42px;
+    }
+
+    .line-chart-frame {
+      position: relative;
       min-width: 100%;
+    }
+
+    .chart-y-axis {
+      position: sticky;
+      left: 0;
+      z-index: 4;
+      float: left;
+      width: 42px;
+      height: 126px;
+      background: linear-gradient(90deg, var(--stone) 80%, rgba(251, 250, 247, 0));
+      pointer-events: none;
+    }
+
+    .chart-y-axis span {
+      position: absolute;
+      right: 9px;
+      transform: translateY(-50%);
+      color: var(--muted);
+      font-size: 10px;
+      font-weight: 900;
+      line-height: 1;
     }
 
     .line-chart-svg {
@@ -1793,7 +1821,7 @@
       <div class="app-menu-head">
         <div>
           <strong id="appMenuTitle">앱 메뉴</strong>
-          <small id="menuVersionText">v0.8.0</small>
+          <small id="menuVersionText">v0.8.1</small>
         </div>
         <button class="btn icon" id="closeMenuBtn" title="닫기">×</button>
       </div>
@@ -1804,7 +1832,7 @@
         <div class="menu-group-title">관리</div>
         <button class="menu-item" data-menu-action="data"><span>⚙</span><span>데이터 관리</span><small>백업/복원/업데이트</small></button>
         <div class="menu-group-title">앱 설정</div>
-        <button class="menu-item" data-menu-action="install" id="menuInstallBtn" hidden><span>＋</span><span>앱 설치</span><small>홈 화면</small></button>
+        <button class="menu-item" data-menu-action="update" id="menuUpdateBtn"><span>↻</span><span>업데이트 확인</span><small>최신 확인</small></button>
       </div>
     </section>
   </div>
@@ -1828,8 +1856,8 @@
     </section>
   </div>
   <script>
-    const APP_CACHE_VERSION = "habit-tracker-v0.8.0";
-    const APP_DISPLAY_VERSION = "v0.8.0";
+    const APP_CACHE_VERSION = "habit-tracker-v0.8.1";
+    const APP_DISPLAY_VERSION = "v0.8.1";
     const STORAGE_KEY = "habitTracker.appData.v2";
     const ZOOM_KEY = "habitTracker.zoom.v3";
     const ZOOM_RESET_KEY = "habitTracker.zoomReset.v0.6.6";
@@ -1883,7 +1911,6 @@
     let toastTimer = null;
     let waitingWorker = null;
     let swRegistration = null;
-    let deferredInstallPrompt = null;
     let habitZoom = loadZoom();
     let mandalaZoom = loadMandalaZoom();
     let habitEditMode = false;
@@ -2196,6 +2223,10 @@
         const y = Math.round(padding.top + plotHeight - (plotHeight * rate / 100));
         return `<line class="chart-grid-line" x1="${padding.left}" x2="${width - padding.right}" y1="${y}" y2="${y}"></line>`;
       }).join("");
+      const yAxis = [100, 75, 50, 25, 0].map(rate => {
+        const y = Math.round(padding.top + plotHeight - (plotHeight * rate / 100));
+        return `<span style="top:${y}px">${rate}%</span>`;
+      }).join("");
       const dots = points.map(point => `
         <circle class="chart-dot ${point.day.index === todayIndex ? "today-col" : ""}" cx="${point.x}" cy="${point.y}" r="4">
           <title>${point.day.date} · ${point.day.checked}/${point.day.total} · ${point.day.rate}%</title>
@@ -2203,20 +2234,23 @@
       `).join("");
       const labels = stats.days.map(day => `<span class="${day.index === todayIndex ? "today-col" : ""}" title="${day.date}">${day.label.replace("일", "")}</span>`).join("");
       return `
-        <div class="line-chart-canvas" style="width:${width}px;">
-          <svg class="line-chart-svg" viewBox="0 0 ${width} ${height}" preserveAspectRatio="none" aria-label="월간 습관 달성률 곡선 그래프">
-            <defs>
-              <linearGradient id="habitAreaGradient" x1="0" x2="0" y1="0" y2="1">
-                <stop offset="0%" stop-color="#3b5bdb" stop-opacity="0.32"></stop>
-                <stop offset="100%" stop-color="#3b5bdb" stop-opacity="0.04"></stop>
-              </linearGradient>
-            </defs>
-            ${grid}
-            <path class="chart-area" d="${area}" fill="url(#habitAreaGradient)"></path>
-            <path class="chart-line" d="${line}"></path>
-            ${dots}
-          </svg>
-          <div class="chart-x-labels" style="grid-template-columns: repeat(${stats.days.length}, 1fr);">${labels}</div>
+        <div class="line-chart-frame" style="width:${width + 42}px;">
+          <div class="chart-y-axis" aria-hidden="true">${yAxis}</div>
+          <div class="line-chart-canvas" style="width:${width}px;">
+            <svg class="line-chart-svg" viewBox="0 0 ${width} ${height}" preserveAspectRatio="none" aria-label="월간 습관 달성률 곡선 그래프">
+              <defs>
+                <linearGradient id="habitAreaGradient" x1="0" x2="0" y1="0" y2="1">
+                  <stop offset="0%" stop-color="#3b5bdb" stop-opacity="0.32"></stop>
+                  <stop offset="100%" stop-color="#3b5bdb" stop-opacity="0.04"></stop>
+                </linearGradient>
+              </defs>
+              ${grid}
+              <path class="chart-area" d="${area}" fill="url(#habitAreaGradient)"></path>
+              <path class="chart-line" d="${line}"></path>
+              ${dots}
+            </svg>
+            <div class="chart-x-labels" style="grid-template-columns: repeat(${stats.days.length}, 1fr);">${labels}</div>
+          </div>
         </div>
       `;
     }
@@ -3087,25 +3121,36 @@
       if (previousFocus && typeof previousFocus.focus === "function") previousFocus.focus();
     }
 
-    async function requestInstall() {
-      if (!deferredInstallPrompt) {
-        showToast("브라우저 메뉴에서 홈 화면에 추가를 사용할 수 있습니다.");
-        return;
-      }
-      deferredInstallPrompt.prompt();
-      await deferredInstallPrompt.userChoice;
-      deferredInstallPrompt = null;
-      document.getElementById("menuInstallBtn").hidden = true;
-      showToast("설치 요청을 완료했습니다.");
-    }
-
     async function checkForUpdate() {
       if (!swRegistration) {
         showToast("업데이트 확인은 배포 환경에서 사용할 수 있습니다.");
         return;
       }
+      if (waitingWorker || swRegistration.waiting) {
+        showUpdateBanner(waitingWorker || swRegistration.waiting);
+        showToast("새 버전이 준비됐습니다.");
+        return;
+      }
+      const installingBefore = swRegistration.installing;
       await swRegistration.update();
-      showToast(waitingWorker ? "새 버전이 준비됐습니다." : "현재 최신 버전입니다.");
+      await new Promise(resolve => {
+        const candidate = swRegistration.installing;
+        if (!candidate || candidate === installingBefore) {
+          window.setTimeout(resolve, 700);
+          return;
+        }
+        const finish = () => resolve();
+        candidate.addEventListener("statechange", () => {
+          if (candidate.state === "installed" || candidate.state === "redundant") finish();
+        }, { once: true });
+        window.setTimeout(resolve, 1400);
+      });
+      if (swRegistration.waiting) {
+        showUpdateBanner(swRegistration.waiting);
+        showToast("새 버전이 준비됐습니다.");
+        return;
+      }
+      showToast("현재 최신 버전입니다.");
     }
 
     async function handleMenuAction(action) {
@@ -3114,7 +3159,7 @@
         switchView("dashboard");
         showToast("오늘 화면으로 이동했습니다.");
       }
-      if (action === "install") await requestInstall();
+      if (action === "update") await checkForUpdate();
       if (action === "done") switchView("done");
       if (action === "data") switchView("data");
     }
@@ -3371,15 +3416,7 @@
     bindEvents();
     render();
 
-    window.addEventListener("beforeinstallprompt", event => {
-      event.preventDefault();
-      deferredInstallPrompt = event;
-      document.getElementById("menuInstallBtn").hidden = false;
-    });
-
     window.addEventListener("appinstalled", () => {
-      deferredInstallPrompt = null;
-      document.getElementById("menuInstallBtn").hidden = true;
       showToast("앱이 설치됐습니다.");
     });
 
