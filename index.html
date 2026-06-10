@@ -30,6 +30,10 @@
       --stone: #fbfaf7;
       --mint-strong: #16a34a;
       --mint-deep: #1f7a4d;
+      --coral: #f97360;
+      --coral-soft: #fff1ee;
+      --lemon: #f4c430;
+      --lemon-soft: #fff8d8;
       --shadow: 0 12px 28px rgba(38, 35, 31, 0.08);
       --radius: 8px;
       --habit-cell-size: 36px;
@@ -172,6 +176,8 @@
       font-weight: 900;
       display: grid;
       place-items: center;
+      position: relative;
+      overflow: hidden;
     }
 
     .btn {
@@ -187,6 +193,8 @@
       font-weight: 700;
       line-height: 1;
       white-space: nowrap;
+      position: relative;
+      overflow: hidden;
     }
 
     .btn.icon {
@@ -262,12 +270,15 @@
       font-weight: 800;
       min-height: 36px;
       font-size: 13px;
+      position: relative;
+      overflow: hidden;
     }
 
     .tab-btn.active {
-      background: var(--black);
-      border-color: var(--black);
+      background: linear-gradient(135deg, var(--black), #374151);
+      border-color: #374151;
       color: #fff;
+      box-shadow: 0 6px 14px rgba(38, 35, 31, 0.16);
     }
 
     .app-menu-backdrop {
@@ -348,6 +359,8 @@
       text-align: left;
       padding: 8px 10px;
       font-weight: 700;
+      position: relative;
+      overflow: hidden;
     }
 
     .menu-item:hover,
@@ -368,7 +381,7 @@
 
     .view.active {
       display: block;
-      animation: viewIn 140ms ease both;
+      animation: viewIn 220ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
     }
 
     .btn,
@@ -398,8 +411,24 @@
       transform: scale(0.97);
     }
 
+    .tap-ripple {
+      position: absolute;
+      left: var(--tap-x, 50%);
+      top: var(--tap-y, 50%);
+      width: var(--tap-size, 44px);
+      height: var(--tap-size, 44px);
+      margin-left: calc(var(--tap-size, 44px) / -2);
+      margin-top: calc(var(--tap-size, 44px) / -2);
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.55);
+      pointer-events: none;
+      transform: scale(0);
+      opacity: 0.7;
+      animation: tapRipple 520ms ease-out forwards;
+    }
+
     @keyframes viewIn {
-      from { opacity: 0; transform: translateY(6px); }
+      from { opacity: 0; transform: translateY(8px) scale(0.992); }
       to { opacity: 1; transform: translateY(0); }
     }
 
@@ -407,6 +436,15 @@
       0% { transform: scale(0.78); }
       80% { transform: scale(1.08); }
       100% { transform: scale(1); }
+    }
+
+    @keyframes tapRipple {
+      to { transform: scale(2.8); opacity: 0; }
+    }
+
+    @keyframes softLift {
+      0% { transform: translateY(4px); opacity: 0; }
+      100% { transform: translateY(0); opacity: 1; }
     }
 
     .top-grid {
@@ -422,6 +460,8 @@
       border-radius: var(--radius);
       padding: 8px 9px;
       min-height: 58px;
+      box-shadow: 0 5px 16px rgba(38, 35, 31, 0.035);
+      animation: softLift 220ms ease both;
     }
 
     .stat-card .label {
@@ -536,6 +576,9 @@
     .today-focus-panel {
       margin-bottom: 10px;
       border-color: #cfd8ff;
+      background:
+        linear-gradient(135deg, rgba(238, 242, 255, 0.72), rgba(255, 255, 255, 0) 44%),
+        var(--panel);
     }
 
     .today-focus-grid {
@@ -568,6 +611,8 @@
       border-radius: 9px;
       background: #fff;
       min-height: 48px;
+      position: relative;
+      overflow: hidden;
     }
 
     .today-habit-item {
@@ -581,6 +626,7 @@
     .today-habit-item.checked {
       border-color: #a8d9b5;
       background: var(--green-soft);
+      box-shadow: inset 0 0 0 1px rgba(22, 163, 74, 0.1), 0 5px 16px rgba(22, 163, 74, 0.08);
     }
 
     .today-check-btn {
@@ -593,12 +639,15 @@
       color: transparent;
       font-weight: 900;
       padding: 0;
+      position: relative;
+      overflow: hidden;
     }
 
     .today-habit-item.checked .today-check-btn {
       border-color: var(--green);
       background: var(--green);
       color: #fff;
+      animation: checkPop 180ms ease-out;
     }
 
     .today-habit-main {
@@ -625,6 +674,12 @@
       gap: 8px;
       padding: 9px 10px;
       cursor: pointer;
+    }
+
+    .today-task-item.done {
+      border-color: #a8d9b5;
+      background: var(--green-soft);
+      box-shadow: inset 0 0 0 1px rgba(22, 163, 74, 0.08);
     }
 
     .today-task-item input {
@@ -662,9 +717,9 @@
       display: block;
       height: 100%;
       width: 0;
-      background: linear-gradient(90deg, var(--blue), #6d7cff);
+      background: linear-gradient(90deg, var(--blue), #52b788, var(--lemon));
       border-radius: inherit;
-      transition: width 160ms ease;
+      transition: width 360ms cubic-bezier(0.2, 0.8, 0.2, 1);
     }
 
     .month-chart {
@@ -723,7 +778,9 @@
     }
 
     .chart-area {
-      fill: rgba(59, 91, 219, 0.15);
+      fill: url(#habitAreaGradient);
+      opacity: 0;
+      animation: chartAreaIn 620ms ease 120ms forwards;
     }
 
     .chart-line {
@@ -732,12 +789,19 @@
       stroke-width: 4;
       stroke-linecap: round;
       stroke-linejoin: round;
+      stroke-dasharray: 1200;
+      stroke-dashoffset: 1200;
+      animation: chartDraw 720ms cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
     }
 
     .chart-dot {
       fill: #fff;
       stroke: var(--blue);
       stroke-width: 3;
+      opacity: 0;
+      transform-box: fill-box;
+      transform-origin: center;
+      animation: dotIn 240ms ease 520ms forwards;
     }
 
     .chart-dot.today-col {
@@ -792,6 +856,7 @@
       gap: 8px;
       align-items: center;
       min-height: 44px;
+      animation: softLift 220ms ease both;
     }
 
     .month-habit-item strong {
@@ -853,6 +918,8 @@
       justify-content: space-between;
       gap: 10px;
       min-height: 44px;
+      position: relative;
+      overflow: hidden;
     }
 
     .list-item strong {
@@ -1104,6 +1171,7 @@
       color: transparent;
       border-radius: 0;
       position: relative;
+      overflow: hidden;
     }
 
     .cell-toggle::after {
@@ -1113,11 +1181,13 @@
       border-radius: 5px;
       border: 2px solid #d1d5db;
       background: #fff;
+      box-shadow: inset 0 0 0 0 rgba(22, 163, 74, 0);
     }
 
     .cell-toggle.checked::after {
       background: var(--green);
       border-color: var(--green);
+      animation: checkFill 190ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
     }
 
     .cell-toggle.checked::before {
@@ -1130,7 +1200,7 @@
       color: #fff;
       font-weight: 900;
       font-size: 15px;
-      animation: checkPop 120ms ease-out;
+      animation: checkPop 180ms ease-out;
     }
 
     .total-cell {
@@ -1208,6 +1278,8 @@
       align-items: center;
       min-height: 44px;
       border-bottom: 1px solid var(--line);
+      position: relative;
+      overflow: hidden;
     }
 
     .task-row:last-child {
@@ -1468,6 +1540,85 @@
     .toast.show {
       opacity: 1;
       transform: translateX(-50%) translateY(0);
+    }
+
+    .joy-layer {
+      position: fixed;
+      inset: 0;
+      z-index: 260;
+      pointer-events: none;
+      overflow: hidden;
+    }
+
+    .joy-burst {
+      position: absolute;
+      left: var(--joy-x);
+      top: var(--joy-y);
+      width: 1px;
+      height: 1px;
+    }
+
+    .joy-note {
+      position: absolute;
+      left: 0;
+      top: 0;
+      transform: translate(-50%, -100%);
+      min-width: 74px;
+      padding: 7px 10px;
+      border-radius: 999px;
+      background: #26231f;
+      color: #fff;
+      box-shadow: 0 10px 24px rgba(38, 35, 31, 0.2);
+      font-size: 12px;
+      font-weight: 900;
+      text-align: center;
+      white-space: nowrap;
+      animation: joyNote 920ms cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+    }
+
+    .joy-dot {
+      position: absolute;
+      left: -4px;
+      top: -4px;
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      background: var(--joy-color, var(--green));
+      transform: translate(0, 0) scale(0.75);
+      animation: joyDot 760ms cubic-bezier(0.18, 0.78, 0.32, 1) forwards;
+    }
+
+    @keyframes chartDraw {
+      to { stroke-dashoffset: 0; }
+    }
+
+    @keyframes chartAreaIn {
+      from { opacity: 0; transform: translateY(4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes dotIn {
+      from { opacity: 0; transform: scale(0.62); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    @keyframes checkFill {
+      0% { transform: scale(0.72); box-shadow: 0 0 0 0 rgba(22, 163, 74, 0.22); }
+      70% { transform: scale(1.08); box-shadow: 0 0 0 6px rgba(22, 163, 74, 0.08); }
+      100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(22, 163, 74, 0); }
+    }
+
+    @keyframes joyNote {
+      0% { opacity: 0; transform: translate(-50%, -70%) scale(0.94); }
+      16% { opacity: 1; transform: translate(-50%, -112%) scale(1); }
+      72% { opacity: 1; transform: translate(-50%, -126%) scale(1); }
+      100% { opacity: 0; transform: translate(-50%, -148%) scale(0.98); }
+    }
+
+    @keyframes joyDot {
+      0% { opacity: 0; transform: translate(0, 0) scale(0.4); }
+      14% { opacity: 1; }
+      100% { opacity: 0; transform: translate(var(--dx), var(--dy)) scale(1); }
     }
 
     .pdf-preview-backdrop {
@@ -2035,12 +2186,13 @@
 
   <input class="hidden-file" type="file" id="restoreFile" accept="application/json,.json">
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <div class="joy-layer" id="joyLayer" aria-hidden="true"></div>
   <div class="app-menu-backdrop" id="appMenu" aria-hidden="true">
     <section class="app-menu-sheet" role="dialog" aria-modal="true" aria-labelledby="appMenuTitle">
       <div class="app-menu-head">
         <div>
           <strong id="appMenuTitle">앱 메뉴</strong>
-          <small id="menuVersionText">v0.9.0</small>
+          <small id="menuVersionText">v0.9.1</small>
         </div>
         <button class="btn icon" id="closeMenuBtn" title="닫기">×</button>
       </div>
@@ -2075,8 +2227,8 @@
     </section>
   </div>
   <script>
-    const APP_CACHE_VERSION = "habit-tracker-v0.9.0";
-    const APP_DISPLAY_VERSION = "v0.9.0";
+    const APP_CACHE_VERSION = "habit-tracker-v0.9.1";
+    const APP_DISPLAY_VERSION = "v0.9.1";
     const STORAGE_KEY = "habitTracker.appData.v2";
     const ZOOM_KEY = "habitTracker.zoom.v3";
     const ZOOM_RESET_KEY = "habitTracker.zoomReset.v0.6.6";
@@ -2290,6 +2442,85 @@
       toast.classList.add("show");
       clearTimeout(toastTimer);
       toastTimer = setTimeout(() => toast.classList.remove("show"), 1600);
+    }
+
+    function prefersReducedMotion() {
+      return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    }
+
+    function softVibrate(pattern = 8) {
+      if (prefersReducedMotion() || !navigator.vibrate) return;
+      navigator.vibrate(pattern);
+    }
+
+    function addTapRipple(surface, event) {
+      if (!surface || prefersReducedMotion()) return;
+      const rect = surface.getBoundingClientRect();
+      if (!rect.width || !rect.height) return;
+      const ripple = document.createElement("span");
+      const size = Math.max(rect.width, rect.height, 40);
+      ripple.className = "tap-ripple";
+      ripple.style.setProperty("--tap-size", `${size}px`);
+      ripple.style.setProperty("--tap-x", `${event.clientX - rect.left}px`);
+      ripple.style.setProperty("--tap-y", `${event.clientY - rect.top}px`);
+      surface.appendChild(ripple);
+      window.setTimeout(() => ripple.remove(), 560);
+    }
+
+    function bindTapFeedback() {
+      document.addEventListener("pointerdown", event => {
+        const target = event.target.closest(".btn, .menu-button, .tab-btn, .menu-item, .today-check-btn, .cell-toggle, .today-task-item, .task-row input[type='checkbox']");
+        if (!target || target.disabled) return;
+        const surface = target.matches("input") ? target.closest(".today-task-item, .task-row") : target;
+        addTapRipple(surface, event);
+      }, { passive: true });
+    }
+
+    function habitJoyMessage(dayIndex) {
+      const total = appData.habits.length;
+      if (!total) return "좋아요";
+      const done = appData.habits.reduce((sum, habit) => sum + (habit.checks[dayIndex] ? 1 : 0), 0);
+      if (dayIndex === getTodayHabitDayIndex() && done === total) return "오늘 루틴 완성";
+      if (dayIndex === getTodayHabitDayIndex()) return `${done}/${total} 이어지는 중`;
+      return "체크 완료";
+    }
+
+    function playJoyBurst(rect, message = "좋아요") {
+      const layer = document.getElementById("joyLayer");
+      if (!layer || !rect) return;
+      softVibrate(8);
+      if (prefersReducedMotion()) {
+        showToast(message);
+        return;
+      }
+      const x = Math.min(Math.max(rect.left + rect.width / 2, 40), window.innerWidth - 40);
+      const y = Math.min(Math.max(rect.top + rect.height / 2, 52), window.innerHeight - 40);
+      const burst = document.createElement("div");
+      burst.className = "joy-burst";
+      burst.style.setProperty("--joy-x", `${x}px`);
+      burst.style.setProperty("--joy-y", `${y}px`);
+
+      const note = document.createElement("div");
+      note.className = "joy-note";
+      note.textContent = message;
+      burst.appendChild(note);
+
+      const colors = ["#16a34a", "#3b5bdb", "#f97360", "#f4c430", "#52b788"];
+      const vectors = [
+        [-18, -34], [20, -30], [-30, -14], [30, -10], [-20, 14],
+        [18, 18], [0, -42], [36, 10], [-36, 8]
+      ];
+      vectors.forEach(([dx, dy], index) => {
+        const dot = document.createElement("span");
+        dot.className = "joy-dot";
+        dot.style.setProperty("--dx", `${dx}px`);
+        dot.style.setProperty("--dy", `${dy}px`);
+        dot.style.setProperty("--joy-color", colors[index % colors.length]);
+        dot.style.animationDelay = `${index * 18}ms`;
+        burst.appendChild(dot);
+      });
+      layer.appendChild(burst);
+      window.setTimeout(() => burst.remove(), 1100);
     }
 
     function daysInMonth(month) {
@@ -3810,8 +4041,11 @@
         const habitIndex = Number(button.dataset.habit);
         const dayIndex = Number(button.dataset.day);
         if (!appData.habits[habitIndex]) return;
+        const willCheck = !appData.habits[habitIndex].checks[dayIndex];
+        const rect = button.getBoundingClientRect();
         appData.habits[habitIndex].checks[dayIndex] = !appData.habits[habitIndex].checks[dayIndex];
         saveData();
+        if (willCheck) playJoyBurst(rect, habitJoyMessage(dayIndex));
       });
       document.getElementById("todayTaskList").addEventListener("change", event => {
         const target = event.target;
@@ -3819,8 +4053,10 @@
         const dayIndex = Number(target.dataset.day);
         const taskIndex = Number(target.dataset.task);
         if (!appData.week.days[dayIndex]?.tasks[taskIndex]) return;
+        const rect = target.closest(".today-task-item")?.getBoundingClientRect() || target.getBoundingClientRect();
         appData.week.days[dayIndex].tasks[taskIndex].done = target.checked;
         saveData();
+        if (target.checked) playJoyBurst(rect, "할 일 완료");
       });
       document.getElementById("appMenu").addEventListener("click", event => {
         if (event.target.id === "appMenu") closeMenu();
@@ -3903,8 +4139,11 @@
         if (target.dataset.action === "toggle-habit") {
           const habitIndex = Number(target.dataset.habit);
           const dayIndex = Number(target.dataset.day);
+          const willCheck = !appData.habits[habitIndex].checks[dayIndex];
+          const rect = target.getBoundingClientRect();
           appData.habits[habitIndex].checks[dayIndex] = !appData.habits[habitIndex].checks[dayIndex];
           saveData();
+          if (willCheck) playJoyBurst(rect, habitJoyMessage(dayIndex));
         }
         if (target.dataset.action === "delete-habit") {
           const habitIndex = Number(target.dataset.habit);
@@ -3939,8 +4178,10 @@
         if (target.dataset.action !== "weekly-done") return;
         const dayIndex = Number(target.dataset.day);
         const taskIndex = Number(target.dataset.task);
+        const rect = target.closest(".task-row")?.getBoundingClientRect() || target.getBoundingClientRect();
         appData.week.days[dayIndex].tasks[taskIndex].done = target.checked;
         saveData();
+        if (target.checked) playJoyBurst(rect, "할 일 완료");
       });
 
       document.getElementById("prevWeekBtn").addEventListener("click", () => moveWeek(-1));
@@ -3963,6 +4204,7 @@
         appData.completed.unshift({ id: makeId("c"), title, status: "완료" });
         input.value = "";
         saveData("완료 기록에 추가했습니다.");
+        playJoyBurst(input.getBoundingClientRect(), "기록 완료");
       });
 
       document.getElementById("completedList").addEventListener("click", event => {
@@ -3985,6 +4227,7 @@
         handleMandalaInput(event.target);
       });
       bindMandalaPinchZoom();
+      bindTapFeedback();
     }
 
     bindEvents();
