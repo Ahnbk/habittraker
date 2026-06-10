@@ -31,9 +31,9 @@
       --mint-deep: #04745f;
       --shadow: 0 12px 28px rgba(15, 31, 29, 0.09);
       --radius: 8px;
-      --habit-cell-size: 42px;
-      --habit-name-width: 250px;
-      --chart-day-width: 38px;
+      --habit-cell-size: 36px;
+      --habit-name-width: 330px;
+      --chart-day-width: 34px;
       font-family: "Pretendard", "Apple SD Gothic Neo", "Malgun Gothic", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
     }
 
@@ -843,6 +843,7 @@
       border-collapse: separate;
       border-spacing: 0;
       width: 100%;
+      font-size: 12px;
     }
 
     th, td {
@@ -851,6 +852,7 @@
       padding: 0;
       background: #fff;
       text-align: center;
+      vertical-align: middle;
     }
 
     th {
@@ -859,10 +861,25 @@
       z-index: 2;
       background: #f8faf9;
       color: #374151;
-      font-size: 12px;
-      font-weight: 900;
+      font-size: 11px;
+      font-weight: 800;
+      line-height: 1.1;
       min-width: var(--habit-cell-size);
       height: var(--habit-cell-size);
+    }
+
+    th div,
+    th small {
+      display: block;
+      text-align: center;
+    }
+
+    th small {
+      margin-top: 2px;
+      color: var(--muted);
+      font-size: 9px;
+      font-weight: 750;
+      line-height: 1;
     }
 
     th:first-child,
@@ -879,25 +896,36 @@
     th:first-child {
       z-index: 4;
       background: #f9fafb;
+      text-align: center;
     }
 
     td.habit-name {
-      padding: 8px;
+      padding: 6px;
+      text-align: left;
     }
 
     .habit-name-row {
       display: grid;
-      grid-template-columns: minmax(0, 1fr) 34px;
+      grid-template-columns: minmax(0, 1fr) 30px;
       gap: 6px;
       align-items: center;
     }
 
     .habit-name input {
-      min-height: 34px;
-      padding: 6px 8px;
-      font-weight: 700;
+      min-height: 30px;
+      padding: 5px 7px;
+      font-size: 12px;
+      font-weight: 650;
+      line-height: 1.25;
       border-color: transparent;
       background: #f8fffc;
+    }
+
+    .habit-name-row .btn.icon {
+      width: 30px;
+      height: 30px;
+      min-height: 30px;
+      font-size: 15px;
     }
 
     .cell-toggle {
@@ -913,8 +941,8 @@
     .cell-toggle::after {
       content: "";
       position: absolute;
-      inset: 10px;
-      border-radius: 6px;
+      inset: 8px;
+      border-radius: 5px;
       border: 2px solid #d1d5db;
       background: #fff;
     }
@@ -933,12 +961,13 @@
       place-items: center;
       color: #fff;
       font-weight: 900;
-      font-size: 18px;
+      font-size: 15px;
     }
 
     .total-cell {
-      min-width: 70px;
-      font-weight: 900;
+      min-width: 54px;
+      font-size: 12px;
+      font-weight: 850;
       color: var(--green);
       background: var(--green-soft);
     }
@@ -946,9 +975,10 @@
     .summary-row td {
       background: #f2fffb;
       color: #374151;
-      font-weight: 900;
-      height: 42px;
-      padding: 0 8px;
+      font-size: 11px;
+      font-weight: 800;
+      height: 36px;
+      padding: 0 6px;
       white-space: nowrap;
     }
 
@@ -1342,13 +1372,27 @@
         max-width: var(--habit-name-width);
       }
       .habit-name-row {
-        grid-template-columns: minmax(0, 1fr);
+        grid-template-columns: minmax(0, 1fr) 28px;
+        gap: 5px;
       }
       .habit-name-row .btn.icon {
-        width: 100%;
+        width: 28px;
+        height: 28px;
+        min-height: 28px;
+      }
+      .habit-name input {
+        font-size: 11px;
+        min-height: 28px;
+        padding: 4px 6px;
+      }
+      th {
+        font-size: 10px;
+      }
+      th small {
+        font-size: 8px;
       }
       .cell-toggle {
-        width: 38px;
+        width: var(--habit-cell-size);
       }
       .action-grid {
         grid-template-columns: 1fr;
@@ -1618,7 +1662,7 @@
       <div class="app-menu-head">
         <div>
           <strong id="appMenuTitle">앱 메뉴</strong>
-          <small id="menuVersionText">v0.6.1</small>
+          <small id="menuVersionText">v0.6.3</small>
         </div>
         <button class="btn icon" id="closeMenuBtn" title="닫기">×</button>
       </div>
@@ -1638,8 +1682,8 @@
   </div>
 
   <script>
-    const APP_CACHE_VERSION = "habit-tracker-v0.6.1";
-    const APP_DISPLAY_VERSION = "v0.6.1";
+    const APP_CACHE_VERSION = "habit-tracker-v0.6.3";
+    const APP_DISPLAY_VERSION = "v0.6.3";
     const STORAGE_KEY = "habitTracker.appData.v2";
     const ZOOM_KEY = "habitTracker.zoom.v1";
     const DAY_NAMES = ["일", "월", "화", "수", "목", "금", "토"];
@@ -1704,9 +1748,10 @@
 
     function applyHabitZoom() {
       const root = document.documentElement;
-      root.style.setProperty("--habit-cell-size", `${Math.round(42 * habitZoom)}px`);
-      root.style.setProperty("--habit-name-width", `${Math.round(250 * habitZoom)}px`);
-      root.style.setProperty("--chart-day-width", `${Math.round(38 * habitZoom)}px`);
+      const habitNameWidth = Math.max(320, Math.round(330 * habitZoom));
+      root.style.setProperty("--habit-cell-size", `${Math.round(36 * habitZoom)}px`);
+      root.style.setProperty("--habit-name-width", `${habitNameWidth}px`);
+      root.style.setProperty("--chart-day-width", `${Math.round(34 * habitZoom)}px`);
       document.querySelectorAll(".zoom-label").forEach(label => {
         label.textContent = `${Math.round(habitZoom * 100)}%`;
       });
@@ -1936,7 +1981,7 @@
       if (!stats.days.length) {
         return `<div class="chart-empty">습관을 추가하면 월간 곡선 그래프가 표시됩니다.</div>`;
       }
-      const dayWidth = Math.round(38 * habitZoom);
+      const dayWidth = Math.round(34 * habitZoom);
       const width = Math.max(320, stats.days.length * dayWidth);
       const height = 126;
       const padding = { top: 12, right: 12, bottom: 14, left: 12 };
