@@ -1426,6 +1426,15 @@
       box-shadow: inset 0 0 0 2px rgba(59, 91, 219, 0.42);
     }
 
+    .mandala-tile textarea::placeholder {
+      color: rgba(38, 35, 31, 0.32);
+      font-weight: 700;
+    }
+
+    .mandala-goal textarea::placeholder {
+      color: rgba(255, 255, 255, 0.46);
+    }
+
     .mandala-label {
       position: absolute;
       top: 3px;
@@ -2260,8 +2269,8 @@
     </section>
   </div>
   <script>
-    const APP_CACHE_VERSION = "habit-tracker-v0.9.4";
-    const APP_DISPLAY_VERSION = "v0.9.4";
+    const APP_CACHE_VERSION = "habit-tracker-v0.9.5";
+    const APP_DISPLAY_VERSION = "v0.9.5";
     const STORAGE_KEY = "habitTracker.appData.v2";
     const ZOOM_KEY = "habitTracker.zoom.v3";
     const ZOOM_RESET_KEY = "habitTracker.zoomReset.v0.6.6";
@@ -2314,14 +2323,14 @@
         mantra: "",
         activeArea: 0,
         areas: [
-          { id: "m1", name: "핵심축 1", actions: [] },
-          { id: "m2", name: "핵심축 2", actions: [] },
-          { id: "m3", name: "핵심축 3", actions: [] },
-          { id: "m4", name: "핵심축 4", actions: [] },
-          { id: "m5", name: "핵심축 5", actions: [] },
-          { id: "m6", name: "핵심축 6", actions: [] },
-          { id: "m7", name: "핵심축 7", actions: [] },
-          { id: "m8", name: "핵심축 8", actions: [] }
+          { id: "m1", name: "", actions: [] },
+          { id: "m2", name: "", actions: [] },
+          { id: "m3", name: "", actions: [] },
+          { id: "m4", name: "", actions: [] },
+          { id: "m5", name: "", actions: [] },
+          { id: "m6", name: "", actions: [] },
+          { id: "m7", name: "", actions: [] },
+          { id: "m8", name: "", actions: [] }
         ]
       }
     };
@@ -2658,6 +2667,11 @@
       normalizeWeekStore(doneWeek, { includeDone: false, prefix: "dw" });
     }
 
+    function normalizeMandalaAreaName(name, areaIndex) {
+      const value = String(name || "").trim();
+      return value === `핵심축 ${areaIndex + 1}` ? "" : value;
+    }
+
     function syncWeekEntry(week, options = {}) {
       const startDate = safeWeekStart(week.startDate);
       week.startDate = startDate;
@@ -2680,7 +2694,7 @@
       }
       mandalart.areas = mandalart.areas.slice(0, 8).map((area, areaIndex) => {
         area.id = area.id || makeId("m");
-        area.name = area.name || `핵심축 ${areaIndex + 1}`;
+        area.name = normalizeMandalaAreaName(area.name, areaIndex);
         area.actions = Array.isArray(area.actions) ? area.actions.slice(0, 8) : [];
         while (area.actions.length < 8) area.actions.push({ text: "", done: false });
         area.actions = area.actions.map(action => ({
@@ -3391,10 +3405,11 @@
 
     function mandalaPrintTile({ position, className, label, value, fallback }) {
       const text = String(value || "").trim();
+      const placeholder = text ? "" : String(fallback || "");
       return `
         <div class="pdf-cell ${className} ${text ? "" : "empty"}" style="grid-row:${position.row};grid-column:${position.col};">
           <span>${escapeHtml(label)}</span>
-          <p>${escapeHtml(text || fallback)}</p>
+          <p>${escapeHtml(text || placeholder)}</p>
         </div>
       `;
     }
@@ -3420,7 +3435,7 @@
           className: "print-area",
           label: `AREA ${areaIndex + 1}`,
           value: area.name,
-          fallback: `핵심축 ${areaIndex + 1}`
+          fallback: ""
         }));
       });
 
@@ -3432,7 +3447,7 @@
           className: "print-area print-core",
           label: `AREA ${areaIndex + 1}`,
           value: area.name,
-          fallback: `핵심축 ${areaIndex + 1}`
+          fallback: ""
         }));
         MANDALA_RING_POSITIONS.forEach((innerPosition, actionIndex) => {
           const action = area.actions[actionIndex];
@@ -3450,7 +3465,7 @@
 
     function buildMandalartPillarList() {
       return appData.mandalart.areas.map((area, index) => `
-        <li><span>${index + 1}</span><p>${escapeHtml(area.name || `핵심축 ${index + 1}`)}</p></li>
+        <li class="${area.name ? "" : "empty"}"><span>${index + 1}</span><p>${escapeHtml(area.name)}</p></li>
       `).join("");
     }
 
