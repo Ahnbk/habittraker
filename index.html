@@ -258,37 +258,37 @@
 
     .top-grid {
       display: grid;
-      grid-template-columns: repeat(4, minmax(160px, 1fr));
-      gap: 10px;
-      margin-bottom: 12px;
+      grid-template-columns: repeat(4, minmax(120px, 1fr));
+      gap: 8px;
+      margin-bottom: 10px;
     }
 
     .stat-card {
       background: var(--panel);
       border: 1px solid var(--line);
       border-radius: var(--radius);
-      padding: 12px;
-      min-height: 86px;
+      padding: 9px 10px;
+      min-height: 64px;
     }
 
     .stat-card .label {
       color: var(--muted);
-      font-size: 12px;
+      font-size: 11px;
       font-weight: 800;
-      margin-bottom: 8px;
+      margin-bottom: 5px;
     }
 
     .stat-card .value {
-      font-size: 25px;
+      font-size: 20px;
       font-weight: 900;
       line-height: 1;
     }
 
     .stat-card .sub {
-      margin-top: 8px;
+      margin-top: 5px;
       color: var(--muted);
-      font-size: 12px;
-      line-height: 1.35;
+      font-size: 11px;
+      line-height: 1.25;
     }
 
     .panel {
@@ -350,6 +350,112 @@
       background: linear-gradient(90deg, var(--green), var(--mint-strong));
       border-radius: inherit;
       transition: width 160ms ease;
+    }
+
+    .week-chart {
+      display: grid;
+      grid-template-columns: repeat(7, minmax(34px, 1fr));
+      gap: 6px;
+      margin-top: 10px;
+      padding: 10px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #f8fffc;
+      min-height: 132px;
+    }
+
+    .week-bar {
+      display: grid;
+      grid-template-rows: 18px 72px 16px 16px;
+      gap: 4px;
+      align-items: end;
+      text-align: center;
+      min-width: 0;
+    }
+
+    .week-bar strong,
+    .week-bar small {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .week-bar strong {
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 900;
+    }
+
+    .week-bar small {
+      color: var(--muted);
+      font-size: 10px;
+      font-weight: 800;
+    }
+
+    .bar-track {
+      height: 72px;
+      border-radius: 7px;
+      background: #e5f4ef;
+      border: 1px solid #c8eadf;
+      display: flex;
+      align-items: end;
+      overflow: hidden;
+    }
+
+    .bar-fill {
+      width: 100%;
+      min-height: 2px;
+      border-radius: 7px 7px 0 0;
+      background: linear-gradient(180deg, var(--mint-strong), var(--green));
+    }
+
+    .week-habit-list {
+      margin-top: 10px;
+      max-height: 260px;
+      overflow: auto;
+      padding-right: 2px;
+    }
+
+    .week-habit-item {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+      padding: 9px 10px;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 50px;
+      gap: 8px;
+      align-items: center;
+      min-height: 44px;
+    }
+
+    .week-habit-item strong {
+      display: block;
+      font-size: 13px;
+      line-height: 1.3;
+      word-break: keep-all;
+      overflow-wrap: anywhere;
+    }
+
+    .mini-progress {
+      height: 6px;
+      margin-top: 6px;
+      border-radius: 999px;
+      background: #e5f4ef;
+      overflow: hidden;
+    }
+
+    .mini-progress span {
+      display: block;
+      height: 100%;
+      border-radius: inherit;
+      background: var(--green);
+    }
+
+    .week-habit-item small {
+      color: var(--mint-deep);
+      font-size: 12px;
+      font-weight: 900;
+      text-align: right;
     }
 
     .compact-list {
@@ -838,13 +944,33 @@
       }
       .top-grid {
         grid-template-columns: 1fr 1fr;
-        gap: 8px;
+        gap: 7px;
       }
       .stat-card {
-        padding: 10px;
+        padding: 8px;
+        min-height: 58px;
+      }
+      .stat-card .label {
+        font-size: 10px;
+        margin-bottom: 4px;
       }
       .stat-card .value {
-        font-size: 21px;
+        font-size: 18px;
+      }
+      .stat-card .sub {
+        font-size: 10px;
+        margin-top: 4px;
+      }
+      .week-chart {
+        grid-template-columns: repeat(7, minmax(28px, 1fr));
+        gap: 4px;
+        padding: 8px;
+      }
+      .week-bar {
+        grid-template-rows: 16px 58px 14px 14px;
+      }
+      .bar-track {
+        height: 58px;
       }
       .panel-head {
         align-items: flex-start;
@@ -920,13 +1046,14 @@
           <section class="panel">
             <div class="panel-head">
               <div class="panel-title">
-                <h2>월간 습관 진행</h2>
+                <h2>주간 습관 체크 현황</h2>
                 <p id="monthSummaryText"></p>
               </div>
               <span class="pill green" id="monthRatePill">0%</span>
             </div>
             <div class="panel-body">
               <div class="progress-bar"><span id="monthProgressBar"></span></div>
+              <div class="week-chart" id="habitWeekChart"></div>
               <div class="compact-list" id="topHabitList" style="margin-top: 12px;"></div>
             </div>
           </section>
@@ -1089,8 +1216,8 @@
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
   <script>
-    const APP_CACHE_VERSION = "habit-tracker-v0.3.0";
-    const APP_DISPLAY_VERSION = "v0.3.0";
+    const APP_CACHE_VERSION = "habit-tracker-v0.4.0";
+    const APP_DISPLAY_VERSION = "v0.4.0";
     const STORAGE_KEY = "habitTracker.appData.v2";
     const DAY_NAMES = ["일", "월", "화", "수", "목", "금", "토"];
 
@@ -1304,6 +1431,68 @@
       return { days, possible, done, rate: percent(done, possible), best };
     }
 
+    function habitWeekStats() {
+      const totalDays = daysInMonth(appData.month);
+      let focusIndex = -1;
+      const today = todayDateString();
+      if (today.startsWith(`${appData.month}-`)) {
+        focusIndex = Number(today.slice(-2)) - 1;
+      }
+      if (focusIndex < 0) {
+        for (let index = totalDays - 1; index >= 0; index -= 1) {
+          if (appData.habits.some(habit => habit.checks[index])) {
+            focusIndex = index;
+            break;
+          }
+        }
+      }
+      if (focusIndex < 0) focusIndex = 0;
+
+      const focusDate = parseLocalDate(dateForMonthDay(appData.month, focusIndex + 1));
+      const dayOffset = focusDate.getDay() === 0 ? 6 : focusDate.getDay() - 1;
+      let startIndex = focusIndex - dayOffset;
+      if (startIndex < 0) startIndex = 0;
+      if (startIndex + 6 >= totalDays) startIndex = Math.max(0, totalDays - 7);
+
+      const days = Array.from({ length: Math.min(7, totalDays - startIndex) }, (_, offset) => {
+        const dayIndex = startIndex + offset;
+        const date = parseLocalDate(dateForMonthDay(appData.month, dayIndex + 1));
+        const checked = appData.habits.reduce((sum, habit) => sum + (habit.checks[dayIndex] ? 1 : 0), 0);
+        return {
+          index: dayIndex,
+          date: formatDate(date),
+          label: `${date.getDate()}일`,
+          dayName: DAY_NAMES[date.getDay()],
+          checked,
+          total: appData.habits.length,
+          rate: percent(checked, appData.habits.length)
+        };
+      });
+
+      const possible = appData.habits.length * days.length;
+      const done = days.reduce((sum, day) => sum + day.checked, 0);
+      const habitRows = appData.habits.map(habit => {
+        const weekDone = days.reduce((sum, day) => sum + (habit.checks[day.index] ? 1 : 0), 0);
+        return {
+          id: habit.id,
+          name: habit.name,
+          done: weekDone,
+          total: days.length,
+          rate: percent(weekDone, days.length)
+        };
+      });
+
+      return {
+        days,
+        habitRows,
+        done,
+        possible,
+        rate: percent(done, possible),
+        startDate: days[0]?.date || "",
+        endDate: days[days.length - 1]?.date || ""
+      };
+    }
+
     function weeklyStats() {
       const tasks = appData.week.days.flatMap(day => day.tasks.filter(task => task.title.trim()));
       const done = tasks.filter(task => task.done).length;
@@ -1346,16 +1535,17 @@
 
     function renderDashboard() {
       const habits = habitStats();
+      const habitWeek = habitWeekStats();
       const week = weeklyStats();
       const mandalart = mandalartStats();
       const todayDay = getTodayDay();
       const todayTasks = todayDay.tasks.filter(task => task.title.trim());
       const todayDone = todayTasks.filter(task => task.done).length;
       const stats = [
-        { label: "월간 달성률", value: `${habits.rate}%`, sub: `${habits.done}/${habits.possible}칸 완료` },
-        { label: "관리 습관", value: `${appData.habits.length}개`, sub: `${appData.month.replace("-", "년 ")}월 기준` },
+        { label: "주간 습관", value: `${habitWeek.rate}%`, sub: `${habitWeek.done}/${habitWeek.possible}칸` },
+        { label: "관리 습관", value: `${appData.habits.length}개`, sub: `${appData.month.replace("-", "년 ")}월` },
         { label: "주간 할 일", value: `${week.done}/${week.total}`, sub: `완료율 ${week.rate}%` },
-        { label: "만다라트", value: `${mandalart.done}/${mandalart.total}`, sub: `실행칸 완료율 ${mandalart.rate}%` }
+        { label: "만다라트", value: `${mandalart.done}/${mandalart.total}`, sub: `완료율 ${mandalart.rate}%` }
       ];
       document.getElementById("statGrid").innerHTML = stats.map(stat => `
         <div class="stat-card">
@@ -1364,13 +1554,31 @@
           <div class="sub">${stat.sub}</div>
         </div>
       `).join("");
-      document.getElementById("monthSummaryText").textContent = `${appData.month} · 총 ${habits.done}회 완료`;
-      document.getElementById("monthRatePill").textContent = `${habits.rate}%`;
-      document.getElementById("monthProgressBar").style.width = `${habits.rate}%`;
-      document.getElementById("topHabitList").innerHTML = habits.best.map(habit => `
-        <div class="list-item">
-          <strong>${escapeHtml(habit.name)}</strong>
-          <small>${habit.done}/${habits.days}</small>
+      document.getElementById("monthSummaryText").textContent = habitWeek.days.length
+        ? `${habitWeek.startDate} ~ ${habitWeek.endDate} · ${habitWeek.done}/${habitWeek.possible}칸 완료`
+        : "습관을 추가하면 주간 체크 그래프가 표시됩니다.";
+      document.getElementById("monthRatePill").textContent = `${habitWeek.rate}%`;
+      document.getElementById("monthProgressBar").style.width = `${habitWeek.rate}%`;
+      document.getElementById("habitWeekChart").innerHTML = habitWeek.days.length
+        ? habitWeek.days.map(day => `
+          <div class="week-bar">
+            <strong>${day.dayName}</strong>
+            <div class="bar-track" title="${day.date} ${day.checked}/${day.total}">
+              <div class="bar-fill" style="height:${day.rate}%"></div>
+            </div>
+            <small>${day.label}</small>
+            <small>${day.checked}/${day.total}</small>
+          </div>
+        `).join("")
+        : `<div class="list-item" style="grid-column: 1 / -1;"><strong>습관이 없습니다.</strong><small></small></div>`;
+      document.getElementById("topHabitList").classList.add("week-habit-list");
+      document.getElementById("topHabitList").innerHTML = habitWeek.habitRows.map(habit => `
+        <div class="week-habit-item">
+          <div>
+            <strong>${escapeHtml(habit.name)}</strong>
+            <div class="mini-progress"><span style="width:${habit.rate}%"></span></div>
+          </div>
+          <small>${habit.done}/${habit.total}</small>
         </div>
       `).join("") || emptyLine("습관이 없습니다.");
       document.getElementById("todayDatePill").textContent = todayDay.date || "오늘";
