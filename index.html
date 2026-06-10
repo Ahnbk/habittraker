@@ -47,6 +47,10 @@
       letter-spacing: 0;
     }
 
+    body.menu-open {
+      overflow: hidden;
+    }
+
     button, input, textarea, select {
       font: inherit;
     }
@@ -88,21 +92,21 @@
     .app-shell {
       width: min(100%, 1440px);
       margin: 0 auto;
-      padding: 12px clamp(10px, 2vw, 18px) 28px;
+      padding: 10px clamp(10px, 2vw, 18px) 28px;
     }
 
     .app-header {
-      background: linear-gradient(135deg, #0f1f1d 0%, #12352f 100%);
+      background: #12352f;
       color: #fff;
-      border-radius: 12px;
-      padding: 12px;
+      border-radius: 10px;
+      padding: 9px 10px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 12px;
+      gap: 10px;
       box-shadow: var(--shadow);
       position: sticky;
-      top: 8px;
+      top: 6px;
       z-index: 50;
     }
 
@@ -110,12 +114,12 @@
       min-width: 0;
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 8px;
     }
 
     .brand-mark {
-      width: 34px;
-      height: 34px;
+      width: 32px;
+      height: 32px;
       border-radius: 8px;
       display: grid;
       place-items: center;
@@ -127,7 +131,7 @@
 
     .brand h1 {
       margin: 0;
-      font-size: 18px;
+      font-size: 16px;
       line-height: 1.1;
       white-space: nowrap;
       overflow: hidden;
@@ -137,8 +141,8 @@
     .brand small {
       display: block;
       color: #d1d5db;
-      font-size: 11px;
-      margin-top: 3px;
+      font-size: 10px;
+      margin-top: 2px;
     }
 
     .header-actions,
@@ -154,6 +158,19 @@
     .header-actions {
       justify-content: flex-end;
       flex: 0 0 auto;
+    }
+
+    .menu-button {
+      width: 40px;
+      height: 40px;
+      border-radius: 9px;
+      border: 1px solid rgba(255,255,255,0.18);
+      background: rgba(255,255,255,0.06);
+      color: #fff;
+      font-size: 22px;
+      font-weight: 900;
+      display: grid;
+      place-items: center;
     }
 
     .btn {
@@ -210,9 +227,9 @@
     .tabs {
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 6px;
       overflow-x: auto;
-      padding: 12px 2px 10px;
+      padding: 10px 2px 8px;
       scrollbar-width: thin;
     }
 
@@ -227,7 +244,7 @@
       border-radius: 8px;
       background: #dff8ef;
       color: #064e3b;
-      font-weight: 800;
+      font-weight: 700;
     }
 
     .update-banner.show {
@@ -237,18 +254,105 @@
     .tab-btn {
       flex: 0 0 auto;
       border-radius: 999px;
-      padding: 10px 14px;
+      padding: 8px 12px;
       background: #fff;
       border: 1px solid var(--line);
       color: var(--muted);
       font-weight: 800;
-      min-height: 40px;
+      min-height: 36px;
+      font-size: 13px;
     }
 
     .tab-btn.active {
       background: var(--black);
       border-color: var(--black);
       color: #fff;
+    }
+
+    .app-menu-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 31, 29, 0.32);
+      z-index: 120;
+      display: none;
+      align-items: flex-end;
+      justify-content: center;
+      padding: 12px;
+    }
+
+    .app-menu-backdrop.show {
+      display: flex;
+    }
+
+    .app-menu-sheet {
+      width: min(460px, 100%);
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      box-shadow: 0 22px 60px rgba(15, 31, 29, 0.22);
+      overflow: hidden;
+    }
+
+    .app-menu-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 12px;
+      border-bottom: 1px solid var(--line);
+      background: #fafdfb;
+    }
+
+    .app-menu-head strong {
+      font-size: 15px;
+    }
+
+    .app-menu-head small {
+      display: block;
+      color: var(--muted);
+      font-size: 11px;
+      margin-top: 2px;
+    }
+
+    .menu-list {
+      padding: 8px;
+      display: grid;
+      gap: 6px;
+    }
+
+    .menu-group-title {
+      padding: 8px 10px 2px;
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 900;
+    }
+
+    .menu-item {
+      width: 100%;
+      min-height: 46px;
+      border-radius: 8px;
+      border: 1px solid transparent;
+      background: #fff;
+      color: var(--text);
+      display: grid;
+      grid-template-columns: 32px minmax(0, 1fr) auto;
+      gap: 8px;
+      align-items: center;
+      text-align: left;
+      padding: 8px 10px;
+      font-weight: 700;
+    }
+
+    .menu-item:hover,
+    .menu-item:focus {
+      background: #f8faf9;
+      border-color: var(--line);
+    }
+
+    .menu-item small {
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 700;
     }
 
     .view {
@@ -261,7 +365,7 @@
 
     .top-grid {
       display: grid;
-      grid-template-columns: repeat(4, minmax(120px, 1fr));
+      grid-template-columns: minmax(170px, 1.35fr) repeat(3, minmax(110px, 1fr));
       gap: 8px;
       margin-bottom: 10px;
     }
@@ -270,27 +374,27 @@
       background: var(--panel);
       border: 1px solid var(--line);
       border-radius: var(--radius);
-      padding: 9px 10px;
-      min-height: 64px;
+      padding: 8px 9px;
+      min-height: 58px;
     }
 
     .stat-card .label {
       color: var(--muted);
       font-size: 11px;
-      font-weight: 800;
-      margin-bottom: 5px;
+      font-weight: 650;
+      margin-bottom: 4px;
     }
 
     .stat-card .value {
-      font-size: 20px;
+      font-size: 19px;
       font-weight: 900;
       line-height: 1;
     }
 
     .stat-card .sub {
-      margin-top: 5px;
+      margin-top: 4px;
       color: var(--muted);
-      font-size: 11px;
+      font-size: 10px;
       line-height: 1.25;
     }
 
@@ -303,12 +407,12 @@
     }
 
     .panel-head {
-      padding: 12px;
+      padding: 10px 11px;
       border-bottom: 1px solid var(--line);
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 12px;
+      gap: 8px;
       flex-wrap: wrap;
     }
 
@@ -318,24 +422,202 @@
 
     .panel-title h2 {
       margin: 0;
-      font-size: 17px;
+      font-size: 16px;
       line-height: 1.25;
     }
 
     .panel-title p {
-      margin: 5px 0 0;
+      margin: 3px 0 0;
       color: var(--muted);
       font-size: 12px;
+      font-weight: 550;
     }
 
     .panel-body {
-      padding: 12px;
+      padding: 10px;
     }
 
     .dashboard-layout {
       display: grid;
       grid-template-columns: minmax(0, 1.1fr) minmax(320px, 0.9fr);
+      gap: 10px;
+    }
+
+    .onboarding-card {
+      display: none;
+      align-items: center;
+      justify-content: space-between;
       gap: 12px;
+      margin-bottom: 10px;
+      padding: 12px;
+      border: 1px solid #afe8d8;
+      border-radius: 10px;
+      background: #ffffff;
+      box-shadow: 0 8px 22px rgba(15, 31, 29, 0.06);
+    }
+
+    .onboarding-card.show {
+      display: flex;
+    }
+
+    .onboarding-card strong {
+      display: block;
+      font-size: 15px;
+      margin-bottom: 3px;
+    }
+
+    .onboarding-card small {
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 550;
+    }
+
+    .today-focus-panel {
+      margin-bottom: 10px;
+      border-color: #afe8d8;
+    }
+
+    .today-focus-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(260px, 0.75fr);
+      gap: 10px;
+    }
+
+    .focus-column {
+      min-width: 0;
+      display: grid;
+      gap: 8px;
+      align-content: start;
+    }
+
+    .section-label {
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 900;
+    }
+
+    .today-check-list,
+    .recent-habit-list {
+      display: grid;
+      gap: 8px;
+    }
+
+    .today-habit-item,
+    .today-task-item,
+    .recent-habit-item {
+      border: 1px solid var(--line);
+      border-radius: 9px;
+      background: #fff;
+      min-height: 48px;
+    }
+
+    .today-habit-item {
+      display: grid;
+      grid-template-columns: 42px minmax(0, 1fr) auto;
+      gap: 9px;
+      align-items: center;
+      padding: 8px;
+    }
+
+    .today-habit-item.checked {
+      border-color: #9bd9c8;
+      background: #f5fffb;
+    }
+
+    .today-check-btn {
+      width: 34px;
+      height: 34px;
+      min-height: 34px;
+      border-radius: 9px;
+      border: 2px solid #cbd5d1;
+      background: #fff;
+      color: transparent;
+      font-weight: 900;
+      padding: 0;
+    }
+
+    .today-habit-item.checked .today-check-btn {
+      border-color: var(--green);
+      background: var(--green);
+      color: #fff;
+    }
+
+    .today-habit-main {
+      min-width: 0;
+    }
+
+    .today-habit-main strong,
+    .recent-habit-item strong {
+      display: block;
+      font-size: 14px;
+      line-height: 1.25;
+      overflow-wrap: anywhere;
+    }
+
+    .today-habit-main small,
+    .recent-habit-item small {
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 750;
+    }
+
+    .mini-week-dots {
+      display: grid;
+      grid-template-columns: repeat(7, 10px);
+      gap: 4px;
+      align-items: center;
+      justify-content: end;
+    }
+
+    .mini-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 999px;
+      background: #e5e7eb;
+    }
+
+    .mini-dot.done {
+      background: var(--green);
+    }
+
+    .today-task-item {
+      display: grid;
+      grid-template-columns: 30px minmax(0, 1fr) auto;
+      align-items: center;
+      gap: 8px;
+      padding: 9px 10px;
+      cursor: pointer;
+    }
+
+    .today-task-item input {
+      width: 18px;
+      height: 18px;
+      min-height: 18px;
+      accent-color: var(--green);
+    }
+
+    .today-task-item strong {
+      font-size: 14px;
+      overflow-wrap: anywhere;
+    }
+
+    .today-task-item.done strong {
+      color: var(--muted);
+      text-decoration: line-through;
+    }
+
+    .today-task-item small {
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 800;
+    }
+
+    .recent-habit-item {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 8px;
+      align-items: center;
+      padding: 9px 10px;
     }
 
     .progress-bar {
@@ -360,7 +642,7 @@
       padding: 10px;
       border: 1px solid var(--line);
       border-radius: 8px;
-      background: #f8fffc;
+      background: #fafdfb;
       min-height: 178px;
       overflow-x: auto;
       scrollbar-width: thin;
@@ -575,7 +857,7 @@
       position: sticky;
       top: 0;
       z-index: 2;
-      background: #f2fffb;
+      background: #f8faf9;
       color: #374151;
       font-size: 12px;
       font-weight: 900;
@@ -898,6 +1180,16 @@
       background: #fff;
     }
 
+    .data-box.primary-action {
+      border-color: #9bd9c8;
+      background: #f8fffc;
+    }
+
+    .data-box.danger-zone {
+      border-color: #fecaca;
+      background: #fffafa;
+    }
+
     .data-box h3 {
       margin: 0 0 8px;
       font-size: 15px;
@@ -954,24 +1246,66 @@
 
     @media (max-width: 680px) {
       .app-shell {
-        padding: 8px 8px 22px;
+        padding: 8px 8px calc(84px + env(safe-area-inset-bottom));
       }
       .app-header {
-        align-items: flex-start;
+        align-items: center;
+        top: 6px;
       }
       .brand h1 {
         font-size: 16px;
       }
-      .header-actions .btn:not(.icon) span {
-        display: none;
+      .tabs {
+        position: fixed;
+        left: 8px;
+        right: 8px;
+        bottom: calc(8px + env(safe-area-inset-bottom));
+        z-index: 80;
+        display: grid;
+        grid-template-columns: repeat(5, minmax(0, 1fr));
+        gap: 5px;
+        padding: 6px;
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        background: rgba(255, 255, 255, 0.96);
+        box-shadow: 0 14px 36px rgba(15, 31, 29, 0.18);
+        overflow: visible;
       }
-      .header-actions .btn:not(.icon) {
-        width: 40px;
-        padding: 0;
+      .tab-btn {
+        min-width: 0;
+        min-height: 42px;
+        border-radius: 10px;
+        padding: 6px 4px;
+        font-size: 11px;
+        white-space: normal;
+        line-height: 1.15;
+      }
+      .tab-btn[data-view="done"] {
+        display: none;
       }
       .top-grid {
         grid-template-columns: 1fr 1fr;
         gap: 7px;
+      }
+      .onboarding-card {
+        align-items: stretch;
+        flex-direction: column;
+      }
+      .onboarding-card .row-actions {
+        width: 100%;
+      }
+      .onboarding-card .btn {
+        flex: 1 1 auto;
+      }
+      .today-focus-grid {
+        grid-template-columns: 1fr;
+      }
+      .today-habit-item {
+        grid-template-columns: 42px minmax(0, 1fr);
+      }
+      .today-habit-item .mini-week-dots {
+        grid-column: 2;
+        justify-content: start;
       }
       .stat-card {
         padding: 8px;
@@ -1040,10 +1374,7 @@
         </div>
       </div>
       <div class="header-actions">
-        <button class="btn ghost" id="installBtn" title="앱 설치" hidden>＋ <span>설치</span></button>
-        <button class="btn ghost" id="backupTopBtn" title="백업 다운로드">⬇ <span>백업</span></button>
-        <button class="btn ghost" id="restoreTopBtn" title="백업 복원">⬆ <span>복원</span></button>
-        <button class="btn amber" id="todayBtn" title="오늘 보기">◎ <span>오늘</span></button>
+        <button class="menu-button" id="menuBtn" title="메뉴">≡</button>
       </div>
     </header>
 
@@ -1053,18 +1384,53 @@
     </div>
 
     <nav class="tabs" aria-label="주요 화면">
-      <button class="tab-btn active" data-view="dashboard">대시보드</button>
-      <button class="tab-btn" data-view="habits">월간 습관</button>
-      <button class="tab-btn" data-view="week">주간 할 일</button>
-      <button class="tab-btn" data-view="done">완료 목록</button>
+      <button class="tab-btn active" data-view="dashboard">오늘</button>
+      <button class="tab-btn" data-view="habits">습관</button>
+      <button class="tab-btn" data-view="week">할 일</button>
       <button class="tab-btn" data-view="mandalart">만다라트</button>
       <button class="tab-btn" data-view="data">데이터</button>
     </nav>
 
     <main>
       <section class="view active" id="view-dashboard">
+        <div class="onboarding-card" id="onboardingCard">
+          <div>
+            <strong>데이터를 불러오거나 새로 시작하세요</strong>
+            <small>복원 후에는 이 기기에만 저장됩니다.</small>
+          </div>
+          <div class="row-actions">
+            <button class="btn primary" id="onboardingRestoreBtn">복원</button>
+            <button class="btn" id="onboardingStartBtn">새 습관</button>
+          </div>
+        </div>
+
+        <section class="panel today-focus-panel" id="todayFocusPanel">
+          <div class="panel-head">
+            <div class="panel-title">
+              <h2>오늘 체크</h2>
+              <p id="todaySummaryText"></p>
+            </div>
+            <div class="row-actions">
+              <span class="pill blue" id="todayDatePill"></span>
+              <span class="pill green" id="todayHabitRatePill">0%</span>
+            </div>
+          </div>
+          <div class="panel-body">
+            <div class="today-focus-grid">
+              <div class="focus-column">
+                <div class="section-label">오늘 습관</div>
+                <div class="today-check-list" id="todayHabitList"></div>
+              </div>
+              <div class="focus-column">
+                <div class="section-label">오늘 할 일</div>
+                <div class="compact-list" id="todayTaskList"></div>
+              </div>
+            </div>
+          </div>
+        </section>
+
         <div class="top-grid" id="statGrid"></div>
-        <div class="dashboard-layout">
+        <div class="dashboard-layout" id="dashboardAnalysis">
           <section class="panel">
             <div class="panel-head">
               <div class="panel-title">
@@ -1090,13 +1456,12 @@
           <section class="panel">
             <div class="panel-head">
               <div class="panel-title">
-                <h2>오늘 할 일</h2>
-                <p id="todaySummaryText"></p>
+                <h2>최근 7일 흐름</h2>
+                <p id="recentSummaryText"></p>
               </div>
-              <span class="pill blue" id="todayDatePill"></span>
             </div>
             <div class="panel-body">
-              <div class="compact-list" id="todayTaskList"></div>
+              <div class="recent-habit-list" id="recentHabitList"></div>
             </div>
           </section>
         </div>
@@ -1219,7 +1584,7 @@
                 <p>앱 코드는 공개 배포하고, 실제 데이터는 JSON 백업으로 별도 관리합니다.</p>
                 <span class="pill blue">localStorage + private backup</span>
               </div>
-              <div class="data-box">
+              <div class="data-box primary-action">
                 <h3>백업</h3>
                 <p>현재 앱 데이터를 JSON 파일로 내려받습니다.</p>
                 <button class="btn dark" id="backupBtn">⬇ 백업 다운로드</button>
@@ -1234,7 +1599,7 @@
                 <p>설치된 앱에서 새 버전을 확인하고 준비되면 상단 배너로 적용합니다.</p>
                 <button class="btn primary" id="checkUpdateBtn">업데이트 확인</button>
               </div>
-              <div class="data-box">
+              <div class="data-box danger-zone">
                 <h3>초기화</h3>
                 <p>엑셀에서 가져온 최초 데이터로 되돌립니다.</p>
                 <button class="btn danger" id="resetBtn">초기 데이터로 복구</button>
@@ -1248,10 +1613,33 @@
 
   <input class="hidden-file" type="file" id="restoreFile" accept="application/json,.json">
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <div class="app-menu-backdrop" id="appMenu" aria-hidden="true">
+    <section class="app-menu-sheet" role="dialog" aria-modal="true" aria-labelledby="appMenuTitle">
+      <div class="app-menu-head">
+        <div>
+          <strong id="appMenuTitle">앱 메뉴</strong>
+          <small id="menuVersionText">v0.6.1</small>
+        </div>
+        <button class="btn icon" id="closeMenuBtn" title="닫기">×</button>
+      </div>
+      <div class="menu-list">
+        <div class="menu-group-title">일상 사용</div>
+        <button class="menu-item" data-menu-action="today"><span>◎</span><span>대시보드</span><small>오늘 보기</small></button>
+        <button class="menu-item" data-menu-action="done"><span>✓</span><span>완료 목록</span><small>기록 보기</small></button>
+        <div class="menu-group-title">데이터</div>
+        <button class="menu-item" data-menu-action="backup"><span>↓</span><span>백업 다운로드</span><small>JSON</small></button>
+        <button class="menu-item" data-menu-action="restore"><span>↑</span><span>백업 복원</span><small>JSON</small></button>
+        <button class="menu-item" data-menu-action="data"><span>⚙</span><span>데이터 관리</span><small>복원/초기화</small></button>
+        <div class="menu-group-title">앱 설정</div>
+        <button class="menu-item" data-menu-action="install" id="menuInstallBtn" hidden><span>＋</span><span>앱 설치</span><small>홈 화면</small></button>
+        <button class="menu-item" data-menu-action="update"><span>↻</span><span>업데이트 확인</span><small>앱 새로고침</small></button>
+      </div>
+    </section>
+  </div>
 
   <script>
-    const APP_CACHE_VERSION = "habit-tracker-v0.5.0";
-    const APP_DISPLAY_VERSION = "v0.5.0";
+    const APP_CACHE_VERSION = "habit-tracker-v0.6.1";
+    const APP_DISPLAY_VERSION = "v0.6.1";
     const STORAGE_KEY = "habitTracker.appData.v2";
     const ZOOM_KEY = "habitTracker.zoom.v1";
     const DAY_NAMES = ["일", "월", "화", "수", "목", "금", "토"];
@@ -1295,6 +1683,7 @@
     let swRegistration = null;
     let deferredInstallPrompt = null;
     let habitZoom = loadZoom();
+    let previousFocus = null;
 
     function clone(value) {
       return JSON.parse(JSON.stringify(value));
@@ -1608,13 +1997,52 @@
     }
 
     function getTodayDay() {
+      return getTodayDayContext().day;
+    }
+
+    function getTodayDayContext() {
       const today = todayDateString();
-      return appData.week.days.find(day => day.date === today) || appData.week.days[0];
+      const dayIndex = appData.week.days.findIndex(day => day.date === today);
+      const safeIndex = dayIndex >= 0 ? dayIndex : 0;
+      return {
+        day: appData.week.days[safeIndex] || appData.week.days[0],
+        dayIndex: safeIndex,
+        isCurrentWeek: dayIndex >= 0
+      };
+    }
+
+    function getTodayHabitDayIndex() {
+      if (appData.month !== currentMonth()) return null;
+      return new Date().getDate() - 1;
+    }
+
+    function recentHabitDayIndexes(dayIndex) {
+      const totalDays = daysInMonth(appData.month);
+      const end = dayIndex === null ? totalDays - 1 : Math.min(totalDays - 1, Math.max(0, dayIndex));
+      const start = Math.max(0, end - 6);
+      return Array.from({ length: end - start + 1 }, (_, index) => start + index);
+    }
+
+    function miniWeekDots(habit, indexes) {
+      return `
+        <div class="mini-week-dots" aria-label="최근 체크 흐름">
+          ${indexes.map(index => `
+            <span class="mini-dot ${habit.checks[index] ? "done" : ""}" title="${index + 1}일"></span>
+          `).join("")}
+        </div>
+      `;
+    }
+
+    function dataSummary(data) {
+      const weekTasks = data.week.days.flatMap(day => day.tasks || []).filter(task => task.title && task.title.trim()).length;
+      const mandalartActions = data.mandalart.areas.flatMap(area => area.actions || []).filter(action => action.text && action.text.trim()).length;
+      return `습관 ${data.habits.length}개, 주간 할 일 ${weekTasks}개, 완료 목록 ${data.completed.length}개, 만다라트 실행칸 ${mandalartActions}개`;
     }
 
     function render() {
       applyHabitZoom();
       document.getElementById("versionText").textContent = `${APP_DISPLAY_VERSION} · ${APP_CACHE_VERSION}`;
+      document.getElementById("menuVersionText").textContent = `${APP_DISPLAY_VERSION} · ${APP_CACHE_VERSION}`;
       renderTabs();
       renderDashboard();
       renderHabits();
@@ -1625,7 +2053,9 @@
 
     function renderTabs() {
       document.querySelectorAll(".tab-btn").forEach(button => {
-        button.classList.toggle("active", button.dataset.view === activeView);
+        const isViewTab = button.dataset.view === activeView;
+        const isDoneUnderData = button.dataset.view === "data" && activeView === "done";
+        button.classList.toggle("active", Boolean(isViewTab || isDoneUnderData));
       });
       document.querySelectorAll(".view").forEach(view => {
         view.classList.toggle("active", view.id === `view-${activeView}`);
@@ -1637,9 +2067,23 @@
       const habitMonth = habitMonthGraphStats();
       const week = weeklyStats();
       const mandalart = mandalartStats();
-      const todayDay = getTodayDay();
-      const todayTasks = todayDay.tasks.filter(task => task.title.trim());
+      const todayContext = getTodayDayContext();
+      const todayDay = todayContext.day || { day: "오늘", date: todayDateString(), tasks: [] };
+      const todayTasks = (todayDay.tasks || [])
+        .map((task, taskIndex) => ({ ...task, taskIndex }))
+        .filter(task => task.title.trim());
       const todayDone = todayTasks.filter(task => task.done).length;
+      const todayHabitDayIndex = getTodayHabitDayIndex();
+      const recentIndexes = recentHabitDayIndexes(todayHabitDayIndex);
+      const todayHabitDone = todayHabitDayIndex === null
+        ? 0
+        : appData.habits.reduce((sum, habit) => sum + (habit.checks[todayHabitDayIndex] ? 1 : 0), 0);
+      const todayHabitRate = percent(todayHabitDone, appData.habits.length);
+      const isBlank = appData.habits.length === 0 && week.total === 0 && appData.completed.length === 0 && mandalart.total === 0;
+      document.getElementById("onboardingCard").classList.toggle("show", isBlank);
+      document.getElementById("todayFocusPanel").hidden = isBlank;
+      document.getElementById("statGrid").hidden = isBlank;
+      document.getElementById("dashboardAnalysis").hidden = isBlank;
       const stats = [
         { label: "월간 습관", value: `${habits.rate}%`, sub: `${habits.done}/${habits.possible}칸` },
         { label: "관리 습관", value: `${appData.habits.length}개`, sub: `${appData.month.replace("-", "년 ")}월` },
@@ -1670,15 +2114,48 @@
         </div>
       `).join("") || emptyLine("습관이 없습니다.");
       document.getElementById("todayDatePill").textContent = todayDay.date || "오늘";
-      document.getElementById("todaySummaryText").textContent = `${todayDay.day || ""} · ${todayDone}/${todayTasks.length} 완료`;
+      document.getElementById("todayHabitRatePill").textContent = todayHabitDayIndex === null ? "이번 달 아님" : `${todayHabitRate}%`;
+      document.getElementById("todaySummaryText").textContent = todayHabitDayIndex === null
+        ? "오늘 체크는 이번 달 습관표에서 사용할 수 있습니다."
+        : `${todayDay.day || "오늘"} · 습관 ${todayHabitDone}/${appData.habits.length} · 할 일 ${todayDone}/${todayTasks.length}`;
+      document.getElementById("todayHabitList").innerHTML = todayHabitDayIndex === null
+        ? emptyLine("월간 습관에서 이번 달로 바꾸면 오늘 체크가 열립니다.")
+        : appData.habits.map((habit, habitIndex) => {
+          const checked = Boolean(habit.checks[todayHabitDayIndex]);
+          const doneInRecent = recentIndexes.reduce((sum, index) => sum + (habit.checks[index] ? 1 : 0), 0);
+          return `
+            <div class="today-habit-item ${checked ? "checked" : ""}">
+              <button class="today-check-btn" data-action="toggle-today-habit" data-habit="${habitIndex}" data-day="${todayHabitDayIndex}" title="오늘 체크">${checked ? "✓" : ""}</button>
+              <div class="today-habit-main">
+                <strong>${escapeHtml(habit.name)}</strong>
+                <small>최근 ${recentIndexes.length}일 ${doneInRecent}/${recentIndexes.length}</small>
+              </div>
+              ${miniWeekDots(habit, recentIndexes)}
+            </div>
+          `;
+        }).join("") || emptyLine("오늘 체크할 습관이 없습니다.");
       document.getElementById("todayTaskList").innerHTML = todayTasks.length
         ? todayTasks.map(task => `
-          <div class="list-item">
-            <strong>${task.done ? "✓ " : ""}${escapeHtml(task.title)}</strong>
+          <label class="today-task-item ${task.done ? "done" : ""}">
+            <input type="checkbox" ${task.done ? "checked" : ""} data-action="today-task-done" data-day="${todayContext.dayIndex}" data-task="${task.taskIndex}">
+            <strong>${escapeHtml(task.title)}</strong>
             <small>${task.done ? "완료" : "대기"}</small>
-          </div>
+          </label>
         `).join("")
         : emptyLine("오늘 등록된 할 일이 없습니다.");
+      document.getElementById("recentSummaryText").textContent = `${appData.month} · ${recentIndexes[0] + 1}일~${recentIndexes[recentIndexes.length - 1] + 1}일`;
+      document.getElementById("recentHabitList").innerHTML = appData.habits.map(habit => {
+        const doneInRecent = recentIndexes.reduce((sum, index) => sum + (habit.checks[index] ? 1 : 0), 0);
+        return `
+          <div class="recent-habit-item">
+            <div>
+              <strong>${escapeHtml(habit.name)}</strong>
+              <small>${doneInRecent}/${recentIndexes.length} 완료</small>
+            </div>
+            ${miniWeekDots(habit, recentIndexes)}
+          </div>
+        `;
+      }).join("") || emptyLine("최근 흐름을 볼 습관이 없습니다.");
     }
 
     function renderHabits() {
@@ -1812,6 +2289,58 @@
       renderTabs();
     }
 
+    function openMenu() {
+      const menu = document.getElementById("appMenu");
+      previousFocus = document.activeElement;
+      menu.classList.add("show");
+      menu.setAttribute("aria-hidden", "false");
+      document.body.classList.add("menu-open");
+      window.setTimeout(() => document.getElementById("closeMenuBtn").focus(), 0);
+    }
+
+    function closeMenu() {
+      const menu = document.getElementById("appMenu");
+      menu.classList.remove("show");
+      menu.setAttribute("aria-hidden", "true");
+      document.body.classList.remove("menu-open");
+      if (previousFocus && typeof previousFocus.focus === "function") previousFocus.focus();
+    }
+
+    async function requestInstall() {
+      if (!deferredInstallPrompt) {
+        showToast("브라우저 메뉴에서 홈 화면에 추가를 사용할 수 있습니다.");
+        return;
+      }
+      deferredInstallPrompt.prompt();
+      await deferredInstallPrompt.userChoice;
+      deferredInstallPrompt = null;
+      document.getElementById("menuInstallBtn").hidden = true;
+      showToast("설치 요청을 완료했습니다.");
+    }
+
+    async function checkForUpdate() {
+      if (!swRegistration) {
+        showToast("업데이트 확인은 배포 환경에서 사용할 수 있습니다.");
+        return;
+      }
+      await swRegistration.update();
+      showToast(waitingWorker ? "새 버전이 준비됐습니다." : "현재 최신 버전입니다.");
+    }
+
+    async function handleMenuAction(action) {
+      closeMenu();
+      if (action === "today") {
+        switchView("dashboard");
+        showToast("대시보드로 이동했습니다.");
+      }
+      if (action === "install") await requestInstall();
+      if (action === "backup") downloadBackup();
+      if (action === "restore") document.getElementById("restoreFile").click();
+      if (action === "update") await checkForUpdate();
+      if (action === "done") switchView("done");
+      if (action === "data") switchView("data");
+    }
+
     function downloadBackup() {
       const payload = {
         ...appData,
@@ -1832,7 +2361,11 @@
       reader.onload = () => {
         try {
           const parsed = JSON.parse(String(reader.result));
-          appData = normalizeData(parsed);
+          const restored = normalizeData(parsed);
+          const backupDate = restored.exportedAt ? `\n백업일: ${new Date(restored.exportedAt).toLocaleString()}` : "";
+          const confirmed = confirm(`이 백업으로 현재 데이터를 덮어쓸까요?\n\n파일: ${file.name}${backupDate}\n내용: ${dataSummary(restored)}\n\n현재 이 기기의 데이터가 교체됩니다.`);
+          if (!confirmed) return;
+          appData = restored;
           saveData("백업을 복원했습니다.");
         } catch (error) {
           console.error(error);
@@ -1852,12 +2385,46 @@
       document.querySelector(".tabs").addEventListener("click", event => {
         const button = event.target.closest(".tab-btn");
         if (!button) return;
+        if (button.dataset.menuOpen) {
+          openMenu();
+          return;
+        }
         switchView(button.dataset.view);
       });
 
-      document.getElementById("todayBtn").addEventListener("click", () => {
-        switchView("dashboard");
-        showToast("오늘 화면으로 이동했습니다.");
+      document.getElementById("menuBtn").addEventListener("click", openMenu);
+      document.getElementById("closeMenuBtn").addEventListener("click", closeMenu);
+      document.getElementById("onboardingRestoreBtn").addEventListener("click", () => document.getElementById("restoreFile").click());
+      document.getElementById("onboardingStartBtn").addEventListener("click", () => {
+        switchView("habits");
+        document.getElementById("newHabitInput").focus();
+      });
+      document.getElementById("todayHabitList").addEventListener("click", event => {
+        const button = event.target.closest("[data-action='toggle-today-habit']");
+        if (!button) return;
+        const habitIndex = Number(button.dataset.habit);
+        const dayIndex = Number(button.dataset.day);
+        if (!appData.habits[habitIndex]) return;
+        appData.habits[habitIndex].checks[dayIndex] = !appData.habits[habitIndex].checks[dayIndex];
+        saveData();
+      });
+      document.getElementById("todayTaskList").addEventListener("change", event => {
+        const target = event.target;
+        if (target.dataset.action !== "today-task-done") return;
+        const dayIndex = Number(target.dataset.day);
+        const taskIndex = Number(target.dataset.task);
+        if (!appData.week.days[dayIndex]?.tasks[taskIndex]) return;
+        appData.week.days[dayIndex].tasks[taskIndex].done = target.checked;
+        saveData();
+      });
+      document.getElementById("appMenu").addEventListener("click", event => {
+        if (event.target.id === "appMenu") closeMenu();
+        const item = event.target.closest("[data-menu-action]");
+        if (!item) return;
+        handleMenuAction(item.dataset.menuAction);
+      });
+      document.addEventListener("keydown", event => {
+        if (event.key === "Escape") closeMenu();
       });
 
       document.addEventListener("click", event => {
@@ -1867,40 +2434,20 @@
         setHabitZoom(habitZoom + direction);
       });
 
-      document.getElementById("installBtn").addEventListener("click", async () => {
-        if (!deferredInstallPrompt) {
-          showToast("브라우저 메뉴에서 홈 화면에 추가를 사용할 수 있습니다.");
-          return;
-        }
-        deferredInstallPrompt.prompt();
-        await deferredInstallPrompt.userChoice;
-        deferredInstallPrompt = null;
-        document.getElementById("installBtn").hidden = true;
-      });
-
       document.getElementById("applyUpdateBtn").addEventListener("click", () => {
         if (!waitingWorker) return;
         waitingWorker.postMessage({ type: "SKIP_WAITING" });
       });
 
       document.getElementById("backupBtn").addEventListener("click", downloadBackup);
-      document.getElementById("backupTopBtn").addEventListener("click", downloadBackup);
       document.getElementById("restoreBtn").addEventListener("click", () => document.getElementById("restoreFile").click());
-      document.getElementById("restoreTopBtn").addEventListener("click", () => document.getElementById("restoreFile").click());
       document.getElementById("restoreFile").addEventListener("change", event => {
         const file = event.target.files?.[0];
         if (file) restoreFromFile(file);
         event.target.value = "";
       });
       document.getElementById("resetBtn").addEventListener("click", resetData);
-      document.getElementById("checkUpdateBtn").addEventListener("click", async () => {
-        if (!swRegistration) {
-          showToast("업데이트 확인은 배포 환경에서 사용할 수 있습니다.");
-          return;
-        }
-        await swRegistration.update();
-        showToast(waitingWorker ? "새 버전이 준비됐습니다." : "현재 최신 버전입니다.");
-      });
+      document.getElementById("checkUpdateBtn").addEventListener("click", checkForUpdate);
 
       document.getElementById("monthInput").addEventListener("change", event => {
         appData.month = event.target.value || currentMonth();
@@ -2058,12 +2605,12 @@
     window.addEventListener("beforeinstallprompt", event => {
       event.preventDefault();
       deferredInstallPrompt = event;
-      document.getElementById("installBtn").hidden = false;
+      document.getElementById("menuInstallBtn").hidden = false;
     });
 
     window.addEventListener("appinstalled", () => {
       deferredInstallPrompt = null;
-      document.getElementById("installBtn").hidden = true;
+      document.getElementById("menuInstallBtn").hidden = true;
       showToast("앱이 설치됐습니다.");
     });
 
