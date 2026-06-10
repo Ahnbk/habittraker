@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="theme-color" content="#26231f">
+  <meta name="theme-color" content="#2d251c">
   <title>해빗트래커</title>
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="icon" href="icons/icon.svg" type="image/svg+xml">
@@ -12,29 +12,32 @@
   <style>
     :root {
       color-scheme: light;
-      --bg: #f7f4ef;
-      --panel: #ffffff;
-      --line: #e5ded4;
-      --line-strong: #cbbfaf;
-      --text: #26231f;
-      --muted: #746c62;
-      --black: #26231f;
-      --green: #16a34a;
-      --green-soft: #eaf7ed;
-      --amber: #b7791f;
-      --amber-soft: #fff4db;
-      --blue: #3b5bdb;
-      --blue-soft: #eef2ff;
+      --bg: #eadfcd;
+      --panel: rgba(255, 253, 246, 0.92);
+      --paper: rgba(255, 250, 239, 0.86);
+      --paper-strong: #fff7e7;
+      --line: #dfcfba;
+      --line-strong: #bda98e;
+      --text: #2d251c;
+      --muted: #756858;
+      --black: #2d251c;
+      --green: #2f9b6c;
+      --green-soft: #eaf6ed;
+      --amber: #af7433;
+      --amber-soft: #fff2d5;
+      --blue: #2f7f74;
+      --blue-soft: #e4f2eb;
       --red: #dc2626;
       --red-soft: #fef2f2;
-      --stone: #fbfaf7;
-      --mint-strong: #16a34a;
-      --mint-deep: #1f7a4d;
-      --coral: #f97360;
-      --coral-soft: #fff1ee;
-      --lemon: #f4c430;
-      --lemon-soft: #fff8d8;
-      --shadow: 0 12px 28px rgba(38, 35, 31, 0.08);
+      --stone: rgba(255, 250, 239, 0.72);
+      --mint-strong: #2f9b6c;
+      --mint-deep: #1f6f58;
+      --coral: #e9795f;
+      --coral-soft: #fff0eb;
+      --lemon: #e7b94e;
+      --lemon-soft: #fff5d4;
+      --tape: #f3d28d;
+      --shadow: 0 16px 34px rgba(71, 52, 30, 0.12);
       --radius: 8px;
       --habit-cell-size: 36px;
       --habit-name-width: 330px;
@@ -43,13 +46,32 @@
     }
 
     * { box-sizing: border-box; }
+    [hidden] { display: none !important; }
     html { background: var(--bg); }
     body {
       margin: 0;
       min-height: 100vh;
-      background: var(--bg);
+      background:
+        radial-gradient(circle at 16% 8%, rgba(255, 255, 255, 0.5), transparent 28%),
+        linear-gradient(180deg, rgba(246, 229, 198, 0.22), rgba(229, 210, 176, 0.18)),
+        url("assets/paper-diary-bg.webp") center / cover fixed,
+        var(--bg);
       color: var(--text);
       letter-spacing: 0;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+      background:
+        linear-gradient(90deg, rgba(84, 65, 42, 0.035) 1px, transparent 1px),
+        linear-gradient(180deg, rgba(84, 65, 42, 0.026) 1px, transparent 1px);
+      background-size: 34px 34px;
+      mix-blend-mode: multiply;
+      opacity: 0.46;
     }
 
     body.menu-open {
@@ -76,7 +98,7 @@
       width: 100%;
       border: 1px solid var(--line);
       border-radius: 8px;
-      background: #fff;
+      background: rgba(255, 253, 246, 0.92);
       color: var(--text);
       min-height: 40px;
       padding: 9px 10px;
@@ -98,10 +120,14 @@
       width: min(100%, 1440px);
       margin: 0 auto;
       padding: 10px clamp(10px, 2vw, 18px) 28px;
+      position: relative;
+      z-index: 1;
     }
 
     .app-header {
-      background: var(--black);
+      background:
+        linear-gradient(135deg, rgba(45, 37, 28, 0.96), rgba(58, 87, 66, 0.94)),
+        var(--black);
       color: #fff;
       border-radius: 10px;
       padding: 9px 10px;
@@ -113,6 +139,8 @@
       position: sticky;
       top: 6px;
       z-index: 50;
+      border: 1px solid rgba(255, 246, 227, 0.16);
+      backdrop-filter: blur(12px);
     }
 
     .brand {
@@ -128,10 +156,11 @@
       border-radius: 8px;
       display: grid;
       place-items: center;
-      background: var(--blue);
-      color: #fff;
+      background: var(--paper-strong);
+      color: var(--mint-deep);
       font-weight: 900;
       flex: 0 0 auto;
+      box-shadow: inset 0 0 0 1px rgba(45, 37, 28, 0.1), 0 4px 14px rgba(0, 0, 0, 0.12);
     }
 
     .brand h1 {
@@ -204,9 +233,10 @@
     }
 
     .btn.primary {
-      background: var(--blue);
+      background: linear-gradient(135deg, var(--mint-deep), var(--mint-strong));
       color: #fff;
-      border-color: var(--blue);
+      border-color: rgba(31, 111, 88, 0.82);
+      box-shadow: 0 8px 18px rgba(47, 155, 108, 0.16);
     }
 
     .btn.amber {
@@ -240,6 +270,10 @@
       overflow-x: auto;
       padding: 10px 2px 8px;
       scrollbar-width: thin;
+      position: sticky;
+      top: 58px;
+      z-index: 45;
+      backdrop-filter: blur(10px);
     }
 
     .update-banner {
@@ -264,7 +298,7 @@
       flex: 0 0 auto;
       border-radius: 999px;
       padding: 8px 12px;
-      background: #fff;
+      background: rgba(255, 250, 239, 0.82);
       border: 1px solid var(--line);
       color: var(--muted);
       font-weight: 800;
@@ -275,10 +309,10 @@
     }
 
     .tab-btn.active {
-      background: linear-gradient(135deg, var(--black), #374151);
-      border-color: #374151;
+      background: linear-gradient(135deg, #2d251c, #276150);
+      border-color: rgba(39, 97, 80, 0.9);
       color: #fff;
-      box-shadow: 0 6px 14px rgba(38, 35, 31, 0.16);
+      box-shadow: 0 7px 18px rgba(45, 37, 28, 0.2);
     }
 
     .app-menu-backdrop {
@@ -298,7 +332,7 @@
 
     .app-menu-sheet {
       width: min(460px, 100%);
-      background: #fff;
+      background: rgba(255, 250, 239, 0.97);
       border: 1px solid var(--line);
       border-radius: 12px;
       box-shadow: 0 22px 60px rgba(38, 35, 31, 0.22);
@@ -318,7 +352,9 @@
       gap: 10px;
       padding: 12px;
       border-bottom: 1px solid var(--line);
-      background: var(--stone);
+      background:
+        linear-gradient(135deg, rgba(243, 210, 141, 0.28), rgba(228, 242, 235, 0.42)),
+        var(--stone);
     }
 
     .app-menu-head strong {
@@ -350,7 +386,7 @@
       min-height: 46px;
       border-radius: 8px;
       border: 1px solid transparent;
-      background: #fff;
+      background: rgba(255, 253, 246, 0.8);
       color: var(--text);
       display: grid;
       grid-template-columns: 32px minmax(0, 1fr) auto;
@@ -361,6 +397,7 @@
       font-weight: 700;
       position: relative;
       overflow: hidden;
+      box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.36);
     }
 
     .menu-item:hover,
@@ -447,6 +484,11 @@
       100% { transform: translateY(0); opacity: 1; }
     }
 
+    @keyframes coachFloat {
+      0%, 100% { transform: translateY(0) rotate(-1deg); }
+      50% { transform: translateY(-5px) rotate(1deg); }
+    }
+
     .top-grid {
       display: grid;
       grid-template-columns: minmax(170px, 1.35fr) repeat(3, minmax(110px, 1fr));
@@ -460,11 +502,24 @@
       border-radius: var(--radius);
       padding: 8px 9px;
       min-height: 58px;
-      box-shadow: 0 5px 16px rgba(38, 35, 31, 0.035);
+      box-shadow: 0 8px 22px rgba(71, 52, 30, 0.07), inset 0 0 0 1px rgba(255, 255, 255, 0.38);
       animation: softLift 220ms ease both;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .stat-card::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.46), transparent 42%);
+      opacity: 0.68;
     }
 
     .stat-card .label {
+      position: relative;
+      z-index: 1;
       color: var(--muted);
       font-size: 11px;
       font-weight: 650;
@@ -472,12 +527,16 @@
     }
 
     .stat-card .value {
+      position: relative;
+      z-index: 1;
       font-size: 19px;
       font-weight: 900;
       line-height: 1;
     }
 
     .stat-card .sub {
+      position: relative;
+      z-index: 1;
       margin-top: 4px;
       color: var(--muted);
       font-size: 10px;
@@ -488,8 +547,9 @@
       background: var(--panel);
       border: 1px solid var(--line);
       border-radius: var(--radius);
-      box-shadow: 0 6px 18px rgba(38, 35, 31, 0.04);
+      box-shadow: 0 10px 26px rgba(71, 52, 30, 0.08), inset 0 0 0 1px rgba(255, 255, 255, 0.34);
       overflow: hidden;
+      backdrop-filter: blur(6px);
     }
 
     .panel-head {
@@ -553,8 +613,10 @@
       padding: 12px;
       border: 1px solid var(--line);
       border-radius: 10px;
-      background: #ffffff;
-      box-shadow: 0 8px 22px rgba(38, 35, 31, 0.06);
+      background:
+        linear-gradient(135deg, rgba(255, 255, 255, 0.48), rgba(255, 255, 255, 0) 44%),
+        var(--panel);
+      box-shadow: 0 8px 22px rgba(71, 52, 30, 0.08);
     }
 
     .onboarding-card.show {
@@ -573,11 +635,87 @@
       font-weight: 550;
     }
 
+    .coach-card {
+      position: relative;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 116px;
+      align-items: end;
+      gap: 12px;
+      min-height: 126px;
+      margin-bottom: 10px;
+      padding: 14px 14px 12px;
+      border: 1px solid rgba(189, 169, 142, 0.76);
+      border-radius: 12px;
+      background:
+        linear-gradient(135deg, rgba(255, 255, 255, 0.62), rgba(255, 247, 231, 0.1) 38%),
+        linear-gradient(180deg, rgba(243, 210, 141, 0.26), rgba(228, 242, 235, 0.32)),
+        var(--panel);
+      box-shadow: 0 14px 30px rgba(71, 52, 30, 0.1), inset 0 0 0 1px rgba(255, 255, 255, 0.42);
+      overflow: hidden;
+      isolation: isolate;
+      animation: softLift 240ms ease both;
+    }
+
+    .coach-card::before {
+      content: "";
+      position: absolute;
+      top: -9px;
+      left: 18px;
+      width: 76px;
+      height: 20px;
+      background: linear-gradient(90deg, rgba(243, 210, 141, 0.86), rgba(255, 238, 180, 0.76));
+      border: 1px solid rgba(189, 169, 142, 0.5);
+      border-radius: 4px;
+      transform: rotate(-2deg);
+      box-shadow: 0 4px 10px rgba(71, 52, 30, 0.08);
+      opacity: 0.88;
+    }
+
+    .coach-copy {
+      position: relative;
+      z-index: 1;
+      min-width: 0;
+    }
+
+    .coach-copy strong {
+      display: block;
+      margin-top: 7px;
+      font-size: clamp(20px, 3.4vw, 30px);
+      line-height: 1.05;
+      color: var(--black);
+      overflow-wrap: break-word;
+      word-break: keep-all;
+    }
+
+    .coach-copy p {
+      margin: 8px 0 0;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.45;
+      font-weight: 650;
+      max-width: 48rem;
+      overflow-wrap: break-word;
+      word-break: keep-all;
+    }
+
+    .coach-character {
+      position: relative;
+      z-index: 1;
+      width: min(116px, 26vw);
+      justify-self: end;
+      align-self: end;
+      filter: drop-shadow(0 12px 18px rgba(71, 52, 30, 0.24));
+      transform-origin: 50% 100%;
+      animation: coachFloat 3.8s ease-in-out infinite;
+      pointer-events: none;
+      user-select: none;
+    }
+
     .today-focus-panel {
       margin-bottom: 10px;
-      border-color: #cfd8ff;
+      border-color: rgba(47, 127, 116, 0.32);
       background:
-        linear-gradient(135deg, rgba(238, 242, 255, 0.72), rgba(255, 255, 255, 0) 44%),
+        linear-gradient(135deg, rgba(228, 242, 235, 0.72), rgba(255, 255, 255, 0) 44%),
         var(--panel);
     }
 
@@ -609,10 +747,11 @@
     .today-task-item {
       border: 1px solid var(--line);
       border-radius: 9px;
-      background: #fff;
+      background: rgba(255, 253, 246, 0.88);
       min-height: 48px;
       position: relative;
       overflow: hidden;
+      box-shadow: 0 4px 12px rgba(71, 52, 30, 0.045);
     }
 
     .today-habit-item {
@@ -727,7 +866,9 @@
       padding: 10px;
       border: 1px solid var(--line);
       border-radius: 8px;
-      background: var(--stone);
+      background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.38), rgba(255, 255, 255, 0)),
+        var(--stone);
       min-height: 178px;
       overflow-x: auto;
       scrollbar-width: thin;
@@ -1356,7 +1497,7 @@
       border: 1px solid var(--line);
       border-radius: 8px;
       background:
-        linear-gradient(135deg, rgba(59, 91, 219, 0.1), rgba(255, 255, 255, 0) 36%),
+        linear-gradient(135deg, rgba(47, 127, 116, 0.12), rgba(255, 255, 255, 0) 36%),
         var(--stone);
       padding: 8px;
       max-height: calc(100vh - 220px);
@@ -1386,7 +1527,7 @@
       min-height: 0;
       border: 1px solid #e1dad0;
       border-radius: 6px;
-      background: #fff;
+      background: rgba(255, 253, 246, 0.92);
       overflow: hidden;
       box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.46);
     }
@@ -1462,12 +1603,12 @@
     }
 
     .mandala-area {
-      background: var(--blue-soft);
-      border-color: #cfd8ff;
+      background: #e4f2eb;
+      border-color: #b9dccc;
     }
 
     .mandala-area-core {
-      background: #dfe6ff;
+      background: #d7eadf;
       border-color: var(--blue);
       border-width: 2px;
     }
@@ -1482,7 +1623,7 @@
       border: 1px solid var(--line);
       border-radius: 8px;
       padding: 12px;
-      background: #fff;
+      background: rgba(255, 253, 246, 0.88);
     }
 
     .data-box.primary-action {
@@ -1753,6 +1894,7 @@
         position: fixed;
         left: 8px;
         right: 8px;
+        top: auto;
         bottom: calc(8px + env(safe-area-inset-bottom));
         z-index: 80;
         display: grid;
@@ -1777,6 +1919,22 @@
       .top-grid {
         grid-template-columns: 1fr 1fr;
         gap: 7px;
+      }
+      .coach-card {
+        grid-template-columns: minmax(0, 1fr) 82px;
+        min-height: 108px;
+        padding: 13px 12px 10px;
+        gap: 8px;
+      }
+      .coach-copy strong {
+        font-size: 20px;
+      }
+      .coach-copy p {
+        font-size: 12px;
+        line-height: 1.4;
+      }
+      .coach-character {
+        width: 82px;
       }
       .onboarding-card {
         align-items: stretch;
@@ -1940,6 +2098,21 @@
       .top-grid {
         grid-template-columns: repeat(4, minmax(120px, 1fr));
       }
+      .coach-card {
+        min-height: 94px;
+        grid-template-columns: minmax(0, 1fr) 76px;
+        padding: 10px 12px;
+      }
+      .coach-copy strong {
+        font-size: 18px;
+      }
+      .coach-copy p {
+        font-size: 12px;
+        margin-top: 5px;
+      }
+      .coach-character {
+        width: 72px;
+      }
       .today-focus-grid {
         grid-template-columns: minmax(0, 1fr) minmax(260px, 0.8fr);
       }
@@ -2014,6 +2187,15 @@
             <button class="btn" id="onboardingStartBtn">새 습관</button>
           </div>
         </div>
+
+        <section class="coach-card" id="coachCard" aria-live="polite">
+          <div class="coach-copy">
+            <span class="section-label">다이어리 코치</span>
+            <strong id="coachHeadline">오늘의 한 칸부터</strong>
+            <p id="coachMessage">습관을 하나 체크하면 이 종이 위에 오늘의 리듬이 남아요.</p>
+          </div>
+          <img class="coach-character" src="assets/avocado-coach.webp" alt="" decoding="async">
+        </section>
 
         <section class="panel today-focus-panel" id="todayFocusPanel">
           <div class="panel-head">
@@ -2269,8 +2451,8 @@
     </section>
   </div>
   <script>
-    const APP_CACHE_VERSION = "habit-tracker-v0.9.5";
-    const APP_DISPLAY_VERSION = "v0.9.5";
+    const APP_CACHE_VERSION = "habit-tracker-v0.9.6";
+    const APP_DISPLAY_VERSION = "v0.9.6";
     const STORAGE_KEY = "habitTracker.appData.v2";
     const ZOOM_KEY = "habitTracker.zoom.v3";
     const ZOOM_RESET_KEY = "habitTracker.zoomReset.v0.6.6";
@@ -3060,6 +3242,44 @@
       });
     }
 
+    function dashboardCoachCopy({ isBlank, todayHabitRate, todayHabitDone, totalHabits, todayDone, todayTaskCount, mandalart }) {
+      const mantra = (appData.mandalart.mantra || "").trim();
+      if (isBlank) {
+        return {
+          headline: "첫 장을 펼쳤어요",
+          message: "습관 하나만 추가하면 오늘 체크판과 그래프가 살아나요."
+        };
+      }
+      if (mantra) {
+        return {
+          headline: mantra,
+          message: "오늘은 이 문장을 기준점으로 잡고, 가장 작은 행동 한 칸만 남겨봐요."
+        };
+      }
+      if (totalHabits && todayHabitRate === 100) {
+        return {
+          headline: "오늘 습관은 전부 완료",
+          message: `${todayHabitDone}개를 모두 채웠어요. 이제 한 일 탭에 오늘의 느낌을 짧게 남겨두면 좋아요.`
+        };
+      }
+      if (todayTaskCount && todayDone === todayTaskCount) {
+        return {
+          headline: "할 일 흐름이 좋아요",
+          message: "체크가 끝난 날은 기록이 오래 남아요. 저녁에는 한 일 탭에서 하루를 정리해봐요."
+        };
+      }
+      if (mandalart.rate < 30) {
+        return {
+          headline: "목표 지도를 천천히 채워요",
+          message: "만다라트는 한 번에 완성하지 않아도 괜찮아요. 핵심축 하나만 더 채워도 방향이 선명해져요."
+        };
+      }
+      return {
+        headline: "오늘의 리듬을 이어가는 중",
+        message: `습관 ${todayHabitDone}/${totalHabits}개, 할 일 ${todayDone}/${todayTaskCount}개가 오늘 종이에 남았어요.`
+      };
+    }
+
     function renderDashboard() {
       const habits = habitStats();
       const week = weeklyStats();
@@ -3080,6 +3300,17 @@
       document.getElementById("onboardingCard").classList.toggle("show", isBlank);
       document.getElementById("todayFocusPanel").hidden = isBlank;
       document.getElementById("statGrid").hidden = isBlank;
+      const coachCopy = dashboardCoachCopy({
+        isBlank,
+        todayHabitRate,
+        todayHabitDone,
+        totalHabits: appData.habits.length,
+        todayDone,
+        todayTaskCount: todayTasks.length,
+        mandalart
+      });
+      document.getElementById("coachHeadline").textContent = coachCopy.headline;
+      document.getElementById("coachMessage").textContent = coachCopy.message;
       const stats = [
         { label: "월간 습관", value: `${habits.rate}%`, sub: `${habits.done}/${habits.possible}칸` },
         { label: "관리 습관", value: `${appData.habits.length}개`, sub: `${appData.month.replace("-", "년 ")}월` },

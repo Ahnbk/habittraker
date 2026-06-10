@@ -1,4 +1,4 @@
-const CACHE_NAME = "habit-tracker-v0.9.5";
+const CACHE_NAME = "habit-tracker-v0.9.6";
 const APP_SHELL = [
   "./",
   "./index.html",
@@ -6,7 +6,9 @@ const APP_SHELL = [
   "./icons/icon.svg",
   "./icons/icon-192.png",
   "./icons/icon-512.png",
-  "./icons/maskable-512.png"
+  "./icons/maskable-512.png",
+  "./assets/paper-diary-bg.webp",
+  "./assets/avocado-coach.webp"
 ];
 
 self.addEventListener("install", event => {
