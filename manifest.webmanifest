@@ -1,0 +1,32 @@
+{
+  "name": "해빗트래커",
+  "short_name": "해빗",
+  "description": "월간 습관, 주간 할 일, 오타니식 만다라트 목표 보드를 관리하는 PWA",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#eefbf7",
+  "theme_color": "#0f1f1d",
+  "lang": "ko-KR",
+  "icons": [
+    {
+      "src": "icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icons/maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}

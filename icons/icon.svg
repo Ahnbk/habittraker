@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="해빗트래커">
+  <rect width="512" height="512" rx="108" fill="#0f1f1d"/>
+  <rect x="74" y="74" width="364" height="364" rx="76" fill="#dff8ef"/>
+  <rect x="118" y="132" width="276" height="46" rx="23" fill="#00a884"/>
+  <rect x="118" y="218" width="70" height="70" rx="18" fill="#10d0a1"/>
+  <rect x="221" y="218" width="70" height="70" rx="18" fill="#ffffff"/>
+  <rect x="324" y="218" width="70" height="70" rx="18" fill="#ffffff"/>
+  <rect x="118" y="321" width="70" height="70" rx="18" fill="#ffffff"/>
+  <rect x="221" y="321" width="70" height="70" rx="18" fill="#10d0a1"/>
+  <rect x="324" y="321" width="70" height="70" rx="18" fill="#ffffff"/>
+  <path d="M135 250l15 16 33-37" fill="none" stroke="#0f1f1d" stroke-width="16" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M238 353l15 16 33-37" fill="none" stroke="#0f1f1d" stroke-width="16" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

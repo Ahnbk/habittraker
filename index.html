@@ -1,0 +1,1802 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#111827">
+  <title>해빗트래커</title>
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="icons/icon-192.png">
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #eefbf7;
+      --panel: #ffffff;
+      --line: #c9e7df;
+      --line-strong: #84cbb8;
+      --text: #12312b;
+      --muted: #6b7280;
+      --black: #0f1f1d;
+      --green: #00a884;
+      --green-soft: #dff8ef;
+      --amber: #b45309;
+      --amber-soft: #fff5df;
+      --blue: #2563eb;
+      --blue-soft: #eaf1ff;
+      --red: #dc2626;
+      --red-soft: #fef2f2;
+      --stone: #f3fbf8;
+      --mint-strong: #10d0a1;
+      --mint-deep: #04745f;
+      --shadow: 0 12px 28px rgba(15, 31, 29, 0.09);
+      --radius: 8px;
+      font-family: "Pretendard", "Apple SD Gothic Neo", "Malgun Gothic", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+    html { background: var(--bg); }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: var(--bg);
+      color: var(--text);
+      letter-spacing: 0;
+    }
+
+    button, input, textarea, select {
+      font: inherit;
+    }
+
+    button {
+      border: 0;
+      cursor: pointer;
+      min-height: 40px;
+      touch-action: manipulation;
+    }
+
+    button:disabled {
+      cursor: not-allowed;
+      opacity: 0.55;
+    }
+
+    input, textarea, select {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+      color: var(--text);
+      min-height: 40px;
+      padding: 9px 10px;
+      outline: none;
+    }
+
+    input:focus, textarea:focus, select:focus {
+      border-color: var(--green);
+      box-shadow: 0 0 0 3px rgba(22, 128, 61, 0.14);
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 78px;
+      line-height: 1.45;
+    }
+
+    .app-shell {
+      width: min(100%, 1440px);
+      margin: 0 auto;
+      padding: 12px clamp(10px, 2vw, 18px) 28px;
+    }
+
+    .app-header {
+      background: linear-gradient(135deg, #0f1f1d 0%, #12352f 100%);
+      color: #fff;
+      border-radius: 12px;
+      padding: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      box-shadow: var(--shadow);
+      position: sticky;
+      top: 8px;
+      z-index: 50;
+    }
+
+    .brand {
+      min-width: 0;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .brand-mark {
+      width: 34px;
+      height: 34px;
+      border-radius: 8px;
+      display: grid;
+      place-items: center;
+      background: var(--mint-strong);
+      color: #05251f;
+      font-weight: 900;
+      flex: 0 0 auto;
+    }
+
+    .brand h1 {
+      margin: 0;
+      font-size: 18px;
+      line-height: 1.1;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .brand small {
+      display: block;
+      color: #d1d5db;
+      font-size: 11px;
+      margin-top: 3px;
+    }
+
+    .header-actions,
+    .row-actions,
+    .toolbar,
+    .inline-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .header-actions {
+      justify-content: flex-end;
+      flex: 0 0 auto;
+    }
+
+    .btn {
+      border-radius: 8px;
+      padding: 9px 12px;
+      background: var(--stone);
+      color: var(--text);
+      border: 1px solid var(--line);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      font-weight: 700;
+      line-height: 1;
+      white-space: nowrap;
+    }
+
+    .btn.icon {
+      width: 40px;
+      padding: 0;
+      font-size: 18px;
+    }
+
+    .btn.primary {
+      background: var(--green);
+      color: #fff;
+      border-color: var(--green);
+    }
+
+    .btn.amber {
+      background: #d97706;
+      color: #fff;
+      border-color: #d97706;
+    }
+
+    .btn.dark {
+      background: #1f2937;
+      color: #fff;
+      border-color: #1f2937;
+    }
+
+    .btn.danger {
+      background: var(--red-soft);
+      color: var(--red);
+      border-color: #fecaca;
+    }
+
+    .btn.ghost {
+      background: transparent;
+      color: inherit;
+      border-color: rgba(255,255,255,0.18);
+    }
+
+    .tabs {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      overflow-x: auto;
+      padding: 12px 2px 10px;
+      scrollbar-width: thin;
+    }
+
+    .update-banner {
+      display: none;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-top: 10px;
+      padding: 10px 12px;
+      border: 1px solid #99e6d1;
+      border-radius: 8px;
+      background: #dff8ef;
+      color: #064e3b;
+      font-weight: 800;
+    }
+
+    .update-banner.show {
+      display: flex;
+    }
+
+    .tab-btn {
+      flex: 0 0 auto;
+      border-radius: 999px;
+      padding: 10px 14px;
+      background: #fff;
+      border: 1px solid var(--line);
+      color: var(--muted);
+      font-weight: 800;
+      min-height: 40px;
+    }
+
+    .tab-btn.active {
+      background: var(--black);
+      border-color: var(--black);
+      color: #fff;
+    }
+
+    .view {
+      display: none;
+    }
+
+    .view.active {
+      display: block;
+    }
+
+    .top-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(160px, 1fr));
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    .stat-card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 12px;
+      min-height: 86px;
+    }
+
+    .stat-card .label {
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 800;
+      margin-bottom: 8px;
+    }
+
+    .stat-card .value {
+      font-size: 25px;
+      font-weight: 900;
+      line-height: 1;
+    }
+
+    .stat-card .sub {
+      margin-top: 8px;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.35;
+    }
+
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: 0 6px 18px rgba(17, 24, 39, 0.04);
+      overflow: hidden;
+    }
+
+    .panel-head {
+      padding: 12px;
+      border-bottom: 1px solid var(--line);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .panel-title {
+      min-width: 0;
+    }
+
+    .panel-title h2 {
+      margin: 0;
+      font-size: 17px;
+      line-height: 1.25;
+    }
+
+    .panel-title p {
+      margin: 5px 0 0;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .panel-body {
+      padding: 12px;
+    }
+
+    .dashboard-layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1.1fr) minmax(320px, 0.9fr);
+      gap: 12px;
+    }
+
+    .progress-bar {
+      height: 10px;
+      width: 100%;
+      border-radius: 999px;
+      background: #e5e7eb;
+      overflow: hidden;
+    }
+
+    .progress-bar > span {
+      display: block;
+      height: 100%;
+      width: 0;
+      background: linear-gradient(90deg, var(--green), var(--mint-strong));
+      border-radius: inherit;
+      transition: width 160ms ease;
+    }
+
+    .compact-list {
+      display: grid;
+      gap: 8px;
+    }
+
+    .list-item {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+      padding: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      min-height: 44px;
+    }
+
+    .list-item strong {
+      font-size: 14px;
+      word-break: keep-all;
+      overflow-wrap: anywhere;
+    }
+
+    .list-item small {
+      color: var(--muted);
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 999px;
+      padding: 5px 8px;
+      font-size: 12px;
+      font-weight: 900;
+      background: var(--stone);
+      color: var(--muted);
+      white-space: nowrap;
+    }
+
+    .pill.green {
+      background: var(--green-soft);
+      color: var(--green);
+    }
+
+    .pill.amber {
+      background: var(--amber-soft);
+      color: var(--amber);
+    }
+
+    .pill.blue {
+      background: var(--blue-soft);
+      color: var(--blue);
+    }
+
+    .habit-toolbar {
+      display: grid;
+      grid-template-columns: 160px minmax(220px, 1fr) auto;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .table-wrap {
+      overflow: auto;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+      max-height: calc(100vh - 248px);
+    }
+
+    table {
+      border-collapse: separate;
+      border-spacing: 0;
+      width: 100%;
+    }
+
+    th, td {
+      border-right: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+      padding: 0;
+      background: #fff;
+      text-align: center;
+    }
+
+    th {
+      position: sticky;
+      top: 0;
+      z-index: 2;
+      background: #f2fffb;
+      color: #374151;
+      font-size: 12px;
+      font-weight: 900;
+      min-width: 44px;
+      height: 44px;
+    }
+
+    th:first-child,
+    td:first-child {
+      position: sticky;
+      left: 0;
+      z-index: 3;
+      min-width: 260px;
+      max-width: 260px;
+      text-align: left;
+      background: #fff;
+    }
+
+    th:first-child {
+      z-index: 4;
+      background: #f9fafb;
+    }
+
+    td.habit-name {
+      padding: 8px;
+    }
+
+    .habit-name-row {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 34px;
+      gap: 6px;
+      align-items: center;
+    }
+
+    .habit-name input {
+      min-height: 34px;
+      padding: 6px 8px;
+      font-weight: 700;
+      border-color: transparent;
+      background: #f8fffc;
+    }
+
+    .cell-toggle {
+      width: 42px;
+      height: 40px;
+      min-height: 40px;
+      background: transparent;
+      color: transparent;
+      border-radius: 0;
+      position: relative;
+    }
+
+    .cell-toggle::after {
+      content: "";
+      position: absolute;
+      inset: 10px;
+      border-radius: 6px;
+      border: 2px solid #d1d5db;
+      background: #fff;
+    }
+
+    .cell-toggle.checked::after {
+      background: var(--green);
+      border-color: var(--green);
+    }
+
+    .cell-toggle.checked::before {
+      content: "✓";
+      position: absolute;
+      inset: 0;
+      z-index: 1;
+      display: grid;
+      place-items: center;
+      color: #fff;
+      font-weight: 900;
+      font-size: 18px;
+    }
+
+    .total-cell {
+      min-width: 70px;
+      font-weight: 900;
+      color: var(--green);
+      background: var(--green-soft);
+    }
+
+    .summary-row td {
+      background: #f2fffb;
+      color: #374151;
+      font-weight: 900;
+      height: 42px;
+      padding: 0 8px;
+      white-space: nowrap;
+    }
+
+    .week-grid {
+      display: grid;
+      grid-template-columns: repeat(7, minmax(210px, 1fr));
+      gap: 10px;
+      overflow-x: auto;
+      padding-bottom: 2px;
+    }
+
+    .day-card {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: #fff;
+      overflow: hidden;
+      min-width: 210px;
+    }
+
+    .day-head {
+      padding: 10px;
+      background: #f2fffb;
+      border-bottom: 1px solid var(--line);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .day-head strong {
+      font-size: 14px;
+    }
+
+    .day-head small {
+      color: var(--muted);
+      font-weight: 700;
+    }
+
+    .task-list {
+      display: grid;
+      gap: 0;
+    }
+
+    .task-row {
+      display: grid;
+      grid-template-columns: 36px minmax(0, 1fr);
+      align-items: center;
+      min-height: 44px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .task-row:last-child {
+      border-bottom: 0;
+    }
+
+    .task-row input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      min-height: 18px;
+      margin: 0 auto;
+      accent-color: var(--green);
+    }
+
+    .task-row input[type="text"] {
+      border: 0;
+      border-left: 1px solid var(--line);
+      border-radius: 0;
+      min-height: 43px;
+      background: transparent;
+    }
+
+    .task-row.done input[type="text"] {
+      color: var(--muted);
+      text-decoration: line-through;
+      background: #fafafa;
+    }
+
+    .todo-form {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+
+    .todo-list {
+      display: grid;
+      gap: 8px;
+    }
+
+    .todo-item {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto auto;
+      gap: 8px;
+      align-items: center;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 8px;
+      background: #fff;
+      min-height: 48px;
+    }
+
+    .todo-title {
+      font-weight: 800;
+      overflow-wrap: anywhere;
+    }
+
+    .mandalart-layout {
+      display: grid;
+      grid-template-columns: minmax(280px, 0.9fr) minmax(360px, 1.1fr);
+      gap: 12px;
+    }
+
+    .goal-box {
+      display: grid;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+
+    .mandala-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 6px;
+    }
+
+    .mandala-cell {
+      min-height: 90px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+      padding: 8px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 8px;
+      text-align: left;
+    }
+
+    .mandala-cell.center {
+      background: var(--black);
+      color: #fff;
+      border-color: var(--black);
+    }
+
+    .mandala-cell.active {
+      border-color: var(--green);
+      box-shadow: inset 0 0 0 2px rgba(22, 128, 61, 0.2);
+    }
+
+    .mandala-cell button {
+      background: transparent;
+      padding: 0;
+      min-height: 0;
+      text-align: left;
+      color: inherit;
+      font-weight: 900;
+      line-height: 1.25;
+      overflow-wrap: anywhere;
+    }
+
+    .mandala-cell small {
+      color: var(--muted);
+      font-weight: 800;
+    }
+
+    .mandala-cell.center small {
+      color: #d1d5db;
+    }
+
+    .area-editor {
+      display: grid;
+      gap: 10px;
+    }
+
+    .action-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .action-item {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+      padding: 8px;
+      display: grid;
+      grid-template-columns: 28px minmax(0, 1fr);
+      gap: 8px;
+      align-items: start;
+      min-height: 72px;
+    }
+
+    .action-item input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      min-height: 18px;
+      margin-top: 10px;
+      accent-color: var(--green);
+    }
+
+    .action-item textarea {
+      border: 0;
+      padding: 8px 4px;
+      min-height: 52px;
+      background: transparent;
+    }
+
+    .action-item.done {
+      background: var(--green-soft);
+      border-color: #bbdfc8;
+    }
+
+    .mantra-line {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .data-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .data-box {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 12px;
+      background: #fff;
+    }
+
+    .data-box h3 {
+      margin: 0 0 8px;
+      font-size: 15px;
+    }
+
+    .data-box p {
+      margin: 0 0 10px;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.45;
+    }
+
+    .toast {
+      position: fixed;
+      left: 50%;
+      bottom: 18px;
+      transform: translateX(-50%) translateY(12px);
+      background: #111827;
+      color: #fff;
+      padding: 10px 14px;
+      border-radius: 999px;
+      font-weight: 800;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 160ms ease, transform 160ms ease;
+      z-index: 100;
+      box-shadow: var(--shadow);
+      max-width: calc(100vw - 24px);
+      text-align: center;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    .hidden-file {
+      display: none;
+    }
+
+    @media (max-width: 1100px) {
+      .top-grid {
+        grid-template-columns: repeat(2, minmax(150px, 1fr));
+      }
+      .dashboard-layout,
+      .mandalart-layout,
+      .data-grid {
+        grid-template-columns: 1fr;
+      }
+      .week-grid {
+        grid-template-columns: repeat(7, 220px);
+      }
+    }
+
+    @media (max-width: 680px) {
+      .app-shell {
+        padding: 8px 8px 22px;
+      }
+      .app-header {
+        align-items: flex-start;
+      }
+      .brand h1 {
+        font-size: 16px;
+      }
+      .header-actions .btn:not(.icon) span {
+        display: none;
+      }
+      .header-actions .btn:not(.icon) {
+        width: 40px;
+        padding: 0;
+      }
+      .top-grid {
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+      }
+      .stat-card {
+        padding: 10px;
+      }
+      .stat-card .value {
+        font-size: 21px;
+      }
+      .panel-head {
+        align-items: flex-start;
+      }
+      .habit-toolbar,
+      .todo-form,
+      .mantra-line {
+        grid-template-columns: 1fr;
+      }
+      th:first-child,
+      td:first-child {
+        min-width: 190px;
+        max-width: 190px;
+      }
+      .habit-name-row {
+        grid-template-columns: minmax(0, 1fr);
+      }
+      .habit-name-row .btn.icon {
+        width: 100%;
+      }
+      .cell-toggle {
+        width: 38px;
+      }
+      .action-grid {
+        grid-template-columns: 1fr;
+      }
+      .todo-item {
+        grid-template-columns: minmax(0, 1fr) auto;
+      }
+      .todo-item .pill {
+        grid-column: 1 / 2;
+        justify-self: start;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app-shell">
+    <header class="app-header">
+      <div class="brand">
+        <div class="brand-mark">H</div>
+        <div>
+          <h1>해빗트래커</h1>
+          <small id="versionText">v0.1.0</small>
+        </div>
+      </div>
+      <div class="header-actions">
+        <button class="btn ghost" id="installBtn" title="앱 설치" hidden>＋ <span>설치</span></button>
+        <button class="btn ghost" id="backupTopBtn" title="백업 다운로드">⬇ <span>백업</span></button>
+        <button class="btn ghost" id="restoreTopBtn" title="백업 복원">⬆ <span>복원</span></button>
+        <button class="btn amber" id="todayBtn" title="오늘 보기">◎ <span>오늘</span></button>
+      </div>
+    </header>
+
+    <div class="update-banner" id="updateBanner">
+      <span>새 버전이 준비됐습니다.</span>
+      <button class="btn primary" id="applyUpdateBtn">업데이트</button>
+    </div>
+
+    <nav class="tabs" aria-label="주요 화면">
+      <button class="tab-btn active" data-view="dashboard">대시보드</button>
+      <button class="tab-btn" data-view="habits">월간 습관</button>
+      <button class="tab-btn" data-view="week">주간 할 일</button>
+      <button class="tab-btn" data-view="done">완료 목록</button>
+      <button class="tab-btn" data-view="mandalart">만다라트</button>
+      <button class="tab-btn" data-view="data">데이터</button>
+    </nav>
+
+    <main>
+      <section class="view active" id="view-dashboard">
+        <div class="top-grid" id="statGrid"></div>
+        <div class="dashboard-layout">
+          <section class="panel">
+            <div class="panel-head">
+              <div class="panel-title">
+                <h2>월간 습관 진행</h2>
+                <p id="monthSummaryText"></p>
+              </div>
+              <span class="pill green" id="monthRatePill">0%</span>
+            </div>
+            <div class="panel-body">
+              <div class="progress-bar"><span id="monthProgressBar"></span></div>
+              <div class="compact-list" id="topHabitList" style="margin-top: 12px;"></div>
+            </div>
+          </section>
+
+          <section class="panel">
+            <div class="panel-head">
+              <div class="panel-title">
+                <h2>오늘 할 일</h2>
+                <p id="todaySummaryText"></p>
+              </div>
+              <span class="pill blue" id="todayDatePill"></span>
+            </div>
+            <div class="panel-body">
+              <div class="compact-list" id="todayTaskList"></div>
+            </div>
+          </section>
+        </div>
+      </section>
+
+      <section class="view" id="view-habits">
+        <section class="panel">
+          <div class="panel-head">
+            <div class="panel-title">
+              <h2>월간 습관</h2>
+                <p>내 데이터는 백업 JSON으로 복원해서 사용합니다.</p>
+            </div>
+            <div class="habit-toolbar">
+              <input type="month" id="monthInput">
+              <input type="text" id="newHabitInput" placeholder="새 습관">
+              <button class="btn primary" id="addHabitBtn">+ 추가</button>
+            </div>
+          </div>
+          <div class="panel-body">
+            <div class="table-wrap">
+              <table id="habitTable" aria-label="월간 습관 체크표"></table>
+            </div>
+          </div>
+        </section>
+      </section>
+
+      <section class="view" id="view-week">
+        <section class="panel">
+          <div class="panel-head">
+            <div class="panel-title">
+              <h2>주간 할 일</h2>
+              <p id="weekRangeText"></p>
+            </div>
+            <div class="toolbar">
+              <button class="btn" id="currentWeekBtn">이번 주로 갱신</button>
+              <button class="btn primary" id="addBlankWeeklyBtn">빈 줄 보강</button>
+            </div>
+          </div>
+          <div class="panel-body">
+            <div class="week-grid" id="weekGrid"></div>
+          </div>
+        </section>
+      </section>
+
+      <section class="view" id="view-done">
+        <section class="panel">
+          <div class="panel-head">
+            <div class="panel-title">
+              <h2>완료 목록</h2>
+              <p>완료한 일을 로컬 기기에 저장합니다.</p>
+            </div>
+          </div>
+          <div class="panel-body">
+            <form class="todo-form" id="completedForm">
+              <input type="text" id="completedInput" placeholder="완료한 일">
+              <button class="btn primary" type="submit">+ 추가</button>
+            </form>
+            <div class="todo-list" id="completedList"></div>
+          </div>
+        </section>
+      </section>
+
+      <section class="view" id="view-mandalart">
+        <div class="mandalart-layout">
+          <section class="panel">
+            <div class="panel-head">
+              <div class="panel-title">
+                <h2>오타니 만다라트</h2>
+                <p id="mandalartSummary"></p>
+              </div>
+            </div>
+            <div class="panel-body">
+              <div class="goal-box">
+                <label for="mainGoalInput" class="pill amber" style="justify-self:start;">중앙 목표</label>
+                <input id="mainGoalInput" type="text">
+              </div>
+              <div class="mantra-line" style="margin-bottom: 10px;">
+                <input id="mantraInput" type="text" aria-label="오늘 만트라">
+                <button class="btn dark" id="copyMantraBtn">복사</button>
+              </div>
+              <div class="mandala-grid" id="mandalaGrid"></div>
+            </div>
+          </section>
+
+          <section class="panel">
+            <div class="panel-head">
+              <div class="panel-title">
+                <h2 id="areaTitle">핵심축</h2>
+                <p id="areaSummary"></p>
+              </div>
+              <span class="pill green" id="areaProgressPill">0/8</span>
+            </div>
+            <div class="panel-body">
+              <div class="area-editor">
+                <input type="text" id="areaNameInput" aria-label="핵심축 이름">
+                <div class="action-grid" id="actionGrid"></div>
+              </div>
+            </div>
+          </section>
+        </div>
+      </section>
+
+      <section class="view" id="view-data">
+        <section class="panel">
+          <div class="panel-head">
+            <div class="panel-title">
+              <h2>데이터 관리</h2>
+              <p>로컬 저장, 백업, 복원을 관리합니다.</p>
+            </div>
+          </div>
+          <div class="panel-body">
+            <div class="data-grid">
+              <div class="data-box">
+                <h3>원본</h3>
+                <p>앱 코드는 공개 배포하고, 실제 데이터는 JSON 백업으로 별도 관리합니다.</p>
+                <span class="pill blue">localStorage + private backup</span>
+              </div>
+              <div class="data-box">
+                <h3>백업</h3>
+                <p>현재 앱 데이터를 JSON 파일로 내려받습니다.</p>
+                <button class="btn dark" id="backupBtn">⬇ 백업 다운로드</button>
+              </div>
+              <div class="data-box">
+                <h3>복원</h3>
+                <p>이 앱에서 받은 JSON 백업을 다시 불러옵니다.</p>
+                <button class="btn" id="restoreBtn">⬆ 백업 복원</button>
+              </div>
+              <div class="data-box">
+                <h3>업데이트</h3>
+                <p>설치된 앱에서 새 버전을 확인하고 준비되면 상단 배너로 적용합니다.</p>
+                <button class="btn primary" id="checkUpdateBtn">업데이트 확인</button>
+              </div>
+              <div class="data-box">
+                <h3>초기화</h3>
+                <p>엑셀에서 가져온 최초 데이터로 되돌립니다.</p>
+                <button class="btn danger" id="resetBtn">초기 데이터로 복구</button>
+              </div>
+            </div>
+          </div>
+        </section>
+      </section>
+    </main>
+  </div>
+
+  <input class="hidden-file" type="file" id="restoreFile" accept="application/json,.json">
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script>
+    const APP_CACHE_VERSION = "habit-tracker-v0.3.0";
+    const APP_DISPLAY_VERSION = "v0.3.0";
+    const STORAGE_KEY = "habitTracker.appData.v2";
+    const DAY_NAMES = ["일", "월", "화", "수", "목", "금", "토"];
+
+    const INITIAL_DATA = {
+      schemaVersion: 1,
+      appVersion: APP_DISPLAY_VERSION,
+      source: {
+        title: "blank-install",
+        driveId: "",
+        importedAt: ""
+      },
+      month: currentMonth(),
+      habits: [],
+      completed: [],
+      week: {
+        startDate: getWeekStart(new Date()),
+        days: []
+      },
+      mandalart: {
+        goal: "",
+        mantra: "",
+        activeArea: 0,
+        areas: [
+          { id: "m1", name: "핵심축 1", actions: [] },
+          { id: "m2", name: "핵심축 2", actions: [] },
+          { id: "m3", name: "핵심축 3", actions: [] },
+          { id: "m4", name: "핵심축 4", actions: [] },
+          { id: "m5", name: "핵심축 5", actions: [] },
+          { id: "m6", name: "핵심축 6", actions: [] },
+          { id: "m7", name: "핵심축 7", actions: [] },
+          { id: "m8", name: "핵심축 8", actions: [] }
+        ]
+      }
+    };
+
+    let appData = loadData();
+    let activeView = "dashboard";
+    let toastTimer = null;
+    let waitingWorker = null;
+    let swRegistration = null;
+    let deferredInstallPrompt = null;
+
+    function clone(value) {
+      return JSON.parse(JSON.stringify(value));
+    }
+
+    function loadData() {
+      try {
+        const saved = localStorage.getItem(STORAGE_KEY);
+        if (!saved) return normalizeData(clone(INITIAL_DATA));
+        return normalizeData(JSON.parse(saved));
+      } catch (error) {
+        console.warn(error);
+        return normalizeData(clone(INITIAL_DATA));
+      }
+    }
+
+    function normalizeData(data) {
+      const normalized = { ...clone(INITIAL_DATA), ...data };
+      normalized.habits = Array.isArray(data.habits) ? data.habits : clone(INITIAL_DATA.habits);
+      normalized.completed = Array.isArray(data.completed) ? data.completed.filter(item => item.title) : clone(INITIAL_DATA.completed);
+      normalized.week = data.week && Array.isArray(data.week.days) ? data.week : clone(INITIAL_DATA.week);
+      normalized.mandalart = data.mandalart && Array.isArray(data.mandalart.areas) ? data.mandalart : clone(INITIAL_DATA.mandalart);
+      normalizeMonthChecks(normalized);
+      normalizeWeek(normalized.week);
+      normalizeMandalart(normalized.mandalart);
+      return normalized;
+    }
+
+    function saveData(message) {
+      appData.appVersion = APP_DISPLAY_VERSION;
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(appData));
+      if (message) showToast(message);
+      render();
+    }
+
+    function showToast(message) {
+      const toast = document.getElementById("toast");
+      toast.textContent = message;
+      toast.classList.add("show");
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => toast.classList.remove("show"), 1600);
+    }
+
+    function daysInMonth(month) {
+      const [year, monthNumber] = month.split("-").map(Number);
+      return new Date(year, monthNumber, 0).getDate();
+    }
+
+    function dateForMonthDay(month, day) {
+      return `${month}-${String(day).padStart(2, "0")}`;
+    }
+
+    function normalizeMonthChecks(data) {
+      const length = daysInMonth(data.month || currentMonth());
+      data.month = data.month || currentMonth();
+      data.habits.forEach((habit, index) => {
+        habit.id = habit.id || makeId("h");
+        habit.name = habit.name || `습관 ${index + 1}`;
+        habit.checks = Array.isArray(habit.checks) ? habit.checks.slice(0, length) : [];
+        while (habit.checks.length < length) habit.checks.push(false);
+      });
+    }
+
+    function normalizeWeek(week) {
+      if (!week.startDate) week.startDate = getWeekStart(new Date());
+      const generated = buildWeek(week.startDate);
+      week.days = generated.days.map((day, index) => {
+        const existing = week.days[index] || {};
+        const tasks = Array.isArray(existing.tasks) ? existing.tasks : [];
+        while (tasks.length < 10) {
+          tasks.push({ id: makeId(`w${index + 1}`), title: "", done: false });
+        }
+        return {
+          ...day,
+          id: existing.id || day.id,
+          tasks: tasks.map((task, taskIndex) => ({
+            id: task.id || `w${index + 1}-${taskIndex + 1}`,
+            title: task.title || "",
+            done: Boolean(task.done)
+          }))
+        };
+      });
+    }
+
+    function normalizeMandalart(mandalart) {
+      mandalart.goal = mandalart.goal || "";
+      mandalart.mantra = mandalart.mantra || "";
+      mandalart.activeArea = Number.isInteger(mandalart.activeArea) ? mandalart.activeArea : 0;
+      while (mandalart.areas.length < 8) {
+        mandalart.areas.push({ id: makeId("m"), name: "", actions: [] });
+      }
+      mandalart.areas = mandalart.areas.slice(0, 8).map((area, areaIndex) => {
+        area.id = area.id || makeId("m");
+        area.name = area.name || `핵심축 ${areaIndex + 1}`;
+        area.actions = Array.isArray(area.actions) ? area.actions.slice(0, 8) : [];
+        while (area.actions.length < 8) area.actions.push({ text: "", done: false });
+        area.actions = area.actions.map(action => ({
+          text: action.text || "",
+          done: Boolean(action.done)
+        }));
+        return area;
+      });
+      if (mandalart.activeArea < 0 || mandalart.activeArea > 7) mandalart.activeArea = 0;
+    }
+
+    function makeId(prefix) {
+      return `${prefix}-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 7)}`;
+    }
+
+    function currentMonth() {
+      const now = new Date();
+      return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
+    }
+
+    function parseLocalDate(dateString) {
+      const [year, month, day] = dateString.split("-").map(Number);
+      return new Date(year, month - 1, day);
+    }
+
+    function formatDate(date) {
+      return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
+    }
+
+    function getWeekStart(date) {
+      const local = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+      const day = local.getDay();
+      const offset = day === 0 ? -6 : 1 - day;
+      local.setDate(local.getDate() + offset);
+      return formatDate(local);
+    }
+
+    function buildWeek(startDate) {
+      const start = parseLocalDate(startDate);
+      const days = [];
+      for (let i = 0; i < 7; i += 1) {
+        const d = new Date(start);
+        d.setDate(start.getDate() + i);
+        days.push({
+          id: `d${i + 1}`,
+          day: `${["일", "월", "화", "수", "목", "금", "토"][d.getDay()]}요일`,
+          date: formatDate(d),
+          tasks: []
+        });
+      }
+      return { startDate, days };
+    }
+
+    function escapeHtml(value) {
+      return String(value)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    function percent(value, total) {
+      if (!total) return 0;
+      return Math.round((value / total) * 100);
+    }
+
+    function habitStats() {
+      const days = daysInMonth(appData.month);
+      const possible = appData.habits.length * days;
+      const done = appData.habits.reduce((sum, habit) => sum + habit.checks.filter(Boolean).length, 0);
+      const best = [...appData.habits]
+        .map(habit => ({ ...habit, done: habit.checks.filter(Boolean).length }))
+        .sort((a, b) => b.done - a.done)
+        .slice(0, 5);
+      return { days, possible, done, rate: percent(done, possible), best };
+    }
+
+    function weeklyStats() {
+      const tasks = appData.week.days.flatMap(day => day.tasks.filter(task => task.title.trim()));
+      const done = tasks.filter(task => task.done).length;
+      return { total: tasks.length, done, rate: percent(done, tasks.length) };
+    }
+
+    function mandalartStats() {
+      const actions = appData.mandalart.areas.flatMap(area => area.actions.filter(action => action.text.trim()));
+      const done = actions.filter(action => action.done).length;
+      return { total: actions.length, done, rate: percent(done, actions.length) };
+    }
+
+    function todayDateString() {
+      return formatDate(new Date());
+    }
+
+    function getTodayDay() {
+      const today = todayDateString();
+      return appData.week.days.find(day => day.date === today) || appData.week.days[0];
+    }
+
+    function render() {
+      document.getElementById("versionText").textContent = `${APP_DISPLAY_VERSION} · ${APP_CACHE_VERSION}`;
+      renderTabs();
+      renderDashboard();
+      renderHabits();
+      renderWeek();
+      renderCompleted();
+      renderMandalart();
+    }
+
+    function renderTabs() {
+      document.querySelectorAll(".tab-btn").forEach(button => {
+        button.classList.toggle("active", button.dataset.view === activeView);
+      });
+      document.querySelectorAll(".view").forEach(view => {
+        view.classList.toggle("active", view.id === `view-${activeView}`);
+      });
+    }
+
+    function renderDashboard() {
+      const habits = habitStats();
+      const week = weeklyStats();
+      const mandalart = mandalartStats();
+      const todayDay = getTodayDay();
+      const todayTasks = todayDay.tasks.filter(task => task.title.trim());
+      const todayDone = todayTasks.filter(task => task.done).length;
+      const stats = [
+        { label: "월간 달성률", value: `${habits.rate}%`, sub: `${habits.done}/${habits.possible}칸 완료` },
+        { label: "관리 습관", value: `${appData.habits.length}개`, sub: `${appData.month.replace("-", "년 ")}월 기준` },
+        { label: "주간 할 일", value: `${week.done}/${week.total}`, sub: `완료율 ${week.rate}%` },
+        { label: "만다라트", value: `${mandalart.done}/${mandalart.total}`, sub: `실행칸 완료율 ${mandalart.rate}%` }
+      ];
+      document.getElementById("statGrid").innerHTML = stats.map(stat => `
+        <div class="stat-card">
+          <div class="label">${stat.label}</div>
+          <div class="value">${stat.value}</div>
+          <div class="sub">${stat.sub}</div>
+        </div>
+      `).join("");
+      document.getElementById("monthSummaryText").textContent = `${appData.month} · 총 ${habits.done}회 완료`;
+      document.getElementById("monthRatePill").textContent = `${habits.rate}%`;
+      document.getElementById("monthProgressBar").style.width = `${habits.rate}%`;
+      document.getElementById("topHabitList").innerHTML = habits.best.map(habit => `
+        <div class="list-item">
+          <strong>${escapeHtml(habit.name)}</strong>
+          <small>${habit.done}/${habits.days}</small>
+        </div>
+      `).join("") || emptyLine("습관이 없습니다.");
+      document.getElementById("todayDatePill").textContent = todayDay.date || "오늘";
+      document.getElementById("todaySummaryText").textContent = `${todayDay.day || ""} · ${todayDone}/${todayTasks.length} 완료`;
+      document.getElementById("todayTaskList").innerHTML = todayTasks.length
+        ? todayTasks.map(task => `
+          <div class="list-item">
+            <strong>${task.done ? "✓ " : ""}${escapeHtml(task.title)}</strong>
+            <small>${task.done ? "완료" : "대기"}</small>
+          </div>
+        `).join("")
+        : emptyLine("오늘 등록된 할 일이 없습니다.");
+    }
+
+    function renderHabits() {
+      normalizeMonthChecks(appData);
+      document.getElementById("monthInput").value = appData.month;
+      const days = daysInMonth(appData.month);
+      const headerDays = Array.from({ length: days }, (_, index) => {
+        const date = parseLocalDate(dateForMonthDay(appData.month, index + 1));
+        return `<th><div>${index + 1}</div><small>${DAY_NAMES[date.getDay()]}</small></th>`;
+      }).join("");
+      const body = appData.habits.map((habit, habitIndex) => {
+        const cells = habit.checks.map((checked, dayIndex) => `
+          <td>
+            <button class="cell-toggle ${checked ? "checked" : ""}" data-action="toggle-habit" data-habit="${habitIndex}" data-day="${dayIndex}" title="${dayIndex + 1}일"></button>
+          </td>
+        `).join("");
+        return `
+          <tr>
+            <td class="habit-name">
+              <div class="habit-name-row">
+                <input type="text" value="${escapeHtml(habit.name)}" data-action="habit-name" data-habit="${habitIndex}" aria-label="습관 이름">
+                <button class="btn icon danger" data-action="delete-habit" data-habit="${habitIndex}" title="습관 삭제">×</button>
+              </div>
+            </td>
+            ${cells}
+            <td class="total-cell">${habit.checks.filter(Boolean).length}</td>
+          </tr>
+        `;
+      }).join("");
+      const dailyCounts = Array.from({ length: days }, (_, dayIndex) => appData.habits.reduce((sum, habit) => sum + (habit.checks[dayIndex] ? 1 : 0), 0));
+      const dailyRates = dailyCounts.map(count => percent(count, appData.habits.length));
+      document.getElementById("habitTable").innerHTML = `
+        <thead>
+          <tr><th>Habits / 요일</th>${headerDays}<th>Total</th></tr>
+        </thead>
+        <tbody>
+          ${body}
+          <tr class="summary-row"><td>Done (완료 수)</td>${dailyCounts.map(count => `<td>${count}</td>`).join("")}<td></td></tr>
+          <tr class="summary-row"><td>Progress (달성률)</td>${dailyRates.map(rate => `<td>${rate}%</td>`).join("")}<td></td></tr>
+        </tbody>
+      `;
+    }
+
+    function renderWeek() {
+      normalizeWeek(appData.week);
+      const first = appData.week.days[0]?.date || "";
+      const last = appData.week.days[6]?.date || "";
+      document.getElementById("weekRangeText").textContent = `${first} ~ ${last}`;
+      document.getElementById("weekGrid").innerHTML = appData.week.days.map((day, dayIndex) => {
+        const filled = day.tasks.filter(task => task.title.trim());
+        const done = filled.filter(task => task.done).length;
+        return `
+          <section class="day-card">
+            <div class="day-head">
+              <div><strong>${day.day}</strong><br><small>${day.date}</small></div>
+              <span class="pill ${done === filled.length && filled.length ? "green" : "amber"}">${done}/${filled.length}</span>
+            </div>
+            <div class="task-list">
+              ${day.tasks.map((task, taskIndex) => `
+                <div class="task-row ${task.done ? "done" : ""}">
+                  <input type="checkbox" ${task.done ? "checked" : ""} data-action="weekly-done" data-day="${dayIndex}" data-task="${taskIndex}" aria-label="완료">
+                  <input type="text" value="${escapeHtml(task.title)}" data-action="weekly-title" data-day="${dayIndex}" data-task="${taskIndex}" aria-label="할 일">
+                </div>
+              `).join("")}
+            </div>
+          </section>
+        `;
+      }).join("");
+    }
+
+    function renderCompleted() {
+      document.getElementById("completedList").innerHTML = appData.completed.length
+        ? appData.completed.map((item, index) => `
+          <div class="todo-item">
+            <div class="todo-title">${escapeHtml(item.title)}</div>
+            <span class="pill green">${escapeHtml(item.status || "완료")}</span>
+            <button class="btn icon danger" data-action="delete-completed" data-index="${index}" title="삭제">×</button>
+          </div>
+        `).join("")
+        : emptyLine("완료 목록이 없습니다.");
+    }
+
+    function renderMandalart() {
+      normalizeMandalart(appData.mandalart);
+      const mandalart = appData.mandalart;
+      const stats = mandalartStats();
+      document.getElementById("mainGoalInput").value = mandalart.goal;
+      document.getElementById("mantraInput").value = mandalart.mantra;
+      document.getElementById("mandalartSummary").textContent = `실행칸 ${stats.done}/${stats.total} 완료`;
+      const gridOrder = [0, 1, 2, 3, "center", 4, 5, 6, 7];
+      document.getElementById("mandalaGrid").innerHTML = gridOrder.map(item => {
+        if (item === "center") {
+          return `
+            <div class="mandala-cell center">
+              <button type="button" title="중앙 목표">${escapeHtml(mandalart.goal || "중앙 목표")}</button>
+              <small>Goal</small>
+            </div>
+          `;
+        }
+        const area = mandalart.areas[item];
+        const filled = area.actions.filter(action => action.text.trim());
+        const done = filled.filter(action => action.done).length;
+        return `
+          <div class="mandala-cell ${mandalart.activeArea === item ? "active" : ""}">
+            <button type="button" data-action="select-area" data-area="${item}">${escapeHtml(area.name)}</button>
+            <small>${done}/${filled.length || 8}</small>
+          </div>
+        `;
+      }).join("");
+      const active = mandalart.areas[mandalart.activeArea];
+      const filled = active.actions.filter(action => action.text.trim());
+      const done = filled.filter(action => action.done).length;
+      document.getElementById("areaTitle").textContent = active.name;
+      document.getElementById("areaNameInput").value = active.name;
+      document.getElementById("areaSummary").textContent = `8개 실행칸 중 ${done}개 완료`;
+      document.getElementById("areaProgressPill").textContent = `${done}/${filled.length || 8}`;
+      document.getElementById("actionGrid").innerHTML = active.actions.map((action, index) => `
+        <label class="action-item ${action.done ? "done" : ""}">
+          <input type="checkbox" ${action.done ? "checked" : ""} data-action="mandala-done" data-index="${index}">
+          <textarea data-action="mandala-text" data-index="${index}" aria-label="실행칸 ${index + 1}">${escapeHtml(action.text)}</textarea>
+        </label>
+      `).join("");
+    }
+
+    function emptyLine(text) {
+      return `<div class="list-item"><strong>${escapeHtml(text)}</strong><small></small></div>`;
+    }
+
+    function switchView(view) {
+      activeView = view;
+      renderTabs();
+    }
+
+    function downloadBackup() {
+      const payload = {
+        ...appData,
+        exportedAt: new Date().toISOString()
+      };
+      const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const anchor = document.createElement("a");
+      anchor.href = url;
+      anchor.download = `habit-tracker-backup-${todayDateString()}.json`;
+      anchor.click();
+      URL.revokeObjectURL(url);
+      showToast("백업을 다운로드했습니다.");
+    }
+
+    function restoreFromFile(file) {
+      const reader = new FileReader();
+      reader.onload = () => {
+        try {
+          const parsed = JSON.parse(String(reader.result));
+          appData = normalizeData(parsed);
+          saveData("백업을 복원했습니다.");
+        } catch (error) {
+          console.error(error);
+          showToast("복원 파일을 확인해 주세요.");
+        }
+      };
+      reader.readAsText(file);
+    }
+
+    function resetData() {
+      if (!confirm("현재 앱 데이터를 초기 엑셀 데이터로 되돌릴까요? 이 작업은 기존 수정 내용을 덮어씁니다.")) return;
+      appData = normalizeData(clone(INITIAL_DATA));
+      saveData("초기 데이터로 복구했습니다.");
+    }
+
+    function bindEvents() {
+      document.querySelector(".tabs").addEventListener("click", event => {
+        const button = event.target.closest(".tab-btn");
+        if (!button) return;
+        switchView(button.dataset.view);
+      });
+
+      document.getElementById("todayBtn").addEventListener("click", () => {
+        switchView("dashboard");
+        showToast("오늘 화면으로 이동했습니다.");
+      });
+
+      document.getElementById("installBtn").addEventListener("click", async () => {
+        if (!deferredInstallPrompt) {
+          showToast("브라우저 메뉴에서 홈 화면에 추가를 사용할 수 있습니다.");
+          return;
+        }
+        deferredInstallPrompt.prompt();
+        await deferredInstallPrompt.userChoice;
+        deferredInstallPrompt = null;
+        document.getElementById("installBtn").hidden = true;
+      });
+
+      document.getElementById("applyUpdateBtn").addEventListener("click", () => {
+        if (!waitingWorker) return;
+        waitingWorker.postMessage({ type: "SKIP_WAITING" });
+      });
+
+      document.getElementById("backupBtn").addEventListener("click", downloadBackup);
+      document.getElementById("backupTopBtn").addEventListener("click", downloadBackup);
+      document.getElementById("restoreBtn").addEventListener("click", () => document.getElementById("restoreFile").click());
+      document.getElementById("restoreTopBtn").addEventListener("click", () => document.getElementById("restoreFile").click());
+      document.getElementById("restoreFile").addEventListener("change", event => {
+        const file = event.target.files?.[0];
+        if (file) restoreFromFile(file);
+        event.target.value = "";
+      });
+      document.getElementById("resetBtn").addEventListener("click", resetData);
+      document.getElementById("checkUpdateBtn").addEventListener("click", async () => {
+        if (!swRegistration) {
+          showToast("업데이트 확인은 배포 환경에서 사용할 수 있습니다.");
+          return;
+        }
+        await swRegistration.update();
+        showToast(waitingWorker ? "새 버전이 준비됐습니다." : "현재 최신 버전입니다.");
+      });
+
+      document.getElementById("monthInput").addEventListener("change", event => {
+        appData.month = event.target.value || currentMonth();
+        normalizeMonthChecks(appData);
+        saveData("월을 변경했습니다.");
+      });
+
+      document.getElementById("addHabitBtn").addEventListener("click", () => {
+        const input = document.getElementById("newHabitInput");
+        const name = input.value.trim();
+        if (!name) {
+          input.focus();
+          return;
+        }
+        appData.habits.push({ id: makeId("h"), name, checks: Array(daysInMonth(appData.month)).fill(false) });
+        input.value = "";
+        saveData("습관을 추가했습니다.");
+      });
+
+      document.getElementById("habitTable").addEventListener("click", event => {
+        const target = event.target.closest("[data-action]");
+        if (!target) return;
+        if (target.dataset.action === "toggle-habit") {
+          const habitIndex = Number(target.dataset.habit);
+          const dayIndex = Number(target.dataset.day);
+          appData.habits[habitIndex].checks[dayIndex] = !appData.habits[habitIndex].checks[dayIndex];
+          saveData();
+        }
+        if (target.dataset.action === "delete-habit") {
+          const habitIndex = Number(target.dataset.habit);
+          const habit = appData.habits[habitIndex];
+          if (!confirm(`'${habit.name}' 습관을 삭제할까요? 해당 월 체크 기록도 함께 삭제됩니다.`)) return;
+          appData.habits.splice(habitIndex, 1);
+          saveData("습관을 삭제했습니다.");
+        }
+      });
+
+      document.getElementById("habitTable").addEventListener("input", event => {
+        const target = event.target;
+        if (target.dataset.action !== "habit-name") return;
+        appData.habits[Number(target.dataset.habit)].name = target.value;
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(appData));
+      });
+
+      document.getElementById("weekGrid").addEventListener("input", event => {
+        const target = event.target;
+        const dayIndex = Number(target.dataset.day);
+        const taskIndex = Number(target.dataset.task);
+        if (target.dataset.action === "weekly-title") {
+          appData.week.days[dayIndex].tasks[taskIndex].title = target.value;
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(appData));
+          renderDashboard();
+        }
+      });
+
+      document.getElementById("weekGrid").addEventListener("change", event => {
+        const target = event.target;
+        if (target.dataset.action !== "weekly-done") return;
+        const dayIndex = Number(target.dataset.day);
+        const taskIndex = Number(target.dataset.task);
+        appData.week.days[dayIndex].tasks[taskIndex].done = target.checked;
+        saveData();
+      });
+
+      document.getElementById("currentWeekBtn").addEventListener("click", () => {
+        if (!confirm("주간 날짜를 이번 주로 갱신할까요? 기존 할 일 내용은 유지됩니다.")) return;
+        appData.week.startDate = getWeekStart(new Date());
+        normalizeWeek(appData.week);
+        saveData("이번 주 날짜로 갱신했습니다.");
+      });
+
+      document.getElementById("addBlankWeeklyBtn").addEventListener("click", () => {
+        appData.week.days.forEach((day, dayIndex) => {
+          while (day.tasks.length < 10) day.tasks.push({ id: makeId(`w${dayIndex + 1}`), title: "", done: false });
+        });
+        saveData("빈 줄을 보강했습니다.");
+      });
+
+      document.getElementById("completedForm").addEventListener("submit", event => {
+        event.preventDefault();
+        const input = document.getElementById("completedInput");
+        const title = input.value.trim();
+        if (!title) {
+          input.focus();
+          return;
+        }
+        appData.completed.unshift({ id: makeId("c"), title, status: "완료" });
+        input.value = "";
+        saveData("완료 목록에 추가했습니다.");
+      });
+
+      document.getElementById("completedList").addEventListener("click", event => {
+        const button = event.target.closest("[data-action='delete-completed']");
+        if (!button) return;
+        const index = Number(button.dataset.index);
+        if (!confirm(`'${appData.completed[index].title}' 항목을 삭제할까요?`)) return;
+        appData.completed.splice(index, 1);
+        saveData("완료 항목을 삭제했습니다.");
+      });
+
+      document.getElementById("mainGoalInput").addEventListener("input", event => {
+        appData.mandalart.goal = event.target.value;
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(appData));
+        renderMandalart();
+      });
+
+      document.getElementById("mantraInput").addEventListener("input", event => {
+        appData.mandalart.mantra = event.target.value;
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(appData));
+      });
+
+      document.getElementById("copyMantraBtn").addEventListener("click", async () => {
+        const text = appData.mandalart.mantra || appData.mandalart.goal;
+        try {
+          await navigator.clipboard.writeText(text);
+          showToast("만트라를 복사했습니다.");
+        } catch {
+          showToast("복사를 지원하지 않는 환경입니다.");
+        }
+      });
+
+      document.getElementById("mandalaGrid").addEventListener("click", event => {
+        const button = event.target.closest("[data-action='select-area']");
+        if (!button) return;
+        appData.mandalart.activeArea = Number(button.dataset.area);
+        saveData();
+      });
+
+      document.getElementById("areaNameInput").addEventListener("input", event => {
+        appData.mandalart.areas[appData.mandalart.activeArea].name = event.target.value;
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(appData));
+        renderMandalart();
+      });
+
+      document.getElementById("actionGrid").addEventListener("input", event => {
+        const target = event.target;
+        if (target.dataset.action !== "mandala-text") return;
+        const index = Number(target.dataset.index);
+        appData.mandalart.areas[appData.mandalart.activeArea].actions[index].text = target.value;
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(appData));
+      });
+
+      document.getElementById("actionGrid").addEventListener("change", event => {
+        const target = event.target;
+        if (target.dataset.action !== "mandala-done") return;
+        const index = Number(target.dataset.index);
+        appData.mandalart.areas[appData.mandalart.activeArea].actions[index].done = target.checked;
+        saveData();
+      });
+    }
+
+    bindEvents();
+    render();
+
+    window.addEventListener("beforeinstallprompt", event => {
+      event.preventDefault();
+      deferredInstallPrompt = event;
+      document.getElementById("installBtn").hidden = false;
+    });
+
+    window.addEventListener("appinstalled", () => {
+      deferredInstallPrompt = null;
+      document.getElementById("installBtn").hidden = true;
+      showToast("앱이 설치됐습니다.");
+    });
+
+    function showUpdateBanner(worker) {
+      waitingWorker = worker;
+      document.getElementById("updateBanner").classList.add("show");
+    }
+
+    if ("serviceWorker" in navigator) {
+      window.addEventListener("load", () => {
+        navigator.serviceWorker.register("service-worker.js").then(registration => {
+          swRegistration = registration;
+          if (registration.waiting) showUpdateBanner(registration.waiting);
+          registration.update();
+          registration.addEventListener("updatefound", () => {
+            const nextWorker = registration.installing;
+            if (!nextWorker) return;
+            nextWorker.addEventListener("statechange", () => {
+              if (nextWorker.state === "installed" && navigator.serviceWorker.controller) {
+                showUpdateBanner(nextWorker);
+              }
+            });
+          });
+        }).catch(error => console.warn("service worker", error));
+
+        navigator.serviceWorker.addEventListener("controllerchange", () => {
+          window.location.reload();
+        });
+
+        document.addEventListener("visibilitychange", () => {
+          if (document.visibilityState === "visible" && swRegistration) {
+            swRegistration.update();
+          }
+        });
+      });
+    }
+  </script>
+</body>
+</html>
