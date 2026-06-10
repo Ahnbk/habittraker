@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="theme-color" content="#111827">
+  <meta name="theme-color" content="#26231f">
   <title>해빗트래커</title>
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="icon" href="icons/icon.svg" type="image/svg+xml">
@@ -12,25 +12,25 @@
   <style>
     :root {
       color-scheme: light;
-      --bg: #eefbf7;
+      --bg: #f7f4ef;
       --panel: #ffffff;
-      --line: #c9e7df;
-      --line-strong: #84cbb8;
-      --text: #12312b;
-      --muted: #6b7280;
-      --black: #0f1f1d;
-      --green: #00a884;
-      --green-soft: #dff8ef;
-      --amber: #b45309;
-      --amber-soft: #fff5df;
-      --blue: #2563eb;
-      --blue-soft: #eaf1ff;
+      --line: #e5ded4;
+      --line-strong: #cbbfaf;
+      --text: #26231f;
+      --muted: #746c62;
+      --black: #26231f;
+      --green: #16a34a;
+      --green-soft: #eaf7ed;
+      --amber: #b7791f;
+      --amber-soft: #fff4db;
+      --blue: #3b5bdb;
+      --blue-soft: #eef2ff;
       --red: #dc2626;
       --red-soft: #fef2f2;
-      --stone: #f3fbf8;
-      --mint-strong: #10d0a1;
-      --mint-deep: #04745f;
-      --shadow: 0 12px 28px rgba(15, 31, 29, 0.09);
+      --stone: #fbfaf7;
+      --mint-strong: #16a34a;
+      --mint-deep: #1f7a4d;
+      --shadow: 0 12px 28px rgba(38, 35, 31, 0.08);
       --radius: 8px;
       --habit-cell-size: 36px;
       --habit-name-width: 330px;
@@ -80,8 +80,8 @@
     }
 
     input:focus, textarea:focus, select:focus {
-      border-color: var(--green);
-      box-shadow: 0 0 0 3px rgba(22, 128, 61, 0.14);
+      border-color: var(--blue);
+      box-shadow: 0 0 0 3px rgba(59, 91, 219, 0.15);
     }
 
     textarea {
@@ -97,7 +97,7 @@
     }
 
     .app-header {
-      background: #12352f;
+      background: var(--black);
       color: #fff;
       border-radius: 10px;
       padding: 9px 10px;
@@ -124,8 +124,8 @@
       border-radius: 8px;
       display: grid;
       place-items: center;
-      background: var(--mint-strong);
-      color: #05251f;
+      background: var(--blue);
+      color: #fff;
       font-weight: 900;
       flex: 0 0 auto;
     }
@@ -196,9 +196,9 @@
     }
 
     .btn.primary {
-      background: var(--green);
+      background: var(--blue);
       color: #fff;
-      border-color: var(--green);
+      border-color: var(--blue);
     }
 
     .btn.amber {
@@ -241,10 +241,10 @@
       gap: 10px;
       margin-top: 10px;
       padding: 10px 12px;
-      border: 1px solid #99e6d1;
+      border: 1px solid #cfd8ff;
       border-radius: 8px;
-      background: #dff8ef;
-      color: #064e3b;
+      background: var(--blue-soft);
+      color: var(--blue);
       font-weight: 700;
     }
 
@@ -273,7 +273,7 @@
     .app-menu-backdrop {
       position: fixed;
       inset: 0;
-      background: rgba(15, 31, 29, 0.32);
+      background: rgba(38, 35, 31, 0.34);
       z-index: 120;
       display: none;
       align-items: flex-end;
@@ -290,8 +290,14 @@
       background: #fff;
       border: 1px solid var(--line);
       border-radius: 12px;
-      box-shadow: 0 22px 60px rgba(15, 31, 29, 0.22);
+      box-shadow: 0 22px 60px rgba(38, 35, 31, 0.22);
+      transform: translateY(12px);
+      transition: transform 160ms ease;
       overflow: hidden;
+    }
+
+    .app-menu-backdrop.show .app-menu-sheet {
+      transform: translateY(0);
     }
 
     .app-menu-head {
@@ -301,7 +307,7 @@
       gap: 10px;
       padding: 12px;
       border-bottom: 1px solid var(--line);
-      background: #fafdfb;
+      background: var(--stone);
     }
 
     .app-menu-head strong {
@@ -346,7 +352,7 @@
 
     .menu-item:hover,
     .menu-item:focus {
-      background: #f8faf9;
+      background: var(--stone);
       border-color: var(--line);
     }
 
@@ -362,6 +368,45 @@
 
     .view.active {
       display: block;
+      animation: viewIn 140ms ease both;
+    }
+
+    .btn,
+    .menu-button,
+    .tab-btn,
+    .menu-item,
+    .today-check-btn,
+    .today-habit-item,
+    .today-task-item,
+    .task-row,
+    .todo-item,
+    .list-item,
+    .pill,
+    .cell-toggle::before,
+    .cell-toggle::after,
+    .mandala-tile,
+    .mandala-tile textarea {
+      transition: background-color 140ms ease, border-color 140ms ease, color 140ms ease, box-shadow 140ms ease, transform 120ms ease;
+    }
+
+    .btn:active,
+    .menu-button:active,
+    .tab-btn:active,
+    .menu-item:active,
+    .today-check-btn:active,
+    .cell-toggle:active {
+      transform: scale(0.97);
+    }
+
+    @keyframes viewIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes checkPop {
+      0% { transform: scale(0.78); }
+      80% { transform: scale(1.08); }
+      100% { transform: scale(1); }
     }
 
     .top-grid {
@@ -403,7 +448,7 @@
       background: var(--panel);
       border: 1px solid var(--line);
       border-radius: var(--radius);
-      box-shadow: 0 6px 18px rgba(17, 24, 39, 0.04);
+      box-shadow: 0 6px 18px rgba(38, 35, 31, 0.04);
       overflow: hidden;
     }
 
@@ -466,10 +511,10 @@
       gap: 12px;
       margin-bottom: 10px;
       padding: 12px;
-      border: 1px solid #afe8d8;
+      border: 1px solid var(--line);
       border-radius: 10px;
       background: #ffffff;
-      box-shadow: 0 8px 22px rgba(15, 31, 29, 0.06);
+      box-shadow: 0 8px 22px rgba(38, 35, 31, 0.06);
     }
 
     .onboarding-card.show {
@@ -490,7 +535,7 @@
 
     .today-focus-panel {
       margin-bottom: 10px;
-      border-color: #afe8d8;
+      border-color: #cfd8ff;
     }
 
     .today-focus-grid {
@@ -534,8 +579,8 @@
     }
 
     .today-habit-item.checked {
-      border-color: #9bd9c8;
-      background: #f5fffb;
+      border-color: #a8d9b5;
+      background: var(--green-soft);
     }
 
     .today-check-btn {
@@ -543,7 +588,7 @@
       height: 34px;
       min-height: 34px;
       border-radius: 9px;
-      border: 2px solid #cbd5d1;
+      border: 2px solid #d7d0c7;
       background: #fff;
       color: transparent;
       font-weight: 900;
@@ -617,7 +662,7 @@
       display: block;
       height: 100%;
       width: 0;
-      background: linear-gradient(90deg, var(--green), var(--mint-strong));
+      background: linear-gradient(90deg, var(--blue), #6d7cff);
       border-radius: inherit;
       transition: width 160ms ease;
     }
@@ -627,7 +672,7 @@
       padding: 10px;
       border: 1px solid var(--line);
       border-radius: 8px;
-      background: #fafdfb;
+      background: var(--stone);
       min-height: 178px;
       overflow-x: auto;
       scrollbar-width: thin;
@@ -645,17 +690,17 @@
     }
 
     .chart-grid-line {
-      stroke: #d9eee7;
+      stroke: #e5ded4;
       stroke-width: 1;
     }
 
     .chart-area {
-      fill: rgba(16, 208, 161, 0.15);
+      fill: rgba(59, 91, 219, 0.15);
     }
 
     .chart-line {
       fill: none;
-      stroke: var(--green);
+      stroke: var(--blue);
       stroke-width: 4;
       stroke-linecap: round;
       stroke-linejoin: round;
@@ -663,7 +708,7 @@
 
     .chart-dot {
       fill: #fff;
-      stroke: var(--green);
+      stroke: var(--blue);
       stroke-width: 3;
     }
 
@@ -733,7 +778,7 @@
       height: 6px;
       margin-top: 6px;
       border-radius: 999px;
-      background: #e5f4ef;
+      background: #ebe7df;
       overflow: hidden;
     }
 
@@ -742,6 +787,7 @@
       height: 100%;
       border-radius: inherit;
       background: var(--green);
+      transition: width 180ms ease;
     }
 
     .month-habit-item small {
@@ -860,7 +906,7 @@
       position: sticky;
       top: 0;
       z-index: 2;
-      background: #f8faf9;
+      background: var(--stone);
       color: #374151;
       font-size: 11px;
       font-weight: 800;
@@ -884,19 +930,19 @@
     }
 
     th.today-col {
-      background: #e5fbf4;
-      color: var(--mint-deep);
-      box-shadow: inset 0 0 0 2px rgba(0, 168, 132, 0.18);
+      background: var(--blue-soft);
+      color: var(--blue);
+      box-shadow: inset 0 0 0 2px rgba(59, 91, 219, 0.18);
     }
 
     td.today-col {
-      background: #fbfffd;
-      box-shadow: inset 2px 0 0 rgba(0, 168, 132, 0.16), inset -2px 0 0 rgba(0, 168, 132, 0.12);
+      background: #fbfbff;
+      box-shadow: inset 2px 0 0 rgba(59, 91, 219, 0.16), inset -2px 0 0 rgba(59, 91, 219, 0.12);
     }
 
     .summary-row td.today-col {
-      background: #dff8ef;
-      color: var(--mint-deep);
+      background: #e4e9ff;
+      color: var(--blue);
     }
 
     th:first-child,
@@ -935,7 +981,7 @@
       font-weight: 650;
       line-height: 1.25;
       border-color: transparent;
-      background: #f8fffc;
+      background: var(--stone);
     }
 
     .habit-name-row .btn.icon {
@@ -988,6 +1034,7 @@
       color: #fff;
       font-weight: 900;
       font-size: 15px;
+      animation: checkPop 120ms ease-out;
     }
 
     .total-cell {
@@ -999,7 +1046,7 @@
     }
 
     .summary-row td {
-      background: #f2fffb;
+      background: var(--stone);
       color: #374151;
       font-size: 11px;
       font-weight: 800;
@@ -1025,14 +1072,14 @@
     }
 
     .day-card.today-card {
-      border: 2px solid #00a884;
-      background: #ecfff8;
-      box-shadow: 0 0 0 2px rgba(0, 168, 132, 0.1), 0 8px 22px rgba(0, 168, 132, 0.12);
+      border: 2px solid var(--blue);
+      background: #f7f8ff;
+      box-shadow: 0 0 0 2px rgba(59, 91, 219, 0.08), 0 8px 22px rgba(59, 91, 219, 0.12);
     }
 
     .day-head {
       padding: 10px;
-      background: #f2fffb;
+      background: var(--stone);
       border-bottom: 1px solid var(--line);
       display: flex;
       align-items: center;
@@ -1041,8 +1088,8 @@
     }
 
     .today-card .day-head {
-      background: #c9f7e9;
-      border-bottom-color: #8ee0ca;
+      background: var(--blue-soft);
+      border-bottom-color: #cfd8ff;
     }
 
     .day-head strong {
@@ -1132,8 +1179,8 @@
       border: 1px solid var(--line);
       border-radius: 8px;
       background:
-        linear-gradient(135deg, rgba(0, 168, 132, 0.12), rgba(255, 255, 255, 0) 36%),
-        #f8fffc;
+        linear-gradient(135deg, rgba(59, 91, 219, 0.1), rgba(255, 255, 255, 0) 36%),
+        var(--stone);
       padding: 8px;
       max-height: calc(100vh - 220px);
       touch-action: pan-x pan-y;
@@ -1160,7 +1207,7 @@
       z-index: 1;
       min-width: 0;
       min-height: 0;
-      border: 1px solid #d6e9e3;
+      border: 1px solid #e1dad0;
       border-radius: 6px;
       background: #fff;
       overflow: hidden;
@@ -1170,14 +1217,14 @@
     .mandala-block-frame {
       z-index: 3;
       pointer-events: none;
-      border: 2px solid rgba(4, 116, 95, 0.45);
+      border: 2px solid rgba(59, 91, 219, 0.38);
       border-radius: 8px;
       box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.7);
     }
 
     .mandala-block-frame.center-frame {
-      border-color: rgba(15, 31, 29, 0.72);
-      box-shadow: 0 0 0 1px rgba(15, 31, 29, 0.08), inset 0 0 0 1px rgba(255, 255, 255, 0.35);
+      border-color: rgba(38, 35, 31, 0.72);
+      box-shadow: 0 0 0 1px rgba(38, 35, 31, 0.08), inset 0 0 0 1px rgba(255, 255, 255, 0.35);
     }
 
     .mandala-tile textarea {
@@ -1199,7 +1246,7 @@
     }
 
     .mandala-tile textarea:focus {
-      box-shadow: inset 0 0 0 2px rgba(0, 168, 132, 0.42);
+      box-shadow: inset 0 0 0 2px rgba(59, 91, 219, 0.42);
     }
 
     .mandala-label {
@@ -1207,7 +1254,7 @@
       top: 3px;
       left: 5px;
       z-index: 1;
-      color: rgba(18, 49, 43, 0.48);
+      color: rgba(38, 35, 31, 0.48);
       font-size: 9px;
       font-weight: 850;
       line-height: 1;
@@ -1215,8 +1262,8 @@
     }
 
     .mandala-goal {
-      background: #12352f;
-      border-color: #12352f;
+      background: var(--black);
+      border-color: var(--black);
     }
 
     .mandala-goal textarea,
@@ -1229,13 +1276,13 @@
     }
 
     .mandala-area {
-      background: #dff8ef;
-      border-color: #9bd9c8;
+      background: var(--blue-soft);
+      border-color: #cfd8ff;
     }
 
     .mandala-area-core {
-      background: #c9f7e9;
-      border-color: #62cdb1;
+      background: #dfe6ff;
+      border-color: var(--blue);
       border-width: 2px;
     }
 
@@ -1253,8 +1300,8 @@
     }
 
     .data-box.primary-action {
-      border-color: #9bd9c8;
-      background: #f8fffc;
+      border-color: #cfd8ff;
+      background: #f7f8ff;
     }
 
     .data-box.danger-zone {
@@ -1373,6 +1420,17 @@
       display: none;
     }
 
+    @media (prefers-reduced-motion: reduce) {
+      *,
+      *::before,
+      *::after {
+        animation-duration: 1ms !important;
+        animation-iteration-count: 1 !important;
+        scroll-behavior: auto !important;
+        transition-duration: 1ms !important;
+      }
+    }
+
     @media (max-width: 1100px) {
       .top-grid {
         grid-template-columns: repeat(2, minmax(150px, 1fr));
@@ -1404,7 +1462,7 @@
         bottom: calc(8px + env(safe-area-inset-bottom));
         z-index: 80;
         display: grid;
-        grid-template-columns: repeat(5, minmax(0, 1fr));
+        grid-template-columns: repeat(4, minmax(0, 1fr));
         gap: 5px;
         padding: 6px;
         border: 1px solid var(--line);
@@ -1421,9 +1479,6 @@
         font-size: 11px;
         white-space: normal;
         line-height: 1.15;
-      }
-      .tab-btn[data-view="done"] {
-        display: none;
       }
       .top-grid {
         grid-template-columns: 1fr 1fr;
@@ -1547,7 +1602,6 @@
       <button class="tab-btn" data-view="habits">습관</button>
       <button class="tab-btn" data-view="week">할 일</button>
       <button class="tab-btn" data-view="mandalart">만다라트</button>
-      <button class="tab-btn" data-view="data">데이터</button>
     </nav>
 
     <main>
@@ -1645,7 +1699,6 @@
             </div>
             <div class="toolbar">
               <button class="btn" id="currentWeekBtn">이번 주로 갱신</button>
-              <button class="btn primary" id="addBlankWeeklyBtn">입력칸 추가</button>
             </div>
           </div>
           <div class="panel-body">
@@ -1658,13 +1711,13 @@
         <section class="panel">
           <div class="panel-head">
             <div class="panel-title">
-              <h2>완료 목록</h2>
-              <p>완료한 일을 로컬 기기에 저장합니다.</p>
+              <h2>완료 기록</h2>
+              <p>주간 할 일과 별개로 남기고 싶은 완료 기록을 저장합니다.</p>
             </div>
           </div>
           <div class="panel-body">
             <form class="todo-form" id="completedForm">
-              <input type="text" id="completedInput" placeholder="완료한 일">
+              <input type="text" id="completedInput" placeholder="완료한 기록">
               <button class="btn primary" type="submit">+ 추가</button>
             </form>
             <div class="todo-list" id="completedList"></div>
@@ -1696,14 +1749,14 @@
           <div class="panel-head">
             <div class="panel-title">
               <h2>데이터 관리</h2>
-              <p>로컬 저장, 백업, 복원을 관리합니다.</p>
+              <p>백업, 복원, 업데이트, 기기 초기화를 관리합니다.</p>
             </div>
           </div>
           <div class="panel-body">
             <div class="data-grid">
               <div class="data-box">
                 <h3>원본</h3>
-                <p>앱 코드는 공개 배포하고, 실제 데이터는 JSON 백업으로 별도 관리합니다.</p>
+                <p>앱 코드는 공개 배포하고, 실제 기록은 이 기기와 백업 JSON으로 관리합니다.</p>
                 <span class="pill blue">localStorage + private backup</span>
               </div>
               <div class="data-box primary-action">
@@ -1722,9 +1775,9 @@
                 <button class="btn primary" id="checkUpdateBtn">업데이트 확인</button>
               </div>
               <div class="data-box danger-zone">
-                <h3>초기화</h3>
-                <p>엑셀에서 가져온 최초 데이터로 되돌립니다.</p>
-                <button class="btn danger" id="resetBtn">초기 데이터로 복구</button>
+                <h3>기기 초기화</h3>
+                <p>현재 기기에 저장된 데이터를 초기 상태로 되돌립니다.</p>
+                <button class="btn danger" id="resetBtn">기기 데이터 초기화</button>
               </div>
             </div>
           </div>
@@ -1740,21 +1793,18 @@
       <div class="app-menu-head">
         <div>
           <strong id="appMenuTitle">앱 메뉴</strong>
-          <small id="menuVersionText">v0.7.1</small>
+          <small id="menuVersionText">v0.8.0</small>
         </div>
         <button class="btn icon" id="closeMenuBtn" title="닫기">×</button>
       </div>
       <div class="menu-list">
         <div class="menu-group-title">일상 사용</div>
-        <button class="menu-item" data-menu-action="today"><span>◎</span><span>대시보드</span><small>오늘 보기</small></button>
-        <button class="menu-item" data-menu-action="done"><span>✓</span><span>완료 목록</span><small>기록 보기</small></button>
-        <div class="menu-group-title">데이터</div>
-        <button class="menu-item" data-menu-action="backup"><span>↓</span><span>백업 다운로드</span><small>JSON</small></button>
-        <button class="menu-item" data-menu-action="restore"><span>↑</span><span>백업 복원</span><small>JSON</small></button>
-        <button class="menu-item" data-menu-action="data"><span>⚙</span><span>데이터 관리</span><small>복원/초기화</small></button>
+        <button class="menu-item" data-menu-action="today"><span>◎</span><span>오늘</span><small>체크 화면</small></button>
+        <button class="menu-item" data-menu-action="done"><span>✓</span><span>완료 기록</span><small>기록 보기</small></button>
+        <div class="menu-group-title">관리</div>
+        <button class="menu-item" data-menu-action="data"><span>⚙</span><span>데이터 관리</span><small>백업/복원/업데이트</small></button>
         <div class="menu-group-title">앱 설정</div>
         <button class="menu-item" data-menu-action="install" id="menuInstallBtn" hidden><span>＋</span><span>앱 설치</span><small>홈 화면</small></button>
-        <button class="menu-item" data-menu-action="update"><span>↻</span><span>업데이트 확인</span><small>앱 새로고침</small></button>
       </div>
     </section>
   </div>
@@ -1778,8 +1828,8 @@
     </section>
   </div>
   <script>
-    const APP_CACHE_VERSION = "habit-tracker-v0.7.1";
-    const APP_DISPLAY_VERSION = "v0.7.1";
+    const APP_CACHE_VERSION = "habit-tracker-v0.8.0";
+    const APP_DISPLAY_VERSION = "v0.8.0";
     const STORAGE_KEY = "habitTracker.appData.v2";
     const ZOOM_KEY = "habitTracker.zoom.v3";
     const ZOOM_RESET_KEY = "habitTracker.zoomReset.v0.6.6";
@@ -2157,8 +2207,8 @@
           <svg class="line-chart-svg" viewBox="0 0 ${width} ${height}" preserveAspectRatio="none" aria-label="월간 습관 달성률 곡선 그래프">
             <defs>
               <linearGradient id="habitAreaGradient" x1="0" x2="0" y1="0" y2="1">
-                <stop offset="0%" stop-color="#10d0a1" stop-opacity="0.38"></stop>
-                <stop offset="100%" stop-color="#10d0a1" stop-opacity="0.04"></stop>
+                <stop offset="0%" stop-color="#3b5bdb" stop-opacity="0.32"></stop>
+                <stop offset="100%" stop-color="#3b5bdb" stop-opacity="0.04"></stop>
               </linearGradient>
             </defs>
             ${grid}
@@ -2256,7 +2306,7 @@
     function dataSummary(data) {
       const weekTasks = data.week.days.flatMap(day => day.tasks || []).filter(task => task.title && task.title.trim()).length;
       const mandalartActions = data.mandalart.areas.flatMap(area => area.actions || []).filter(action => action.text && action.text.trim()).length;
-      return `습관 ${data.habits.length}개, 주간 할 일 ${weekTasks}개, 완료 목록 ${data.completed.length}개, 만다라트 실행칸 ${mandalartActions}개`;
+      return `습관 ${data.habits.length}개, 주간 할 일 ${weekTasks}개, 완료 기록 ${data.completed.length}개, 만다라트 실행칸 ${mandalartActions}개`;
     }
 
     function render() {
@@ -2275,8 +2325,7 @@
     function renderTabs() {
       document.querySelectorAll(".tab-btn").forEach(button => {
         const isViewTab = button.dataset.view === activeView;
-        const isDoneUnderData = button.dataset.view === "data" && activeView === "done";
-        button.classList.toggle("active", Boolean(isViewTab || isDoneUnderData));
+        button.classList.toggle("active", isViewTab);
       });
       document.querySelectorAll(".view").forEach(view => {
         view.classList.toggle("active", view.id === `view-${activeView}`);
@@ -2456,7 +2505,7 @@
             <button class="btn icon danger" data-action="delete-completed" data-index="${index}" title="삭제">×</button>
           </div>
         `).join("")
-        : emptyLine("완료 목록이 없습니다.");
+        : emptyLine("완료 기록이 없습니다.");
     }
 
     function mandalaPosition(blockPosition, innerPosition) {
@@ -2684,7 +2733,7 @@
           margin-bottom: 14px;
           flex-shrink: 0;
         }
-        .pdf-report-kicker { margin: 0 0 5px; color: #04745f; font-size: 10px; line-height: 1; font-weight: 900; }
+        .pdf-report-kicker { margin: 0 0 5px; color: #3b5bdb; font-size: 10px; line-height: 1; font-weight: 900; }
         .pdf-report-title { margin: 0; color: #292524; font-size: 24px; line-height: 1.05; font-weight: 950; }
         .pdf-report-subtitle { margin: 6px 0 0; color: #57534e; font-size: 11px; line-height: 1.35; font-weight: 700; }
         .pdf-report-meta { min-width: 178px; text-align: right; color: #292524; font-size: 11px; line-height: 1.45; font-weight: 750; }
@@ -2751,11 +2800,11 @@
           overflow-wrap: anywhere;
           word-break: keep-all;
         }
-        .print-goal { background: #12352f; border-color: #12352f; }
+        .print-goal { background: #26231f; border-color: #26231f; }
         .print-goal span, .print-goal p { color: #ffffff; }
         .print-goal p { font-size: 9.5px; font-weight: 950; }
-        .print-area { background: #dff8ef; border-color: #9bd9c8; }
-        .print-core { background: #b9f2e2; border-color: #00a884; }
+        .print-area { background: #eef2ff; border-color: #cfd8ff; }
+        .print-core { background: #dfe6ff; border-color: #3b5bdb; }
         .pdf-cell.empty p { color: rgba(41, 37, 36, 0.32); font-weight: 700; }
         .pdf-note-row {
           display: grid;
@@ -2801,7 +2850,7 @@
           width: 16px;
           height: 16px;
           border-radius: 4px;
-          background: #12352f;
+          background: #26231f;
           color: #ffffff;
           font-size: 8px;
           font-weight: 900;
@@ -2834,7 +2883,7 @@
           flex-shrink: 0;
         }
         .pdf-footer-left { display: flex; align-items: center; gap: 10px; }
-        .pdf-logo { padding: 7px 9px; border-radius: 6px; background: #12352f; color: #10d0a1; font-size: 13px; line-height: 1; font-weight: 950; }
+        .pdf-logo { padding: 7px 9px; border-radius: 6px; background: #26231f; color: #8ea0ff; font-size: 13px; line-height: 1; font-weight: 950; }
         .pdf-footer-title { margin: 0 0 2px; color: #292524; font-size: 12px; line-height: 1.2; font-weight: 850; }
         .pdf-footer-desc { margin: 0; color: #78716c; font-size: 9px; line-height: 1.25; }
         .pdf-print-date { color: #57534e; font-size: 9px; font-weight: 700; white-space: nowrap; }
@@ -3063,12 +3112,9 @@
       closeMenu();
       if (action === "today") {
         switchView("dashboard");
-        showToast("대시보드로 이동했습니다.");
+        showToast("오늘 화면으로 이동했습니다.");
       }
       if (action === "install") await requestInstall();
-      if (action === "backup") downloadBackup();
-      if (action === "restore") document.getElementById("restoreFile").click();
-      if (action === "update") await checkForUpdate();
       if (action === "done") switchView("done");
       if (action === "data") switchView("data");
     }
@@ -3108,9 +3154,9 @@
     }
 
     function resetData() {
-      if (!confirm("현재 앱 데이터를 초기 엑셀 데이터로 되돌릴까요? 이 작업은 기존 수정 내용을 덮어씁니다.")) return;
+      if (!confirm("현재 이 기기의 데이터를 초기 상태로 되돌릴까요? 기존 수정 내용은 삭제됩니다.")) return;
       appData = normalizeData(clone(INITIAL_DATA));
-      saveData("초기 데이터로 복구했습니다.");
+      saveData("기기 데이터를 초기화했습니다.");
     }
 
     function bindMandalaPinchZoom() {
@@ -3287,13 +3333,6 @@
         saveData("이번 주 날짜로 갱신했습니다.");
       });
 
-      document.getElementById("addBlankWeeklyBtn").addEventListener("click", () => {
-        appData.week.days.forEach((day, dayIndex) => {
-          while (day.tasks.length < 10) day.tasks.push({ id: makeId(`w${dayIndex + 1}`), title: "", done: false });
-        });
-        saveData("할 일 입력칸을 추가했습니다.");
-      });
-
       document.getElementById("completedForm").addEventListener("submit", event => {
         event.preventDefault();
         const input = document.getElementById("completedInput");
@@ -3304,7 +3343,7 @@
         }
         appData.completed.unshift({ id: makeId("c"), title, status: "완료" });
         input.value = "";
-        saveData("완료 목록에 추가했습니다.");
+        saveData("완료 기록에 추가했습니다.");
       });
 
       document.getElementById("completedList").addEventListener("click", event => {
