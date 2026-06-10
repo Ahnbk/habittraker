@@ -828,12 +828,14 @@
     .zoom-controls {
       display: inline-flex;
       align-items: center;
-      gap: 6px;
+      gap: 4px;
     }
 
     .zoom-controls .pill {
-      min-width: 54px;
-      height: 32px;
+      min-width: 48px;
+      height: 30px;
+      padding: 4px 7px;
+      font-size: 11px;
     }
 
     .compact-list {
@@ -894,10 +896,26 @@
     }
 
     .habit-toolbar {
-      display: grid;
-      grid-template-columns: minmax(180px, 1fr) auto auto auto;
-      gap: 8px;
+      margin-left: auto;
+      display: inline-flex;
+      justify-content: flex-end;
+      gap: 6px;
       align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .habit-toolbar .btn {
+      min-height: 34px;
+      padding: 7px 10px;
+      font-size: 12px;
+    }
+
+    .habit-toolbar .btn.icon {
+      width: 34px;
+      height: 34px;
+      min-height: 34px;
+      padding: 0;
+      font-size: 16px;
     }
 
     .btn.active {
@@ -912,6 +930,56 @@
       border-radius: 8px;
       background: #fff;
       max-height: calc(100vh - 248px);
+    }
+
+    .week-toolbar {
+      position: relative;
+      margin-left: auto;
+      justify-content: flex-end;
+      flex-wrap: nowrap;
+      gap: 6px;
+    }
+
+    .week-toolbar .btn {
+      min-height: 34px;
+      padding: 7px 10px;
+      font-size: 12px;
+    }
+
+    .week-toolbar .btn.icon {
+      width: 34px;
+      height: 34px;
+      min-height: 34px;
+      padding: 0;
+      font-size: 17px;
+    }
+
+    .week-date-btn {
+      position: relative;
+      min-width: 148px;
+      max-width: 210px;
+      overflow: hidden;
+      cursor: pointer;
+    }
+
+    .week-date-btn span {
+      pointer-events: none;
+    }
+
+    .today-week-btn {
+      min-width: 86px;
+    }
+
+    .week-date-input {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      min-height: 0;
+      padding: 0;
+      border: 0;
+      opacity: 0;
+      cursor: pointer;
     }
 
     table {
@@ -1544,12 +1612,28 @@
         padding: 8px;
       }
       .line-chart-svg {
-        height: 112px;
+        height: 126px;
       }
       .panel-head {
         align-items: flex-start;
       }
-      .habit-toolbar,
+      .habit-toolbar {
+        width: 100%;
+        justify-content: flex-end;
+      }
+      .week-toolbar {
+        width: 100%;
+        overflow-x: auto;
+        justify-content: flex-end;
+        scrollbar-width: none;
+      }
+      .week-toolbar::-webkit-scrollbar {
+        display: none;
+      }
+      .week-date-btn {
+        flex: 1 1 auto;
+        min-width: 132px;
+      }
       .todo-form {
         grid-template-columns: 1fr;
       }
@@ -1601,6 +1685,93 @@
       .todo-item .pill {
         grid-column: 1 / 2;
         justify-self: start;
+      }
+    }
+
+    @media (orientation: landscape) and (max-height: 520px) {
+      .app-shell {
+        width: 100%;
+        padding: 6px 8px 14px;
+      }
+      .app-header {
+        top: 4px;
+        padding: 6px 8px;
+        border-radius: 8px;
+      }
+      .brand-mark {
+        width: 28px;
+        height: 28px;
+        border-radius: 7px;
+      }
+      .brand h1 {
+        font-size: 14px;
+      }
+      .brand small {
+        font-size: 9px;
+      }
+      .menu-button {
+        width: 34px;
+        height: 34px;
+        min-height: 34px;
+        border-radius: 8px;
+        font-size: 19px;
+      }
+      .tabs {
+        position: sticky;
+        top: 52px;
+        left: auto;
+        right: auto;
+        bottom: auto;
+        z-index: 48;
+        display: flex;
+        padding: 6px 2px;
+        border: 0;
+        border-radius: 0;
+        background: var(--bg);
+        box-shadow: none;
+        overflow-x: auto;
+      }
+      .tab-btn {
+        min-width: 72px;
+        min-height: 32px;
+        border-radius: 999px;
+        padding: 6px 10px;
+        font-size: 12px;
+        white-space: nowrap;
+      }
+      .top-grid {
+        grid-template-columns: repeat(4, minmax(120px, 1fr));
+      }
+      .today-focus-grid {
+        grid-template-columns: minmax(0, 1fr) minmax(260px, 0.8fr);
+      }
+      .panel-head {
+        align-items: center;
+        padding: 8px 10px;
+      }
+      .panel-title h2 {
+        font-size: 15px;
+      }
+      .panel-body {
+        padding: 8px;
+      }
+      .habit-toolbar {
+        width: auto;
+      }
+      .week-toolbar {
+        width: auto;
+      }
+      .table-wrap {
+        max-height: calc(100vh - 154px);
+      }
+      .week-grid {
+        grid-template-columns: repeat(7, 210px);
+      }
+      .mandala-board-wrap {
+        max-height: calc(100vh - 130px);
+      }
+      .data-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
       }
     }
   </style>
@@ -1684,7 +1855,6 @@
               <p>내 데이터는 백업 JSON으로 복원해서 사용합니다.</p>
             </div>
             <div class="habit-toolbar">
-              <input type="text" id="newHabitInput" placeholder="새 습관">
               <button class="btn primary" id="addHabitBtn">+ 추가</button>
               <button class="btn" id="habitEditBtn">편집</button>
               <div class="zoom-controls">
@@ -1723,10 +1893,15 @@
           <div class="panel-head">
             <div class="panel-title">
               <h2>주간 할 일</h2>
-              <p id="weekRangeText"></p>
             </div>
-            <div class="toolbar">
-              <button class="btn" id="currentWeekBtn">이번 주로 갱신</button>
+            <div class="toolbar week-toolbar">
+              <button class="btn icon" id="prevWeekBtn" title="이전 주">‹</button>
+              <label class="btn week-date-btn" title="날짜 선택">
+                <span id="weekDateLabel"></span>
+                <input class="week-date-input" type="date" id="weekDateInput" aria-label="주간 날짜 선택">
+              </label>
+              <button class="btn icon" id="nextWeekBtn" title="다음 주">›</button>
+              <button class="btn primary today-week-btn" id="currentWeekBtn"></button>
             </div>
           </div>
           <div class="panel-body">
@@ -1821,7 +1996,7 @@
       <div class="app-menu-head">
         <div>
           <strong id="appMenuTitle">앱 메뉴</strong>
-          <small id="menuVersionText">v0.8.1</small>
+          <small id="menuVersionText">v0.8.2</small>
         </div>
         <button class="btn icon" id="closeMenuBtn" title="닫기">×</button>
       </div>
@@ -1856,8 +2031,8 @@
     </section>
   </div>
   <script>
-    const APP_CACHE_VERSION = "habit-tracker-v0.8.1";
-    const APP_DISPLAY_VERSION = "v0.8.1";
+    const APP_CACHE_VERSION = "habit-tracker-v0.8.2";
+    const APP_DISPLAY_VERSION = "v0.8.2";
     const STORAGE_KEY = "habitTracker.appData.v2";
     const ZOOM_KEY = "habitTracker.zoom.v3";
     const ZOOM_RESET_KEY = "habitTracker.zoomReset.v0.6.6";
@@ -1919,6 +2094,7 @@
     let habitTodayScrollKey = "";
     let chartTodayScrollKey = "";
     let weekTodayScrollKey = "";
+    let pendingHabitFocusId = "";
 
     function clone(value) {
       return JSON.parse(JSON.stringify(value));
@@ -2009,6 +2185,28 @@
       render();
     }
 
+    function addBlankHabit() {
+      const id = makeId("h");
+      appData.habits.push({ id, name: "", checks: Array(daysInMonth(appData.month)).fill(false) });
+      pendingHabitFocusId = id;
+      saveData("습관 칸을 추가했습니다.");
+    }
+
+    function focusPendingHabitName() {
+      if (!pendingHabitFocusId) return;
+      const habitId = pendingHabitFocusId;
+      pendingHabitFocusId = "";
+      const focusInput = () => {
+        const input = document.querySelector(`[data-action="habit-name"][data-habit-id="${habitId}"]`);
+        if (!input) return;
+        input.scrollIntoView({ block: "center", inline: "nearest" });
+        input.focus({ preventScroll: true });
+        input.select();
+      };
+      focusInput();
+      requestAnimationFrame(() => window.setTimeout(focusInput, 80));
+    }
+
     function showToast(message) {
       const toast = document.getElementById("toast");
       toast.textContent = message;
@@ -2031,7 +2229,7 @@
       data.month = data.month || currentMonth();
       data.habits.forEach((habit, index) => {
         habit.id = habit.id || makeId("h");
-        habit.name = habit.name || `습관 ${index + 1}`;
+        habit.name = habit.name === undefined || habit.name === null ? `습관 ${index + 1}` : String(habit.name);
         habit.checks = Array.isArray(habit.checks) ? habit.checks.slice(0, length) : [];
         while (habit.checks.length < length) habit.checks.push(false);
       });
@@ -2097,6 +2295,16 @@
       return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
     }
 
+    function formatShortDate(dateString) {
+      const date = parseLocalDate(dateString);
+      return `${String(date.getMonth() + 1).padStart(2, "0")}.${String(date.getDate()).padStart(2, "0")}`;
+    }
+
+    function formatWeekRangeLabel(startDate, endDate) {
+      const start = parseLocalDate(startDate);
+      return `${start.getFullYear()}.${formatShortDate(startDate)} ~ ${formatShortDate(endDate)}`;
+    }
+
     function getWeekStart(date) {
       const local = new Date(date.getFullYear(), date.getMonth(), date.getDate());
       const day = local.getDay();
@@ -2119,6 +2327,21 @@
         });
       }
       return { startDate, days };
+    }
+
+    function moveWeek(delta) {
+      const next = parseLocalDate(appData.week.startDate || getWeekStart(new Date()));
+      next.setDate(next.getDate() + (delta * 7));
+      appData.week.startDate = formatDate(next);
+      normalizeWeek(appData.week);
+      saveData(delta > 0 ? "다음 주로 이동했습니다." : "이전 주로 이동했습니다.");
+    }
+
+    function moveWeekToDate(dateString, message = "선택한 날짜의 주로 이동했습니다.") {
+      if (!dateString) return;
+      appData.week.startDate = getWeekStart(parseLocalDate(dateString));
+      normalizeWeek(appData.week);
+      saveData(message);
     }
 
     function escapeHtml(value) {
@@ -2354,6 +2577,7 @@
       renderCompleted();
       renderMandalart();
       applyMandalaZoom();
+      focusPendingHabitName();
     }
 
     function renderTabs() {
@@ -2471,7 +2695,7 @@
           <tr>
             <td class="habit-name">
               <div class="habit-name-row">
-                <input type="text" value="${escapeHtml(habit.name)}" data-action="habit-name" data-habit="${habitIndex}" aria-label="습관 이름">
+                <input type="text" value="${escapeHtml(habit.name)}" data-action="habit-name" data-habit="${habitIndex}" data-habit-id="${escapeHtml(habit.id)}" placeholder="습관 이름" aria-label="습관 이름">
                 <button class="btn icon danger" data-action="delete-habit" data-habit="${habitIndex}" title="습관 삭제">×</button>
               </div>
             </td>
@@ -2502,7 +2726,9 @@
       normalizeWeek(appData.week);
       const first = appData.week.days[0]?.date || "";
       const last = appData.week.days[6]?.date || "";
-      document.getElementById("weekRangeText").textContent = `${first} ~ ${last}`;
+      document.getElementById("weekDateLabel").textContent = first && last ? formatWeekRangeLabel(first, last) : "날짜 선택";
+      document.getElementById("weekDateInput").value = appData.week.startDate || "";
+      document.getElementById("currentWeekBtn").textContent = `오늘 ${formatShortDate(todayDateString())}`;
       document.getElementById("weekGrid").innerHTML = appData.week.days.map((day, dayIndex) => {
         const filled = day.tasks.filter(task => task.title.trim());
         const done = filled.filter(task => task.done).length;
@@ -3244,7 +3470,7 @@
       document.getElementById("onboardingRestoreBtn").addEventListener("click", () => document.getElementById("restoreFile").click());
       document.getElementById("onboardingStartBtn").addEventListener("click", () => {
         switchView("habits");
-        document.getElementById("newHabitInput").focus();
+        addBlankHabit();
       });
       document.getElementById("todayHabitList").addEventListener("click", event => {
         const button = event.target.closest("[data-action='toggle-today-habit']");
@@ -3285,7 +3511,20 @@
         const direction = button.dataset.action === "zoom-in" ? 0.05 : -0.05;
         setHabitZoom(habitZoom + direction);
       });
-      window.addEventListener("resize", applyMandalaZoom);
+      window.addEventListener("resize", () => {
+        applyMandalaZoom();
+        scrollHabitTableToToday(true);
+        scrollMonthChartToToday(true);
+        scrollWeekToToday(true);
+      });
+      window.addEventListener("orientationchange", () => {
+        window.setTimeout(() => {
+          applyMandalaZoom();
+          scrollHabitTableToToday(true);
+          scrollMonthChartToToday(true);
+          scrollWeekToToday(true);
+        }, 240);
+      });
 
       document.getElementById("applyUpdateBtn").addEventListener("click", () => {
         if (!waitingWorker) return;
@@ -3308,16 +3547,10 @@
         saveData("월을 변경했습니다.");
       });
 
-      document.getElementById("addHabitBtn").addEventListener("click", () => {
-        const input = document.getElementById("newHabitInput");
-        const name = input.value.trim();
-        if (!name) {
-          input.focus();
-          return;
-        }
-        appData.habits.push({ id: makeId("h"), name, checks: Array(daysInMonth(appData.month)).fill(false) });
-        input.value = "";
-        saveData("습관을 추가했습니다.");
+      const addHabitButton = document.getElementById("addHabitBtn");
+      addHabitButton.addEventListener("pointerdown", event => event.preventDefault());
+      addHabitButton.addEventListener("click", () => {
+        addBlankHabit();
       });
       document.getElementById("habitEditBtn").addEventListener("click", () => {
         habitEditMode = !habitEditMode;
@@ -3371,11 +3604,13 @@
         saveData();
       });
 
+      document.getElementById("prevWeekBtn").addEventListener("click", () => moveWeek(-1));
+      document.getElementById("nextWeekBtn").addEventListener("click", () => moveWeek(1));
+      document.getElementById("weekDateInput").addEventListener("change", event => {
+        moveWeekToDate(event.target.value);
+      });
       document.getElementById("currentWeekBtn").addEventListener("click", () => {
-        if (!confirm("주간 날짜를 이번 주로 갱신할까요? 기존 할 일 내용은 유지됩니다.")) return;
-        appData.week.startDate = getWeekStart(new Date());
-        normalizeWeek(appData.week);
-        saveData("이번 주 날짜로 갱신했습니다.");
+        moveWeekToDate(todayDateString(), "오늘이 포함된 주로 이동했습니다.");
       });
 
       document.getElementById("completedForm").addEventListener("submit", event => {
