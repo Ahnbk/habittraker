@@ -1,18 +1,14 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="해빗트래커">
-  <rect width="512" height="512" fill="#26231f"/>
-  <rect x="66" y="66" width="380" height="380" rx="94" fill="#f7f4ef"/>
-  <rect x="102" y="102" width="308" height="308" rx="70" fill="#ffffff"/>
-  <rect x="124" y="124" width="264" height="46" rx="23" fill="#3b5bdb"/>
-  <g fill="#eef2ff" stroke="#d7d0c7" stroke-width="4">
-    <rect x="124" y="204" width="72" height="72" rx="18"/>
-    <rect x="220" y="204" width="72" height="72" rx="18"/>
-    <rect x="316" y="204" width="72" height="72" rx="18"/>
-    <rect x="124" y="300" width="72" height="72" rx="18"/>
-    <rect x="220" y="300" width="72" height="72" rx="18"/>
-    <rect x="316" y="300" width="72" height="72" rx="18"/>
-  </g>
-  <rect x="220" y="204" width="72" height="72" rx="18" fill="#dfe6ff" stroke="#3b5bdb" stroke-width="4"/>
-  <rect x="124" y="300" width="72" height="72" rx="18" fill="#eaf7ed" stroke="#16a34a" stroke-width="4"/>
-  <path d="M140 336l18 18 40-48" fill="none" stroke="#16a34a" stroke-width="18" stroke-linecap="round" stroke-linejoin="round"/>
-  <circle cx="256" cy="240" r="14" fill="#3b5bdb"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="하루 한발짝">
+  <defs>
+    <linearGradient id="green" x1="92" y1="56" x2="416" y2="468" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#92cc70"/>
+      <stop offset="1" stop-color="#5fb457"/>
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" fill="#fff"/>
+  <rect x="32" y="32" width="448" height="448" rx="104" fill="url(#green)"/>
+  <path d="M104 386c82-48 225-63 328-22-95-17-231-1-328 22z" fill="#fff"/>
+  <path d="M304 113c48 17 58 82 30 135-18 34-48 56-68 83-9 12-16 25-22 41l-53-31c21-35 36-70 37-118 0-45 26-94 76-110z" fill="#fff"/>
+  <path d="M195 329l54 31c-11 36-33 65-62 72-31 8-57-14-55-47 2-30 24-52 63-56z" fill="#fff"/>
+  <path d="M190 320l67 39-10 21-68-39z" fill="#78bf61"/>
 </svg>

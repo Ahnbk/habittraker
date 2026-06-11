@@ -1,7 +1,7 @@
 {
-  "name": "해빗트래커",
-  "short_name": "해빗",
-  "description": "월간 습관, 주간 할 일, 만다라트 목표 보드를 관리하는 PWA",
+  "name": "하루 한발짝",
+  "short_name": "한발짝",
+  "description": "하루의 습관, 할 일, 기록을 한발짝씩 쌓는 PWA",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
