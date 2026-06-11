@@ -497,8 +497,8 @@
 
     .top-mascot {
       position: fixed;
-      top: 48px;
-      right: clamp(28px, 5vw, 84px);
+      top: calc(48px + env(safe-area-inset-top));
+      right: calc(clamp(28px, 5vw, 84px) + 64px + env(safe-area-inset-right));
       z-index: 79;
       width: 64px;
       height: auto;
@@ -2033,8 +2033,8 @@
         top: calc(6px + env(safe-area-inset-top));
       }
       .top-mascot {
-        top: 52px;
-        right: 18px;
+        top: calc(52px + env(safe-area-inset-top));
+        right: calc(18px + 48px + env(safe-area-inset-right));
         width: 48px;
       }
       .brand h1 {
@@ -2217,8 +2217,8 @@
         font-size: 19px;
       }
       .top-mascot {
-        top: 42px;
-        right: 28px;
+        top: calc(42px + env(safe-area-inset-top));
+        right: calc(28px + 44px + env(safe-area-inset-right));
         width: 44px;
       }
       .tabs {
@@ -2291,7 +2291,7 @@
         <div class="brand-mark">한</div>
         <div>
           <h1>하루 한발짝</h1>
-          <small id="versionText">v0.10.5</small>
+          <small id="versionText">v0.10.6</small>
         </div>
       </div>
       <div class="header-actions">
@@ -2536,7 +2536,7 @@
       <div class="app-menu-head">
         <div>
           <strong id="appMenuTitle">앱 메뉴</strong>
-          <small id="menuVersionText">v0.10.5</small>
+          <small id="menuVersionText">v0.10.6</small>
         </div>
         <button class="btn icon" id="closeMenuBtn" title="닫기">×</button>
       </div>
@@ -2571,8 +2571,8 @@
     </section>
   </div>
   <script>
-    const APP_CACHE_VERSION = "habit-tracker-v0.10.5";
-    const APP_DISPLAY_VERSION = "v0.10.5";
+    const APP_CACHE_VERSION = "habit-tracker-v0.10.6";
+    const APP_DISPLAY_VERSION = "v0.10.6";
     const STORAGE_KEY = "habitTracker.appData.v2";
     const ZOOM_KEY = "habitTracker.zoom.v3";
     const ZOOM_RESET_KEY = "habitTracker.zoomReset.v0.6.6";
