@@ -44,6 +44,8 @@
       --habit-cell-size: 36px;
       --habit-name-width: 260px;
       --habit-total-width: 54px;
+      --habit-days-width: 1116px;
+      --habit-table-width: 1430px;
       --chart-day-width: 36px;
       font-family: "Pretendard", "Apple SD Gothic Neo", "Malgun Gothic", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
     }
@@ -120,6 +122,10 @@
       width: min(100%, 1440px);
       margin: 0 auto;
       padding: 10px clamp(10px, 2vw, 18px) 28px;
+      padding-top: calc(10px + env(safe-area-inset-top));
+      padding-right: calc(clamp(10px, 2vw, 18px) + env(safe-area-inset-right));
+      padding-bottom: calc(28px + env(safe-area-inset-bottom));
+      padding-left: calc(clamp(10px, 2vw, 18px) + env(safe-area-inset-left));
       position: relative;
       z-index: 1;
     }
@@ -137,7 +143,7 @@
       gap: 10px;
       box-shadow: var(--shadow);
       position: sticky;
-      top: 6px;
+      top: calc(6px + env(safe-area-inset-top));
       z-index: 50;
       border: 1px solid rgba(255, 246, 227, 0.16);
       backdrop-filter: blur(12px);
@@ -271,7 +277,7 @@
       padding: 10px 2px 8px;
       scrollbar-width: thin;
       position: sticky;
-      top: 58px;
+      top: calc(58px + env(safe-area-inset-top));
       z-index: 45;
       backdrop-filter: blur(10px);
     }
@@ -831,24 +837,33 @@
     .line-chart-canvas {
       min-width: 0;
       position: relative;
-      margin-left: var(--habit-name-width);
+      grid-column: 2;
     }
 
     .line-chart-frame {
       position: relative;
       min-width: 100%;
+      display: grid;
+      grid-template-columns: var(--habit-name-width) var(--habit-days-width) var(--habit-total-width);
+      align-items: start;
     }
 
     .chart-side-rail {
       position: sticky;
       left: 0;
       z-index: 4;
-      float: left;
+      grid-column: 1;
       width: var(--habit-name-width);
       height: 154px;
       padding: 10px 54px 10px 10px;
       background: linear-gradient(90deg, var(--stone) 80%, rgba(251, 250, 247, 0));
       border-right: 1px solid rgba(223, 207, 186, 0.82);
+    }
+
+    .chart-tail-spacer {
+      grid-column: 3;
+      width: var(--habit-total-width);
+      height: 154px;
     }
 
     .chart-side-summary {
@@ -1195,6 +1210,38 @@
       font-size: 12px;
     }
 
+    #habitTable {
+      width: var(--habit-table-width);
+      min-width: var(--habit-table-width);
+      table-layout: fixed;
+    }
+
+    #habitTable col.habit-name-col {
+      width: var(--habit-name-width);
+    }
+
+    #habitTable col.habit-day-col {
+      width: var(--habit-cell-size);
+    }
+
+    #habitTable col.habit-total-col {
+      width: var(--habit-total-width);
+    }
+
+    #habitTable th:not(:first-child):not(:last-child),
+    #habitTable td:not(:first-child):not(:last-child) {
+      width: var(--habit-cell-size);
+      min-width: var(--habit-cell-size);
+      max-width: var(--habit-cell-size);
+    }
+
+    #habitTable th:last-child,
+    #habitTable td:last-child {
+      width: var(--habit-total-width);
+      min-width: var(--habit-total-width);
+      max-width: var(--habit-total-width);
+    }
+
     th, td {
       border-right: 1px solid var(--line);
       border-bottom: 1px solid var(--line);
@@ -1252,6 +1299,7 @@
       position: sticky;
       left: 0;
       z-index: 3;
+      width: var(--habit-name-width);
       min-width: var(--habit-name-width);
       max-width: var(--habit-name-width);
       text-align: left;
@@ -1343,7 +1391,7 @@
     }
 
     .total-cell {
-      min-width: 54px;
+      min-width: var(--habit-total-width);
       font-size: 12px;
       font-weight: 850;
       color: var(--green);
@@ -1975,10 +2023,14 @@
     @media (max-width: 680px) {
       .app-shell {
         padding: 8px 8px calc(84px + env(safe-area-inset-bottom));
+        padding-top: calc(8px + env(safe-area-inset-top));
+        padding-right: calc(8px + env(safe-area-inset-right));
+        padding-bottom: calc(84px + env(safe-area-inset-bottom));
+        padding-left: calc(8px + env(safe-area-inset-left));
       }
       .app-header {
         align-items: center;
-        top: 6px;
+        top: calc(6px + env(safe-area-inset-top));
       }
       .top-mascot {
         top: 52px;
@@ -1990,8 +2042,8 @@
       }
       .tabs {
         position: fixed;
-        left: 8px;
-        right: 8px;
+        left: calc(8px + env(safe-area-inset-left));
+        right: calc(8px + env(safe-area-inset-right));
         top: auto;
         bottom: calc(8px + env(safe-area-inset-bottom));
         z-index: 80;
@@ -2136,9 +2188,13 @@
       .app-shell {
         width: 100%;
         padding: 6px 8px 14px;
+        padding-top: calc(6px + env(safe-area-inset-top));
+        padding-right: calc(8px + env(safe-area-inset-right));
+        padding-bottom: calc(14px + env(safe-area-inset-bottom));
+        padding-left: calc(8px + env(safe-area-inset-left));
       }
       .app-header {
-        top: 4px;
+        top: calc(4px + env(safe-area-inset-top));
         padding: 6px 8px;
         border-radius: 8px;
       }
@@ -2167,7 +2223,7 @@
       }
       .tabs {
         position: sticky;
-        top: 52px;
+        top: calc(52px + env(safe-area-inset-top));
         left: auto;
         right: auto;
         bottom: auto;
@@ -2211,7 +2267,7 @@
         width: auto;
       }
       .table-wrap {
-        max-height: calc(100vh - 154px);
+        max-height: calc(100vh - 154px - env(safe-area-inset-bottom));
       }
       .week-grid {
         grid-template-columns: repeat(7, 210px);
@@ -2220,7 +2276,7 @@
         grid-template-columns: repeat(7, minmax(260px, 1fr));
       }
       .mandala-board-wrap {
-        max-height: calc(100vh - 130px);
+        max-height: calc(100vh - 130px - env(safe-area-inset-bottom));
       }
       .data-grid {
         grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -2235,7 +2291,7 @@
         <div class="brand-mark">한</div>
         <div>
           <h1>하루 한발짝</h1>
-          <small id="versionText">v0.10.4</small>
+          <small id="versionText">v0.10.5</small>
         </div>
       </div>
       <div class="header-actions">
@@ -2480,7 +2536,7 @@
       <div class="app-menu-head">
         <div>
           <strong id="appMenuTitle">앱 메뉴</strong>
-          <small id="menuVersionText">v0.10.4</small>
+          <small id="menuVersionText">v0.10.5</small>
         </div>
         <button class="btn icon" id="closeMenuBtn" title="닫기">×</button>
       </div>
@@ -2515,8 +2571,8 @@
     </section>
   </div>
   <script>
-    const APP_CACHE_VERSION = "habit-tracker-v0.10.4";
-    const APP_DISPLAY_VERSION = "v0.10.4";
+    const APP_CACHE_VERSION = "habit-tracker-v0.10.5";
+    const APP_DISPLAY_VERSION = "v0.10.5";
     const STORAGE_KEY = "habitTracker.appData.v2";
     const ZOOM_KEY = "habitTracker.zoom.v3";
     const ZOOM_RESET_KEY = "habitTracker.zoomReset.v0.6.6";
@@ -2647,12 +2703,22 @@
       return 54;
     }
 
-    function applyHabitZoom() {
+    function applyHabitSizing(days = daysInMonth(appData.month)) {
       const root = document.documentElement;
       const habitCellSize = currentHabitCellSize();
+      const habitNameWidth = currentHabitNameWidth();
+      const habitTotalWidth = currentHabitTotalWidth();
+      const dayCount = Math.max(1, days);
       root.style.setProperty("--habit-cell-size", `${habitCellSize}px`);
-      root.style.setProperty("--habit-name-width", `${currentHabitNameWidth()}px`);
+      root.style.setProperty("--habit-name-width", `${habitNameWidth}px`);
+      root.style.setProperty("--habit-total-width", `${habitTotalWidth}px`);
       root.style.setProperty("--chart-day-width", `${habitCellSize}px`);
+      root.style.setProperty("--habit-days-width", `${dayCount * habitCellSize}px`);
+      root.style.setProperty("--habit-table-width", `${habitNameWidth + (dayCount * habitCellSize) + habitTotalWidth}px`);
+    }
+
+    function applyHabitZoom() {
+      applyHabitSizing();
       document.querySelectorAll(".zoom-label").forEach(label => {
         label.textContent = `${Math.round(habitZoom * 100)}%`;
       });
@@ -3135,6 +3201,7 @@
       if (!stats.days.length) {
         return `<div class="chart-empty">습관을 추가하면 월간 곡선 그래프가 표시됩니다.</div>`;
       }
+      applyHabitSizing(stats.days.length);
       const todayIndex = getTodayHabitDayIndex();
       const dayWidth = currentHabitCellSize();
       const width = stats.days.length * dayWidth;
@@ -3144,7 +3211,7 @@
       const padding = { top: 12, right: 0, bottom: 14, left: 0 };
       const plotHeight = height - padding.top - padding.bottom;
       const points = stats.days.map((day, index) => ({
-        x: Math.round((index * dayWidth) + (dayWidth / 2)),
+        x: (index * dayWidth) + (dayWidth / 2),
         y: Math.round(padding.top + plotHeight - (plotHeight * day.rate / 100)),
         day
       }));
@@ -3193,6 +3260,7 @@
             </svg>
             <div class="chart-x-labels" style="grid-template-columns: repeat(${stats.days.length}, ${dayWidth}px);">${labels}</div>
           </div>
+          <div class="chart-tail-spacer" aria-hidden="true"></div>
         </div>
       `;
     }
@@ -3447,7 +3515,9 @@
       document.getElementById("habitEditBtn").classList.toggle("active", habitEditMode);
       document.getElementById("habitEditBtn").textContent = habitEditMode ? "완료" : "편집";
       const days = daysInMonth(appData.month);
+      applyHabitSizing(days);
       const todayIndex = getTodayHabitDayIndex();
+      const dayCols = Array.from({ length: days }, () => `<col class="habit-day-col">`).join("");
       const headerDays = Array.from({ length: days }, (_, index) => {
         const date = parseLocalDate(dateForMonthDay(appData.month, index + 1));
         const isToday = index === todayIndex;
@@ -3477,6 +3547,11 @@
       const habitTable = document.getElementById("habitTable");
       habitTable.classList.toggle("editing", habitEditMode);
       habitTable.innerHTML = `
+        <colgroup>
+          <col class="habit-name-col">
+          ${dayCols}
+          <col class="habit-total-col">
+        </colgroup>
         <thead>
           <tr><th>Habits / 요일</th>${headerDays}<th>Total</th></tr>
         </thead>
