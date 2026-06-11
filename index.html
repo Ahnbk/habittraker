@@ -43,6 +43,7 @@
       --radius: 8px;
       --habit-cell-size: 36px;
       --habit-name-width: 260px;
+      --habit-total-width: 54px;
       --chart-day-width: 36px;
       font-family: "Pretendard", "Apple SD Gothic Neo", "Malgun Gothic", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
     }
@@ -823,6 +824,10 @@
       scrollbar-width: thin;
     }
 
+    .habit-chart-panel .month-chart {
+      margin-top: 0;
+    }
+
     .line-chart-canvas {
       min-width: 0;
       position: relative;
@@ -834,20 +839,64 @@
       min-width: 100%;
     }
 
-    .chart-y-axis {
+    .chart-side-rail {
       position: sticky;
       left: 0;
       z-index: 4;
       float: left;
       width: var(--habit-name-width);
-      height: 126px;
+      height: 154px;
+      padding: 10px 54px 10px 10px;
       background: linear-gradient(90deg, var(--stone) 80%, rgba(251, 250, 247, 0));
+      border-right: 1px solid rgba(223, 207, 186, 0.82);
+    }
+
+    .chart-side-summary {
+      display: grid;
+      gap: 7px;
+      align-content: start;
+      min-width: 0;
+    }
+
+    .chart-side-summary strong {
+      font-size: 12px;
+      line-height: 1.15;
+    }
+
+    .chart-side-summary small {
+      color: var(--muted);
+      font-size: 10px;
+      font-weight: 800;
+      line-height: 1.25;
+    }
+
+    .chart-side-rate {
+      width: max-content;
+      min-height: 24px;
+      padding: 4px 8px;
+      border-radius: 999px;
+      background: var(--green-soft);
+      color: var(--green);
+      font-size: 12px;
+      font-weight: 900;
+    }
+
+    .chart-side-progress {
+      height: 8px;
+    }
+
+    .chart-y-axis {
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 48px;
+      height: 126px;
       pointer-events: none;
     }
 
     .chart-y-axis span {
       position: absolute;
-      right: 10px;
+      right: 8px;
       transform: translateY(-50%);
       color: var(--muted);
       font-size: 10px;
@@ -2186,7 +2235,7 @@
         <div class="brand-mark">한</div>
         <div>
           <h1>하루 한발짝</h1>
-          <small id="versionText">v0.10.3</small>
+          <small id="versionText">v0.10.4</small>
         </div>
       </div>
       <div class="header-actions">
@@ -2276,18 +2325,8 @@
             </div>
           </div>
         </section>
-        <section class="panel">
-          <div class="panel-head">
-            <div class="panel-title">
-              <h2>월간 체크 흐름</h2>
-              <p id="monthSummaryText"></p>
-            </div>
-            <div class="row-actions">
-              <span class="pill green" id="monthRatePill">0%</span>
-            </div>
-          </div>
+        <section class="panel habit-chart-panel">
           <div class="panel-body">
-            <div class="progress-bar"><span id="monthProgressBar"></span></div>
             <div class="month-chart" id="habitMonthChart"></div>
             <div class="compact-list" id="topHabitList" style="margin-top: 12px;"></div>
           </div>
@@ -2441,7 +2480,7 @@
       <div class="app-menu-head">
         <div>
           <strong id="appMenuTitle">앱 메뉴</strong>
-          <small id="menuVersionText">v0.10.3</small>
+          <small id="menuVersionText">v0.10.4</small>
         </div>
         <button class="btn icon" id="closeMenuBtn" title="닫기">×</button>
       </div>
@@ -2476,8 +2515,8 @@
     </section>
   </div>
   <script>
-    const APP_CACHE_VERSION = "habit-tracker-v0.10.3";
-    const APP_DISPLAY_VERSION = "v0.10.3";
+    const APP_CACHE_VERSION = "habit-tracker-v0.10.4";
+    const APP_DISPLAY_VERSION = "v0.10.4";
     const STORAGE_KEY = "habitTracker.appData.v2";
     const ZOOM_KEY = "habitTracker.zoom.v3";
     const ZOOM_RESET_KEY = "habitTracker.zoomReset.v0.6.6";
@@ -2569,6 +2608,7 @@
     let chartTodayScrollKey = "";
     let weekTodayScrollKey = "";
     let doneWeekTodayScrollKey = "";
+    let syncingHabitScroll = false;
     let pendingHabitFocusId = "";
     const doneWeekVisibleNoteCounts = {};
 
@@ -2601,6 +2641,10 @@
 
     function currentHabitNameWidth() {
       return Math.max(220, Math.round(260 * habitZoom));
+    }
+
+    function currentHabitTotalWidth() {
+      return 54;
     }
 
     function applyHabitZoom() {
@@ -3095,6 +3139,7 @@
       const dayWidth = currentHabitCellSize();
       const width = stats.days.length * dayWidth;
       const leftWidth = currentHabitNameWidth();
+      const totalWidth = currentHabitTotalWidth();
       const height = 126;
       const padding = { top: 12, right: 0, bottom: 14, left: 0 };
       const plotHeight = height - padding.top - padding.bottom;
@@ -3120,9 +3165,19 @@
         </circle>
       `).join("");
       const labels = stats.days.map(day => `<span class="${day.index === todayIndex ? "today-col" : ""}" title="${day.date}">${day.label.replace("일", "")}</span>`).join("");
+      const period = stats.startDate && stats.endDate ? `${stats.startDate.slice(5)} ~ ${stats.endDate.slice(5)}` : "";
+      const summary = stats.possible ? `${stats.done}/${stats.possible}칸 완료` : "습관 없음";
       return `
-        <div class="line-chart-frame" style="width:${width + leftWidth}px;">
-          <div class="chart-y-axis" aria-hidden="true">${yAxis}</div>
+        <div class="line-chart-frame" style="width:${width + leftWidth + totalWidth}px;">
+          <div class="chart-side-rail">
+            <div class="chart-side-summary">
+              <strong>월간 체크 흐름</strong>
+              <span class="chart-side-rate">${stats.rate}%</span>
+              <div class="progress-bar chart-side-progress"><span style="width:${stats.rate}%"></span></div>
+              <small>${period}<br>${summary}</small>
+            </div>
+            <div class="chart-y-axis" aria-hidden="true">${yAxis}</div>
+          </div>
           <div class="line-chart-canvas" style="width:${width}px;">
             <svg class="line-chart-svg" viewBox="0 0 ${width} ${height}" preserveAspectRatio="none" aria-label="월간 습관 달성률 곡선 그래프">
               <defs>
@@ -3183,6 +3238,37 @@
       return new Date().getDate() - 1;
     }
 
+    function setHabitLinkedScroll(scrollLeft) {
+      const wrap = document.querySelector(".table-wrap");
+      const chart = document.getElementById("habitMonthChart");
+      const maxLeft = Math.min(
+        wrap ? Math.max(0, wrap.scrollWidth - wrap.clientWidth) : 0,
+        chart ? Math.max(0, chart.scrollWidth - chart.clientWidth) : 0
+      );
+      const nextLeft = Math.min(maxLeft, Math.max(0, scrollLeft));
+      syncingHabitScroll = true;
+      if (wrap) wrap.scrollLeft = nextLeft;
+      if (chart) chart.scrollLeft = nextLeft;
+      requestAnimationFrame(() => {
+        syncingHabitScroll = false;
+      });
+    }
+
+    function syncHabitScroll(source, target) {
+      if (syncingHabitScroll || !source || !target) return;
+      const maxLeft = Math.min(
+        Math.max(0, source.scrollWidth - source.clientWidth),
+        Math.max(0, target.scrollWidth - target.clientWidth)
+      );
+      const nextLeft = Math.min(maxLeft, Math.max(0, source.scrollLeft));
+      syncingHabitScroll = true;
+      source.scrollLeft = nextLeft;
+      target.scrollLeft = nextLeft;
+      requestAnimationFrame(() => {
+        syncingHabitScroll = false;
+      });
+    }
+
     function scrollHabitTableToToday(force = false) {
       const todayIndex = getTodayHabitDayIndex();
       if (todayIndex === null) return;
@@ -3197,7 +3283,7 @@
         const stickyWidth = stickyHeader.getBoundingClientRect().width;
         const availableWidth = Math.max(1, wrap.clientWidth - stickyWidth);
         const target = todayHeader.offsetLeft - stickyWidth - (availableWidth / 2) + (todayHeader.offsetWidth / 2);
-        wrap.scrollLeft = Math.max(0, target);
+        setHabitLinkedScroll(target);
       });
     }
 
@@ -3211,8 +3297,9 @@
       if (!force && chartTodayScrollKey === key) return;
       chartTodayScrollKey = key;
       requestAnimationFrame(() => {
-        const target = currentHabitNameWidth() + todayLabel.offsetLeft - (chart.clientWidth / 2) + (todayLabel.offsetWidth / 2);
-        chart.scrollLeft = Math.max(0, target);
+        const availableWidth = Math.max(1, chart.clientWidth - currentHabitNameWidth());
+        const target = todayLabel.offsetLeft - (availableWidth / 2) + (todayLabel.offsetWidth / 2);
+        setHabitLinkedScroll(target);
       });
     }
 
@@ -3340,11 +3427,6 @@
 
     function renderHabitAnalysis() {
       const habitMonth = habitMonthGraphStats();
-      document.getElementById("monthSummaryText").textContent = habitMonth.days.length
-        ? `${habitMonth.startDate} ~ ${habitMonth.endDate} · ${habitMonth.done}/${habitMonth.possible}칸 완료`
-        : "습관을 추가하면 월간 곡선 그래프가 표시됩니다.";
-      document.getElementById("monthRatePill").textContent = `${habitMonth.rate}%`;
-      document.getElementById("monthProgressBar").style.width = `${habitMonth.rate}%`;
       document.getElementById("habitMonthChart").innerHTML = renderMonthCurveChart(habitMonth);
       if (activeView === "habits") scrollMonthChartToToday();
       document.getElementById("topHabitList").classList.add("month-habit-list");
@@ -4704,6 +4786,11 @@
         normalizeMonthChecks(appData);
         saveData("월을 변경했습니다.");
       });
+
+      const habitTableWrap = document.querySelector(".table-wrap");
+      const habitMonthChart = document.getElementById("habitMonthChart");
+      habitTableWrap.addEventListener("scroll", () => syncHabitScroll(habitTableWrap, habitMonthChart), { passive: true });
+      habitMonthChart.addEventListener("scroll", () => syncHabitScroll(habitMonthChart, habitTableWrap), { passive: true });
 
       const addHabitButton = document.getElementById("addHabitBtn");
       addHabitButton.addEventListener("pointerdown", event => event.preventDefault());
