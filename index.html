@@ -42,8 +42,8 @@
       --shadow: 0 16px 34px rgba(71, 52, 30, 0.12);
       --radius: 8px;
       --habit-cell-size: 36px;
-      --habit-name-width: 330px;
-      --chart-day-width: 34px;
+      --habit-name-width: 260px;
+      --chart-day-width: 36px;
       font-family: "Pretendard", "Apple SD Gothic Neo", "Malgun Gothic", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
     }
 
@@ -811,7 +811,7 @@
 
     .month-chart {
       margin-top: 10px;
-      padding: 10px;
+      padding: 10px 0 8px;
       border: 1px solid var(--line);
       border-radius: 8px;
       background:
@@ -826,7 +826,7 @@
     .line-chart-canvas {
       min-width: 0;
       position: relative;
-      margin-left: 42px;
+      margin-left: var(--habit-name-width);
     }
 
     .line-chart-frame {
@@ -839,7 +839,7 @@
       left: 0;
       z-index: 4;
       float: left;
-      width: 42px;
+      width: var(--habit-name-width);
       height: 126px;
       background: linear-gradient(90deg, var(--stone) 80%, rgba(251, 250, 247, 0));
       pointer-events: none;
@@ -847,7 +847,7 @@
 
     .chart-y-axis span {
       position: absolute;
-      right: 9px;
+      right: 10px;
       transform: translateY(-50%);
       color: var(--muted);
       font-size: 10px;
@@ -1998,7 +1998,7 @@
         margin-top: 4px;
       }
       .month-chart {
-        padding: 8px;
+        padding: 8px 0;
       }
       .line-chart-svg {
         height: 126px;
@@ -2186,7 +2186,7 @@
         <div class="brand-mark">한</div>
         <div>
           <h1>하루 한발짝</h1>
-          <small id="versionText">v0.10.2</small>
+          <small id="versionText">v0.10.3</small>
         </div>
       </div>
       <div class="header-actions">
@@ -2441,7 +2441,7 @@
       <div class="app-menu-head">
         <div>
           <strong id="appMenuTitle">앱 메뉴</strong>
-          <small id="menuVersionText">v0.10.2</small>
+          <small id="menuVersionText">v0.10.3</small>
         </div>
         <button class="btn icon" id="closeMenuBtn" title="닫기">×</button>
       </div>
@@ -2476,8 +2476,8 @@
     </section>
   </div>
   <script>
-    const APP_CACHE_VERSION = "habit-tracker-v0.10.2";
-    const APP_DISPLAY_VERSION = "v0.10.2";
+    const APP_CACHE_VERSION = "habit-tracker-v0.10.3";
+    const APP_DISPLAY_VERSION = "v0.10.3";
     const STORAGE_KEY = "habitTracker.appData.v2";
     const ZOOM_KEY = "habitTracker.zoom.v3";
     const ZOOM_RESET_KEY = "habitTracker.zoomReset.v0.6.6";
@@ -2595,12 +2595,20 @@
       renderHabits();
     }
 
+    function currentHabitCellSize() {
+      return Math.round(36 * habitZoom);
+    }
+
+    function currentHabitNameWidth() {
+      return Math.max(220, Math.round(260 * habitZoom));
+    }
+
     function applyHabitZoom() {
       const root = document.documentElement;
-      const habitNameWidth = Math.max(320, Math.round(330 * habitZoom));
-      root.style.setProperty("--habit-cell-size", `${Math.round(36 * habitZoom)}px`);
-      root.style.setProperty("--habit-name-width", `${habitNameWidth}px`);
-      root.style.setProperty("--chart-day-width", `${Math.round(34 * habitZoom)}px`);
+      const habitCellSize = currentHabitCellSize();
+      root.style.setProperty("--habit-cell-size", `${habitCellSize}px`);
+      root.style.setProperty("--habit-name-width", `${currentHabitNameWidth()}px`);
+      root.style.setProperty("--chart-day-width", `${habitCellSize}px`);
       document.querySelectorAll(".zoom-label").forEach(label => {
         label.textContent = `${Math.round(habitZoom * 100)}%`;
       });
@@ -3084,15 +3092,14 @@
         return `<div class="chart-empty">습관을 추가하면 월간 곡선 그래프가 표시됩니다.</div>`;
       }
       const todayIndex = getTodayHabitDayIndex();
-      const dayWidth = Math.round(34 * habitZoom);
-      const width = Math.max(320, stats.days.length * dayWidth);
+      const dayWidth = currentHabitCellSize();
+      const width = stats.days.length * dayWidth;
+      const leftWidth = currentHabitNameWidth();
       const height = 126;
-      const padding = { top: 12, right: 12, bottom: 14, left: 12 };
-      const plotWidth = width - padding.left - padding.right;
+      const padding = { top: 12, right: 0, bottom: 14, left: 0 };
       const plotHeight = height - padding.top - padding.bottom;
-      const step = stats.days.length > 1 ? plotWidth / (stats.days.length - 1) : plotWidth;
       const points = stats.days.map((day, index) => ({
-        x: Math.round(padding.left + step * index),
+        x: Math.round((index * dayWidth) + (dayWidth / 2)),
         y: Math.round(padding.top + plotHeight - (plotHeight * day.rate / 100)),
         day
       }));
@@ -3114,7 +3121,7 @@
       `).join("");
       const labels = stats.days.map(day => `<span class="${day.index === todayIndex ? "today-col" : ""}" title="${day.date}">${day.label.replace("일", "")}</span>`).join("");
       return `
-        <div class="line-chart-frame" style="width:${width + 42}px;">
+        <div class="line-chart-frame" style="width:${width + leftWidth}px;">
           <div class="chart-y-axis" aria-hidden="true">${yAxis}</div>
           <div class="line-chart-canvas" style="width:${width}px;">
             <svg class="line-chart-svg" viewBox="0 0 ${width} ${height}" preserveAspectRatio="none" aria-label="월간 습관 달성률 곡선 그래프">
@@ -3129,7 +3136,7 @@
               <path class="chart-line" d="${line}"></path>
               ${dots}
             </svg>
-            <div class="chart-x-labels" style="grid-template-columns: repeat(${stats.days.length}, 1fr);">${labels}</div>
+            <div class="chart-x-labels" style="grid-template-columns: repeat(${stats.days.length}, ${dayWidth}px);">${labels}</div>
           </div>
         </div>
       `;
@@ -3200,11 +3207,11 @@
       const chart = document.getElementById("habitMonthChart");
       const todayLabel = chart?.querySelector(".chart-x-labels span.today-col");
       if (!chart || !todayLabel || chart.clientWidth === 0) return;
-      const key = `${appData.month}:${habitZoom}:${chart.clientWidth}`;
+      const key = `${appData.month}:${habitZoom}:${chart.clientWidth}:${currentHabitNameWidth()}`;
       if (!force && chartTodayScrollKey === key) return;
       chartTodayScrollKey = key;
       requestAnimationFrame(() => {
-        const target = todayLabel.offsetLeft - (chart.clientWidth / 2) + (todayLabel.offsetWidth / 2);
+        const target = currentHabitNameWidth() + todayLabel.offsetLeft - (chart.clientWidth / 2) + (todayLabel.offsetWidth / 2);
         chart.scrollLeft = Math.max(0, target);
       });
     }
