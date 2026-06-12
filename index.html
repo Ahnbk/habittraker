@@ -47,6 +47,8 @@
       --habit-days-width: 1116px;
       --habit-table-width: 1430px;
       --chart-day-width: 36px;
+      --bottom-nav-height: 0px;
+      --toast-bottom-offset: 18px;
       font-family: "Pretendard", "Apple SD Gothic Neo", "Malgun Gothic", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
     }
 
@@ -78,6 +80,12 @@
 
     body.menu-open {
       overflow: hidden;
+    }
+
+    body.menu-open .top-mascot,
+    body.menu-open .coach-bubble {
+      opacity: 0;
+      visibility: hidden;
     }
 
     button, input, textarea, select {
@@ -312,6 +320,10 @@
       font-size: 13px;
       position: relative;
       overflow: hidden;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
     }
 
     .tab-btn.active {
@@ -319,6 +331,31 @@
       border-color: rgba(39, 97, 80, 0.9);
       color: #fff;
       box-shadow: 0 7px 18px rgba(45, 37, 28, 0.2);
+    }
+
+    .tab-icon {
+      width: 18px;
+      height: 18px;
+      border-radius: 6px;
+      display: inline-grid;
+      place-items: center;
+      background: rgba(47, 127, 116, 0.1);
+      color: var(--mint-deep);
+      font-size: 11px;
+      line-height: 1;
+      font-weight: 950;
+      flex: 0 0 auto;
+    }
+
+    .tab-btn.active .tab-icon {
+      background: rgba(255, 255, 255, 0.18);
+      color: #fff;
+    }
+
+    .tab-label {
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
     .app-menu-backdrop {
@@ -329,7 +366,7 @@
       display: none;
       align-items: flex-end;
       justify-content: center;
-      padding: 12px;
+      padding: calc(12px + env(safe-area-inset-top)) calc(12px + env(safe-area-inset-right)) calc(12px + env(safe-area-inset-bottom)) calc(12px + env(safe-area-inset-left));
     }
 
     .app-menu-backdrop.show {
@@ -432,6 +469,7 @@
     .tab-btn,
     .menu-item,
     .today-check-btn,
+    .stat-card,
     .today-habit-item,
     .today-task-item,
     .task-row,
@@ -495,6 +533,12 @@
       50% { transform: translateY(-6px) rotate(2deg); }
     }
 
+    @keyframes coachCheer {
+      0%, 100% { transform: translateY(0) rotate(-2deg) scale(1); }
+      35% { transform: translateY(-10px) rotate(5deg) scale(1.08); }
+      70% { transform: translateY(-4px) rotate(-4deg) scale(1.03); }
+    }
+
     .top-mascot {
       position: fixed;
       top: calc(48px + env(safe-area-inset-top));
@@ -507,6 +551,44 @@
       filter: drop-shadow(0 12px 16px rgba(42, 28, 14, 0.3));
       transform-origin: 50% 100%;
       animation: topMascotFloat 3.9s ease-in-out infinite;
+    }
+
+    .top-mascot.cheer {
+      animation: coachCheer 520ms cubic-bezier(0.2, 0.8, 0.2, 1), topMascotFloat 3.9s ease-in-out 520ms infinite;
+    }
+
+    .coach-bubble {
+      position: fixed;
+      top: calc(70px + env(safe-area-inset-top));
+      right: calc(clamp(28px, 5vw, 84px) + 132px + env(safe-area-inset-right));
+      z-index: 78;
+      max-width: 190px;
+      padding: 8px 10px;
+      border: 1px solid rgba(47, 127, 116, 0.24);
+      border-radius: 10px;
+      background:
+        linear-gradient(135deg, rgba(255, 255, 255, 0.88), rgba(255, 250, 239, 0.72)),
+        var(--card-paper-bg) center / cover,
+        var(--paper);
+      color: var(--mint-deep);
+      font-size: 12px;
+      font-weight: 850;
+      line-height: 1.35;
+      box-shadow: 0 10px 22px rgba(71, 52, 30, 0.12);
+      pointer-events: none;
+    }
+
+    .coach-bubble::after {
+      content: "";
+      position: absolute;
+      right: -7px;
+      top: 18px;
+      width: 12px;
+      height: 12px;
+      transform: rotate(45deg);
+      border-top: 1px solid rgba(47, 127, 116, 0.24);
+      border-right: 1px solid rgba(47, 127, 116, 0.24);
+      background: rgba(255, 253, 246, 0.9);
     }
 
     .top-grid {
@@ -529,6 +611,8 @@
       animation: softLift 220ms ease both;
       position: relative;
       overflow: hidden;
+      width: 100%;
+      text-align: left;
     }
 
     .stat-card::after {
@@ -564,6 +648,32 @@
       color: var(--muted);
       font-size: 10px;
       line-height: 1.25;
+    }
+
+    .stat-card.stat-link {
+      cursor: pointer;
+    }
+
+    .stat-card.stat-link:focus-visible {
+      outline: 3px solid rgba(47, 127, 116, 0.26);
+      outline-offset: 2px;
+    }
+
+    .stat-card .stat-arrow {
+      position: absolute;
+      right: 9px;
+      top: 8px;
+      z-index: 1;
+      color: var(--muted);
+      font-size: 14px;
+      font-weight: 900;
+    }
+
+    .empty-action {
+      flex: 0 0 auto;
+      min-height: 34px;
+      padding: 7px 10px;
+      font-size: 12px;
     }
 
     .panel {
@@ -677,6 +787,20 @@
       gap: 10px;
     }
 
+    .today-quick-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 6px;
+      flex-wrap: wrap;
+      margin-top: 10px;
+    }
+
+    .today-quick-actions .btn {
+      min-height: 38px;
+      padding: 8px 10px;
+      font-size: 12px;
+    }
+
     .focus-column {
       min-width: 0;
       display: grid;
@@ -711,8 +835,8 @@
 
     .today-habit-item {
       display: grid;
-      grid-template-columns: 42px minmax(0, 1fr);
-      gap: 9px;
+      grid-template-columns: 48px minmax(0, 1fr);
+      gap: 8px;
       align-items: center;
       padding: 8px;
     }
@@ -724,9 +848,9 @@
     }
 
     .today-check-btn {
-      width: 34px;
-      height: 34px;
-      min-height: 34px;
+      width: 44px;
+      height: 44px;
+      min-height: 44px;
       border-radius: 9px;
       border: 2px solid #d7d0c7;
       background: #fff;
@@ -763,11 +887,12 @@
 
     .today-task-item {
       display: grid;
-      grid-template-columns: 30px minmax(0, 1fr) auto;
+      grid-template-columns: 34px minmax(0, 1fr) auto;
       align-items: center;
       gap: 8px;
       padding: 9px 10px;
       cursor: pointer;
+      min-height: 52px;
     }
 
     .today-task-item.done {
@@ -777,9 +902,9 @@
     }
 
     .today-task-item input {
-      width: 18px;
-      height: 18px;
-      min-height: 18px;
+      width: 22px;
+      height: 22px;
+      min-height: 22px;
       accent-color: var(--green);
     }
 
@@ -1533,11 +1658,11 @@
 
     .done-note-delete-btn {
       position: absolute;
-      top: 7px;
-      right: 7px;
-      width: 28px;
-      height: 28px;
-      min-height: 28px;
+      top: 6px;
+      right: 6px;
+      width: 36px;
+      height: 36px;
+      min-height: 36px;
       border-radius: 50%;
       display: grid;
       place-items: center;
@@ -1562,7 +1687,7 @@
     }
 
     .done-note-add-row {
-      min-height: 42px;
+      min-height: 48px;
       display: grid;
       place-items: center;
       border-top: 1px dashed rgba(189, 169, 142, 0.72);
@@ -1570,9 +1695,9 @@
     }
 
     .done-note-add-btn {
-      width: 32px;
-      height: 32px;
-      min-height: 32px;
+      width: 40px;
+      height: 40px;
+      min-height: 40px;
       border-radius: 50%;
       display: grid;
       place-items: center;
@@ -1586,6 +1711,34 @@
     }
 
     .done-note-add-btn:active {
+      transform: translateY(1px) scale(0.96);
+    }
+
+    .task-add-row {
+      min-height: 44px;
+      display: grid;
+      place-items: center;
+      border-top: 1px dashed rgba(189, 169, 142, 0.72);
+      background: rgba(255, 250, 239, 0.32);
+    }
+
+    .task-add-btn {
+      width: 38px;
+      height: 38px;
+      min-height: 38px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      border: 1px solid rgba(47, 127, 116, 0.34);
+      background: rgba(255, 253, 246, 0.9);
+      color: var(--green);
+      font-size: 20px;
+      font-weight: 900;
+      line-height: 1;
+      box-shadow: 0 4px 12px rgba(71, 52, 30, 0.08);
+    }
+
+    .task-add-btn:active {
       transform: translateY(1px) scale(0.96);
     }
 
@@ -1845,7 +1998,7 @@
     .toast {
       position: fixed;
       left: 50%;
-      bottom: 18px;
+      bottom: calc(var(--toast-bottom-offset) + env(safe-area-inset-bottom));
       transform: translateX(-50%) translateY(12px);
       background: #111827;
       color: #fff;
@@ -1966,7 +2119,7 @@
 
     .pdf-preview-head {
       min-height: 58px;
-      padding: 10px 12px;
+      padding: calc(10px + env(safe-area-inset-top)) calc(12px + env(safe-area-inset-right)) 10px calc(12px + env(safe-area-inset-left));
       display: flex;
       align-items: center;
       justify-content: space-between;
@@ -1999,7 +2152,7 @@
       overflow: auto;
       display: grid;
       place-items: center;
-      padding: 14px;
+      padding: 14px calc(14px + env(safe-area-inset-right)) calc(14px + env(safe-area-inset-bottom)) calc(14px + env(safe-area-inset-left));
     }
 
     .pdf-preview-box {
@@ -2048,11 +2201,15 @@
     }
 
     @media (max-width: 680px) {
+      :root {
+        --bottom-nav-height: 70px;
+        --toast-bottom-offset: 88px;
+      }
       .app-shell {
-        padding: 8px 8px calc(84px + env(safe-area-inset-bottom));
+        padding: 8px 8px calc(var(--bottom-nav-height) + 18px + env(safe-area-inset-bottom));
         padding-top: calc(8px + env(safe-area-inset-top));
         padding-right: calc(8px + env(safe-area-inset-right));
-        padding-bottom: calc(84px + env(safe-area-inset-bottom));
+        padding-bottom: calc(var(--bottom-nav-height) + 18px + env(safe-area-inset-bottom));
         padding-left: calc(8px + env(safe-area-inset-left));
       }
       .app-header {
@@ -2060,9 +2217,10 @@
         top: calc(6px + env(safe-area-inset-top));
       }
       .top-mascot {
-        top: calc(52px + env(safe-area-inset-top));
-        right: calc(18px + 48px + env(safe-area-inset-right));
-        width: 48px;
+        display: none;
+      }
+      .coach-bubble {
+        display: none;
       }
       .brand h1 {
         font-size: 16px;
@@ -2077,7 +2235,7 @@
         display: grid;
         grid-template-columns: repeat(5, minmax(0, 1fr));
         gap: 5px;
-        padding: 6px;
+        padding: 7px 6px;
         border: 1px solid var(--line);
         border-radius: 14px;
         background: rgba(255, 255, 255, 0.96);
@@ -2086,12 +2244,23 @@
       }
       .tab-btn {
         min-width: 0;
-        min-height: 42px;
+        min-height: 52px;
         border-radius: 10px;
-        padding: 6px 4px;
+        padding: 6px 4px 5px;
         font-size: 11px;
         white-space: normal;
         line-height: 1.15;
+        flex-direction: column;
+        gap: 3px;
+      }
+      .tab-icon {
+        width: 20px;
+        height: 20px;
+        font-size: 12px;
+        border-radius: 7px;
+      }
+      .tab-label {
+        max-width: 100%;
       }
       .top-grid {
         grid-template-columns: 1fr 1fr;
@@ -2137,6 +2306,14 @@
       .habit-toolbar {
         width: 100%;
         justify-content: flex-end;
+      }
+      .btn.icon,
+      .habit-toolbar .btn.icon,
+      .week-toolbar .btn.icon,
+      .mandala-toolbar .btn.icon {
+        width: 44px;
+        height: 44px;
+        min-height: 44px;
       }
       .week-toolbar {
         width: 100%;
@@ -2222,6 +2399,9 @@
     }
 
     @media (orientation: landscape) and (max-height: 520px) {
+      :root {
+        --toast-bottom-offset: 18px;
+      }
       .app-shell {
         width: 100%;
         padding: 6px 8px 14px;
@@ -2254,9 +2434,10 @@
         font-size: 19px;
       }
       .top-mascot {
-        top: calc(42px + env(safe-area-inset-top));
-        right: calc(28px + 44px + env(safe-area-inset-right));
-        width: 44px;
+        display: none;
+      }
+      .coach-bubble {
+        display: none;
       }
       .tabs {
         position: sticky;
@@ -2275,11 +2456,12 @@
       }
       .tab-btn {
         min-width: 72px;
-        min-height: 32px;
+        min-height: 44px;
         border-radius: 999px;
         padding: 6px 10px;
         font-size: 12px;
         white-space: nowrap;
+        flex-direction: row;
       }
       .top-grid {
         grid-template-columns: repeat(4, minmax(120px, 1fr));
@@ -2328,7 +2510,7 @@
         <div class="brand-mark">한</div>
         <div>
           <h1>하루 한발짝</h1>
-          <small id="versionText">v0.10.8</small>
+          <small id="versionText">v0.10.9</small>
         </div>
       </div>
       <div class="header-actions">
@@ -2336,7 +2518,8 @@
       </div>
     </header>
 
-    <img class="top-mascot" src="assets/avocado-coach.webp" alt="" decoding="async">
+    <img class="top-mascot" id="topMascot" src="assets/avocado-coach.webp" alt="" decoding="async">
+    <div class="coach-bubble" id="coachBubble" aria-live="polite"></div>
 
     <div class="update-banner" id="updateBanner">
       <span>새 버전이 준비됐습니다.</span>
@@ -2344,11 +2527,11 @@
     </div>
 
     <nav class="tabs" aria-label="주요 화면">
-      <button class="tab-btn active" data-view="dashboard">오늘</button>
-      <button class="tab-btn" data-view="habits">습관</button>
-      <button class="tab-btn" data-view="week">할 일</button>
-      <button class="tab-btn" data-view="done-week">한 일</button>
-      <button class="tab-btn" data-view="mandalart">만다라트</button>
+      <button class="tab-btn active" data-view="dashboard"><span class="tab-icon" aria-hidden="true">●</span><span class="tab-label">오늘</span></button>
+      <button class="tab-btn" data-view="habits"><span class="tab-icon" aria-hidden="true">✓</span><span class="tab-label">습관</span></button>
+      <button class="tab-btn" data-view="week"><span class="tab-icon" aria-hidden="true">＋</span><span class="tab-label">할 일</span></button>
+      <button class="tab-btn" data-view="done-week"><span class="tab-icon" aria-hidden="true">✎</span><span class="tab-label">한 일</span></button>
+      <button class="tab-btn" data-view="mandalart"><span class="tab-icon" aria-hidden="true">□</span><span class="tab-label">만다라트</span></button>
     </nav>
 
     <main>
@@ -2360,6 +2543,7 @@
           </div>
           <div class="row-actions">
             <button class="btn primary" id="onboardingRestoreBtn">복원</button>
+            <button class="btn" data-action="go-view" data-view-target="data" type="button">클라우드 로그인</button>
             <button class="btn" id="onboardingStartBtn">새 습관</button>
           </div>
         </div>
@@ -2386,6 +2570,10 @@
                 <div class="compact-list" id="todayTaskList"></div>
               </div>
             </div>
+            <div class="today-quick-actions">
+              <button class="btn" data-action="add-today-task" type="button">오늘 할 일 추가</button>
+              <button class="btn primary" data-action="write-today-note" type="button">한 일 쓰기</button>
+            </div>
           </div>
         </section>
 
@@ -2404,7 +2592,8 @@
             </div>
             <div class="habit-toolbar">
               <button class="btn primary" id="addHabitBtn">+ 추가</button>
-              <button class="btn" id="habitEditBtn">편집</button>
+              <button class="btn" id="currentMonthBtn">이번 달</button>
+              <button class="btn" id="habitEditBtn">삭제 모드</button>
               <div class="zoom-controls">
                 <button class="btn icon" data-action="zoom-out" title="축소">−</button>
                 <span class="pill zoom-label">100%</span>
@@ -2578,7 +2767,7 @@
       <div class="app-menu-head">
         <div>
           <strong id="appMenuTitle">앱 메뉴</strong>
-          <small id="menuVersionText">v0.10.8</small>
+          <small id="menuVersionText">v0.10.9</small>
         </div>
         <button class="btn icon" id="closeMenuBtn" title="닫기">×</button>
       </div>
@@ -2613,8 +2802,8 @@
     </section>
   </div>
   <script>
-    const APP_CACHE_VERSION = "habit-tracker-v0.10.8";
-    const APP_DISPLAY_VERSION = "v0.10.8";
+    const APP_CACHE_VERSION = "habit-tracker-v0.10.9";
+    const APP_DISPLAY_VERSION = "v0.10.9";
     const STORAGE_KEY = "habitTracker.appData.v2";
     const ZOOM_KEY = "habitTracker.zoom.v3";
     const ZOOM_RESET_KEY = "habitTracker.zoomReset.v0.6.6";
@@ -2682,6 +2871,7 @@
     let appData = loadData();
     let activeView = "dashboard";
     let toastTimer = null;
+    let mascotCheerTimer = null;
     let waitingWorker = null;
     let swRegistration = null;
     let updateApplying = false;
@@ -2708,6 +2898,7 @@
     let doneWeekTodayScrollKey = "";
     let syncingHabitScroll = false;
     let pendingHabitFocusId = "";
+    const weekVisibleTaskCounts = {};
     const doneWeekVisibleNoteCounts = {};
 
     function clone(value) {
@@ -2894,7 +3085,7 @@
 
     function bindTapFeedback() {
       document.addEventListener("pointerdown", event => {
-        const target = event.target.closest(".btn, .menu-button, .tab-btn, .menu-item, .today-check-btn, .cell-toggle, .today-task-item, .task-row input[type='checkbox']");
+        const target = event.target.closest(".btn, .menu-button, .tab-btn, .menu-item, .stat-card, .today-check-btn, .cell-toggle, .today-habit-item, .today-task-item, .task-row input[type='checkbox']");
         if (!target || target.disabled) return;
         const surface = target.matches("input") ? target.closest(".today-task-item, .task-row") : target;
         addTapRipple(surface, event);
@@ -2908,6 +3099,33 @@
       if (dayIndex === getTodayHabitDayIndex() && done === total) return "오늘 루틴 완성";
       if (dayIndex === getTodayHabitDayIndex()) return `${done}/${total} 이어지는 중`;
       return "체크 완료";
+    }
+
+    function coachMessage(todayHabitDone, totalHabits, todayDone, totalTasks) {
+      if (!totalHabits && !totalTasks) return "오늘의 한발짝을 만들어볼까요?";
+      const remainingHabits = Math.max(0, totalHabits - todayHabitDone);
+      if (totalHabits && remainingHabits === 0) return "오늘 습관은 다 채웠어요.";
+      if (remainingHabits === 1) return "거의 다 왔어요. 한 칸만 더.";
+      if (remainingHabits > 1) return `${remainingHabits}개만 더 가면 오늘 루틴이 닫혀요.`;
+      if (totalTasks && todayDone < totalTasks) return "할 일도 한발짝씩 가면 됩니다.";
+      return "기록까지 남기면 오늘이 더 또렷해져요.";
+    }
+
+    function updateCoachBubble(message) {
+      const bubble = document.getElementById("coachBubble");
+      if (!bubble) return;
+      bubble.textContent = message;
+    }
+
+    function cheerMascot(message) {
+      updateCoachBubble(message);
+      const mascot = document.getElementById("topMascot");
+      if (!mascot || prefersReducedMotion()) return;
+      mascot.classList.remove("cheer");
+      mascot.offsetHeight;
+      mascot.classList.add("cheer");
+      clearTimeout(mascotCheerTimer);
+      mascotCheerTimer = window.setTimeout(() => mascot.classList.remove("cheer"), 620);
     }
 
     function playJoyBurst(rect, message = "좋아요") {
@@ -3139,29 +3357,35 @@
       week.entries[startDate] = clone(week.days);
     }
 
+    function setSyncedWeekStart(nextStartDate) {
+      const startDate = safeWeekStart(nextStartDate);
+      setWeekStart(appData.week, startDate, { includeDone: true, prefix: "w" });
+      setWeekStart(appData.doneWeek, startDate, { includeDone: false, prefix: "dw" });
+    }
+
     function moveWeek(delta) {
       const next = parseLocalDate(appData.week.startDate || getWeekStart(new Date()));
       next.setDate(next.getDate() + (delta * 7));
-      setWeekStart(appData.week, formatDate(next), { includeDone: true, prefix: "w" });
+      setSyncedWeekStart(formatDate(next));
       saveData(delta > 0 ? "다음 주로 이동했습니다." : "이전 주로 이동했습니다.");
     }
 
     function moveWeekToDate(dateString, message = "선택한 날짜의 주로 이동했습니다.") {
       if (!dateString) return;
-      setWeekStart(appData.week, getWeekStart(parseLocalDate(dateString)), { includeDone: true, prefix: "w" });
+      setSyncedWeekStart(getWeekStart(parseLocalDate(dateString)));
       saveData(message);
     }
 
     function moveDoneWeek(delta) {
       const next = parseLocalDate(appData.doneWeek.startDate || getWeekStart(new Date()));
       next.setDate(next.getDate() + (delta * 7));
-      setWeekStart(appData.doneWeek, formatDate(next), { includeDone: false, prefix: "dw" });
-      saveData(delta > 0 ? "다음 주 한 일로 이동했습니다." : "이전 주 한 일로 이동했습니다.");
+      setSyncedWeekStart(formatDate(next));
+      saveData(delta > 0 ? "다음 주로 이동했습니다." : "이전 주로 이동했습니다.");
     }
 
     function moveDoneWeekToDate(dateString, message = "선택한 날짜의 한 일 주로 이동했습니다.") {
       if (!dateString) return;
-      setWeekStart(appData.doneWeek, getWeekStart(parseLocalDate(dateString)), { includeDone: false, prefix: "dw" });
+      setSyncedWeekStart(getWeekStart(parseLocalDate(dateString)));
       saveData(message);
     }
 
@@ -3311,14 +3535,14 @@
       `;
     }
 
-    function weeklyStats() {
-      const tasks = appData.week.days.flatMap(day => day.tasks.filter(task => task.title.trim()));
+    function weeklyStats(days = appData.week.days) {
+      const tasks = days.flatMap(day => day.tasks.filter(task => task.title.trim()));
       const done = tasks.filter(task => task.done).length;
       return { total: tasks.length, done, rate: percent(done, tasks.length) };
     }
 
-    function doneWeekStats() {
-      const tasks = appData.doneWeek.days.flatMap(day => day.tasks.filter(task => task.title.trim()));
+    function doneWeekStats(days = appData.doneWeek.days) {
+      const tasks = days.flatMap(day => day.tasks.filter(task => task.title.trim()));
       return { total: tasks.length };
     }
 
@@ -3336,15 +3560,60 @@
       return getTodayDayContext().day;
     }
 
-    function getTodayDayContext() {
-      const today = todayDateString();
-      const dayIndex = appData.week.days.findIndex(day => day.date === today);
+    function getWeekDayContextForDate(week, dateString, options = {}) {
+      const targetDate = dateString || todayDateString();
+      const startDate = safeWeekStart(getWeekStart(parseLocalDate(targetDate)));
+      const activeStart = safeWeekStart(week.startDate);
+      const sourceDays = activeStart === startDate
+        ? week.days
+        : (week.entries && typeof week.entries === "object" ? week.entries[startDate] : undefined);
+      const days = normalizeWeekEntry(startDate, sourceDays, options);
+      const dayIndex = days.findIndex(day => day.date === targetDate);
       const safeIndex = dayIndex >= 0 ? dayIndex : 0;
       return {
-        day: appData.week.days[safeIndex] || appData.week.days[0],
+        days,
+        day: days[safeIndex] || days[0],
         dayIndex: safeIndex,
-        isCurrentWeek: dayIndex >= 0
+        isActiveWeek: activeStart === startDate,
+        isCurrentWeek: dayIndex >= 0,
+        weekStartDate: startDate
       };
+    }
+
+    function ensureWeekDayContextForDate(week, dateString, options = {}) {
+      const targetDate = dateString || todayDateString();
+      const startDate = safeWeekStart(getWeekStart(parseLocalDate(targetDate)));
+      const activeStart = safeWeekStart(week.startDate);
+      week.entries = week.entries && typeof week.entries === "object" ? week.entries : {};
+      if (activeStart === startDate) {
+        week.days = normalizeWeekEntry(startDate, week.days, options);
+        week.entries[startDate] = clone(week.days);
+        const dayIndex = week.days.findIndex(day => day.date === targetDate);
+        const safeIndex = dayIndex >= 0 ? dayIndex : 0;
+        return {
+          days: week.days,
+          day: week.days[safeIndex] || week.days[0],
+          dayIndex: safeIndex,
+          isActiveWeek: true,
+          weekStartDate: startDate
+        };
+      }
+
+      const days = normalizeWeekEntry(startDate, week.entries[startDate], options);
+      week.entries[startDate] = days;
+      const dayIndex = days.findIndex(day => day.date === targetDate);
+      const safeIndex = dayIndex >= 0 ? dayIndex : 0;
+      return {
+        days,
+        day: days[safeIndex] || days[0],
+        dayIndex: safeIndex,
+        isActiveWeek: false,
+        weekStartDate: startDate
+      };
+    }
+
+    function getTodayDayContext() {
+      return getWeekDayContextForDate(appData.week, todayDateString(), { includeDone: true, prefix: "w" });
     }
 
     function getTodayHabitDayIndex() {
@@ -3478,10 +3747,11 @@
 
     function renderDashboard() {
       const habits = habitStats();
-      const week = weeklyStats();
-      const doneWeek = doneWeekStats();
-      const mandalart = mandalartStats();
       const todayContext = getTodayDayContext();
+      const todayDoneWeekContext = getWeekDayContextForDate(appData.doneWeek, todayDateString(), { includeDone: false, prefix: "dw" });
+      const week = weeklyStats(todayContext.days);
+      const doneWeek = doneWeekStats(todayDoneWeekContext.days);
+      const mandalart = mandalartStats();
       const todayDay = todayContext.day || { day: "오늘", date: todayDateString(), tasks: [] };
       const todayTasks = (todayDay.tasks || [])
         .map((task, taskIndex) => ({ ...task, taskIndex }))
@@ -3502,24 +3772,27 @@
         { label: "주간 할 일", value: `${week.done}/${week.total}`, sub: `완료율 ${week.rate}%` },
         { label: "만다라트", value: `${mandalart.filled}/${mandalart.total}`, sub: `작성률 ${mandalart.rate}%` }
       ];
-      document.getElementById("statGrid").innerHTML = stats.map(stat => `
-        <div class="stat-card">
+      const statTargets = ["habits", "habits", "week", "mandalart"];
+      document.getElementById("statGrid").innerHTML = stats.map((stat, index) => `
+        <button class="stat-card stat-link" data-action="go-view" data-view-target="${statTargets[index] || "dashboard"}" type="button">
           <div class="label">${stat.label}</div>
           <div class="value">${stat.value}</div>
           <div class="sub">${stat.sub}</div>
-        </div>
+          <span class="stat-arrow" aria-hidden="true">›</span>
+        </button>
       `).join("");
       document.getElementById("todayDatePill").textContent = todayDay.date || "오늘";
       document.getElementById("todayHabitRatePill").textContent = todayHabitDayIndex === null ? "이번 달 아님" : `${todayHabitRate}%`;
       document.getElementById("todaySummaryText").textContent = todayHabitDayIndex === null
         ? "오늘 체크는 이번 달 습관표에서 사용할 수 있습니다."
         : `${todayDay.day || "오늘"} · 습관 ${todayHabitDone}/${appData.habits.length} · 할 일 ${todayDone}/${todayTasks.length}`;
+      updateCoachBubble(coachMessage(todayHabitDone, appData.habits.length, todayDone, todayTasks.length));
       document.getElementById("todayHabitList").innerHTML = todayHabitDayIndex === null
-        ? emptyLine("월간 습관에서 이번 달로 바꾸면 오늘 체크가 열립니다.")
+        ? emptyLine("월간 습관에서 이번 달로 바꾸면 오늘 체크가 열립니다.", "이번 달 보기", "current-month")
         : appData.habits.map((habit, habitIndex) => {
           const checked = Boolean(habit.checks[todayHabitDayIndex]);
           return `
-            <div class="today-habit-item ${checked ? "checked" : ""}">
+            <div class="today-habit-item ${checked ? "checked" : ""}" data-action="toggle-today-habit" data-habit="${habitIndex}" data-day="${todayHabitDayIndex}">
               <button class="today-check-btn" data-action="toggle-today-habit" data-habit="${habitIndex}" data-day="${todayHabitDayIndex}" title="오늘 체크">${checked ? "✓" : ""}</button>
               <div class="today-habit-main">
                 <strong>${escapeHtml(habit.name)}</strong>
@@ -3527,11 +3800,11 @@
               </div>
             </div>
           `;
-        }).join("") || emptyLine("오늘 체크할 습관이 없습니다.");
+        }).join("") || emptyLine("오늘 체크할 습관이 없습니다.", "습관 추가", "add-habit");
       document.getElementById("todayTaskList").innerHTML = todayTasks.length
         ? todayTasks.map(task => `
           <label class="today-task-item ${task.done ? "done" : ""}">
-            <input type="checkbox" ${task.done ? "checked" : ""} data-action="today-task-done" data-day="${todayContext.dayIndex}" data-task="${task.taskIndex}">
+            <input type="checkbox" ${task.done ? "checked" : ""} data-action="today-task-done" data-week-start="${todayContext.weekStartDate}" data-date="${todayDay.date}" data-day="${todayContext.dayIndex}" data-task="${task.taskIndex}">
             <strong>${escapeHtml(task.title)}</strong>
             <small>${task.done ? "완료" : "대기"}</small>
           </label>
@@ -3559,7 +3832,7 @@
       normalizeMonthChecks(appData);
       document.getElementById("monthInput").value = appData.month;
       document.getElementById("habitEditBtn").classList.toggle("active", habitEditMode);
-      document.getElementById("habitEditBtn").textContent = habitEditMode ? "완료" : "편집";
+      document.getElementById("habitEditBtn").textContent = habitEditMode ? "완료" : "삭제 모드";
       const days = daysInMonth(appData.month);
       applyHabitSizing(days);
       const todayIndex = getTodayHabitDayIndex();
@@ -3611,6 +3884,34 @@
       renderHabitAnalysis();
     }
 
+    function weekTaskKey(day) {
+      return day?.date || "";
+    }
+
+    function weekVisibleTaskCount(day) {
+      const tasks = Array.isArray(day?.tasks) ? day.tasks : [];
+      const lastFilledIndex = tasks.reduce((last, task, index) => (
+        task.title && task.title.trim() ? index : last
+      ), -1);
+      const requested = weekVisibleTaskCounts[weekTaskKey(day)] || 0;
+      return Math.min(tasks.length, Math.max(1, lastFilledIndex + 2, requested));
+    }
+
+    function addWeekTask(dayIndex) {
+      const day = appData.week.days[dayIndex];
+      if (!day) return;
+      const currentCount = weekVisibleTaskCount(day);
+      const nextCount = Math.min(day.tasks.length, currentCount + 1);
+      weekVisibleTaskCounts[weekTaskKey(day)] = nextCount;
+      renderWeek();
+      requestAnimationFrame(() => {
+        const input = document.querySelector(`[data-action="weekly-title"][data-day="${dayIndex}"][data-task="${nextCount - 1}"]`);
+        if (!input) return;
+        input.focus();
+        input.scrollIntoView({ block: "center", inline: "center" });
+      });
+    }
+
     function renderWeek() {
       normalizeWeek(appData.week);
       const first = appData.week.days[0]?.date || "";
@@ -3622,6 +3923,9 @@
         const filled = day.tasks.filter(task => task.title.trim());
         const done = filled.filter(task => task.done).length;
         const isToday = day.date === todayDateString();
+        const visibleCount = weekVisibleTaskCount(day);
+        const visibleTasks = day.tasks.slice(0, visibleCount);
+        const canAdd = visibleCount < day.tasks.length;
         return `
           <section class="day-card ${isToday ? "today-card" : ""}">
             <div class="day-head">
@@ -3632,12 +3936,17 @@
               </div>
             </div>
             <div class="task-list">
-              ${day.tasks.map((task, taskIndex) => `
+              ${visibleTasks.map((task, taskIndex) => `
                 <div class="task-row ${task.done ? "done" : ""}">
                   <input type="checkbox" ${task.done ? "checked" : ""} data-action="weekly-done" data-day="${dayIndex}" data-task="${taskIndex}" aria-label="완료">
                   <input type="text" value="${escapeHtml(task.title)}" data-action="weekly-title" data-day="${dayIndex}" data-task="${taskIndex}" aria-label="할 일">
                 </div>
               `).join("")}
+              ${canAdd ? `
+                <div class="task-add-row">
+                  <button class="task-add-btn" data-action="add-week-task" data-day="${dayIndex}" title="할 일 칸 추가" aria-label="할 일 칸 추가">+</button>
+                </div>
+              ` : ""}
             </div>
           </section>
         `;
@@ -4382,8 +4691,42 @@
       }
     }
 
-    function emptyLine(text) {
-      return `<div class="list-item"><strong>${escapeHtml(text)}</strong><small></small></div>`;
+    function emptyLine(text, actionLabel = "", action = "", view = "") {
+      const actionButton = actionLabel
+        ? `<button class="btn empty-action" data-action="${escapeHtml(action)}" ${view ? `data-view-target="${escapeHtml(view)}"` : ""}>${escapeHtml(actionLabel)}</button>`
+        : `<small></small>`;
+      return `<div class="list-item empty-line"><strong>${escapeHtml(text)}</strong>${actionButton}</div>`;
+    }
+
+    function focusTodayTaskInput() {
+      requestAnimationFrame(() => {
+        const todayIndex = appData.week.days.findIndex(day => day.date === todayDateString());
+        const safeIndex = todayIndex >= 0 ? todayIndex : 0;
+        const selector = `[data-action="weekly-title"][data-day="${safeIndex}"]`;
+        const inputs = Array.from(document.querySelectorAll(selector));
+        const input = inputs.find(item => !item.value.trim()) || inputs[0];
+        if (!input) return;
+        input.scrollIntoView({ block: "center", inline: "center" });
+        input.focus({ preventScroll: true });
+      });
+    }
+
+    function focusTodayDoneNote() {
+      requestAnimationFrame(() => {
+        const todayIndex = appData.doneWeek.days.findIndex(day => day.date === todayDateString());
+        const safeIndex = todayIndex >= 0 ? todayIndex : 0;
+        const field = document.querySelector(`[data-action="done-week-title"][data-day="${safeIndex}"]`);
+        if (!field) return;
+        field.scrollIntoView({ block: "center", inline: "center" });
+        field.focus({ preventScroll: true });
+      });
+    }
+
+    function goCurrentMonth() {
+      appData.month = currentMonth();
+      normalizeMonthChecks(appData);
+      saveData("이번 달로 이동했습니다.");
+      switchView("habits");
     }
 
     function switchView(view) {
@@ -4823,6 +5166,43 @@
         switchView(button.dataset.view);
       });
 
+      document.addEventListener("click", event => {
+        const target = event.target.closest("[data-action='go-view'], [data-action='add-habit'], [data-action='add-today-task'], [data-action='write-today-note'], [data-action='current-month']");
+        if (!target) return;
+        const action = target.dataset.action;
+        if (action === "go-view") {
+          const targetView = target.dataset.viewTarget || "dashboard";
+          if (targetView === "week" || targetView === "done-week") {
+            setSyncedWeekStart(getWeekStart(parseLocalDate(todayDateString())));
+            saveData();
+          }
+          switchView(targetView);
+          return;
+        }
+        if (action === "add-habit") {
+          switchView("habits");
+          addBlankHabit();
+          return;
+        }
+        if (action === "add-today-task") {
+          setSyncedWeekStart(getWeekStart(parseLocalDate(todayDateString())));
+          saveData();
+          switchView("week");
+          focusTodayTaskInput();
+          return;
+        }
+        if (action === "write-today-note") {
+          setSyncedWeekStart(getWeekStart(parseLocalDate(todayDateString())));
+          saveData();
+          switchView("done-week");
+          focusTodayDoneNote();
+          return;
+        }
+        if (action === "current-month") {
+          goCurrentMonth();
+        }
+      });
+
       document.getElementById("menuBtn").addEventListener("click", openMenu);
       document.getElementById("closeMenuBtn").addEventListener("click", closeMenu);
       document.getElementById("onboardingRestoreBtn").addEventListener("click", () => document.getElementById("restoreFile").click());
@@ -4837,21 +5217,31 @@
         const dayIndex = Number(button.dataset.day);
         if (!appData.habits[habitIndex]) return;
         const willCheck = !appData.habits[habitIndex].checks[dayIndex];
-        const rect = button.getBoundingClientRect();
+        const rect = (button.closest(".today-habit-item") || button).getBoundingClientRect();
         appData.habits[habitIndex].checks[dayIndex] = !appData.habits[habitIndex].checks[dayIndex];
         saveData();
-        if (willCheck) playJoyBurst(rect, habitJoyMessage(dayIndex));
+        if (willCheck) {
+          const message = habitJoyMessage(dayIndex);
+          playJoyBurst(rect, message);
+          cheerMascot(message);
+        }
       });
       document.getElementById("todayTaskList").addEventListener("change", event => {
         const target = event.target;
         if (target.dataset.action !== "today-task-done") return;
-        const dayIndex = Number(target.dataset.day);
         const taskIndex = Number(target.dataset.task);
-        if (!appData.week.days[dayIndex]?.tasks[taskIndex]) return;
+        const dateString = target.dataset.date || todayDateString();
+        const weekContext = ensureWeekDayContextForDate(appData.week, dateString, { includeDone: true, prefix: "w" });
+        const day = weekContext.days.find(item => item.date === dateString) || weekContext.day;
+        if (!day?.tasks[taskIndex]) return;
         const rect = target.closest(".today-task-item")?.getBoundingClientRect() || target.getBoundingClientRect();
-        appData.week.days[dayIndex].tasks[taskIndex].done = target.checked;
+        day.tasks[taskIndex].done = target.checked;
+        if (!weekContext.isActiveWeek) appData.week.entries[weekContext.weekStartDate] = clone(weekContext.days);
         saveData();
-        if (target.checked) playJoyBurst(rect, "할 일 완료");
+        if (target.checked) {
+          playJoyBurst(rect, "할 일 완료");
+          cheerMascot("할 일도 한발짝 완료");
+        }
       });
       document.getElementById("appMenu").addEventListener("click", event => {
         if (event.target.id === "appMenu") closeMenu();
@@ -4921,6 +5311,7 @@
         normalizeMonthChecks(appData);
         saveData("월을 변경했습니다.");
       });
+      document.getElementById("currentMonthBtn").addEventListener("click", goCurrentMonth);
 
       const habitTableWrap = document.querySelector(".table-wrap");
       const habitMonthChart = document.getElementById("habitMonthChart");
@@ -4948,7 +5339,11 @@
           const rect = target.getBoundingClientRect();
           appData.habits[habitIndex].checks[dayIndex] = !appData.habits[habitIndex].checks[dayIndex];
           saveData();
-          if (willCheck) playJoyBurst(rect, habitJoyMessage(dayIndex));
+          if (willCheck) {
+            const message = habitJoyMessage(dayIndex);
+            playJoyBurst(rect, message);
+            cheerMascot(message);
+          }
         }
         if (target.dataset.action === "delete-habit") {
           const habitIndex = Number(target.dataset.habit);
@@ -4978,6 +5373,12 @@
         }
       });
 
+      document.getElementById("weekGrid").addEventListener("click", event => {
+        const button = event.target.closest("[data-action='add-week-task']");
+        if (!button) return;
+        addWeekTask(Number(button.dataset.day));
+      });
+
       document.getElementById("weekGrid").addEventListener("change", event => {
         const target = event.target;
         if (target.dataset.action !== "weekly-done") return;
@@ -4986,7 +5387,10 @@
         const rect = target.closest(".task-row")?.getBoundingClientRect() || target.getBoundingClientRect();
         appData.week.days[dayIndex].tasks[taskIndex].done = target.checked;
         saveData();
-        if (target.checked) playJoyBurst(rect, "할 일 완료");
+        if (target.checked) {
+          playJoyBurst(rect, "할 일 완료");
+          cheerMascot("할 일도 한발짝 완료");
+        }
       });
 
       document.getElementById("doneWeekGrid").addEventListener("click", event => {
@@ -5039,6 +5443,7 @@
         input.value = "";
         saveData("완료 기록에 추가했습니다.");
         playJoyBurst(input.getBoundingClientRect(), "기록 완료");
+        cheerMascot("기록까지 남겼어요");
       });
 
       document.getElementById("completedList").addEventListener("click", event => {
