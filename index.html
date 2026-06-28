@@ -138,6 +138,10 @@
       z-index: 1;
     }
 
+    body[data-view="mandalart"] .app-shell {
+      width: min(100%, 1760px);
+    }
+
     .app-header {
       background:
         linear-gradient(135deg, rgba(45, 37, 28, 0.96), rgba(58, 87, 66, 0.94)),
@@ -1782,6 +1786,10 @@
       margin: 0 auto;
     }
 
+    body[data-view="mandalart"] .mandalart-panel {
+      max-width: none;
+    }
+
     .mandala-toolbar {
       margin-left: auto;
       display: inline-flex;
@@ -1833,6 +1841,18 @@
       width: max-content;
       min-width: 100%;
       justify-content: center;
+    }
+
+    @media (min-width: 1101px) {
+      body[data-view="mandalart"] .mandala-board-wrap {
+        min-height: min(76vh, 820px);
+        padding: 12px;
+      }
+
+      body[data-view="mandalart"] .mandala-grid {
+        --mandala-cell-size: 104px;
+        --mandala-font-base: 14;
+      }
     }
 
     .mandala-tile {
@@ -2356,7 +2376,8 @@
         --mandala-font-base: 12;
       }
       .mandala-tile textarea {
-        padding: 14px 4px 4px;
+        padding: 12px 4px 8px;
+        align-content: center;
         font-size: clamp(9px, var(--mandala-font-size), 14px);
       }
       th:first-child,
@@ -2511,7 +2532,7 @@
         <div class="brand-mark">한</div>
         <div>
           <h1>하루 한발짝</h1>
-          <small id="versionText">v0.10.12</small>
+          <small id="versionText">v0.10.13</small>
         </div>
       </div>
       <div class="header-actions">
@@ -2768,7 +2789,7 @@
       <div class="app-menu-head">
         <div>
           <strong id="appMenuTitle">앱 메뉴</strong>
-          <small id="menuVersionText">v0.10.12</small>
+          <small id="menuVersionText">v0.10.13</small>
         </div>
         <button class="btn icon" id="closeMenuBtn" title="닫기">×</button>
       </div>
@@ -2803,8 +2824,8 @@
     </section>
   </div>
   <script>
-    const APP_CACHE_VERSION = "habit-tracker-v0.10.12";
-    const APP_DISPLAY_VERSION = "v0.10.12";
+    const APP_CACHE_VERSION = "habit-tracker-v0.10.13";
+    const APP_DISPLAY_VERSION = "v0.10.13";
     const STORAGE_KEY = "habitTracker.appData.v2";
     const ZOOM_KEY = "habitTracker.zoom.v3";
     const ZOOM_RESET_KEY = "habitTracker.zoomReset.v0.6.6";
@@ -2960,11 +2981,22 @@
 
     function loadMandalaZoom() {
       const saved = Number(localStorage.getItem(MANDALA_ZOOM_KEY));
-      return Number.isFinite(saved) ? Math.min(1.8, Math.max(0.72, Math.round(saved * 100) / 100)) : 1;
+      return clampMandalaZoom(Number.isFinite(saved) ? saved : 1);
+    }
+
+    function mandalaMinZoom() {
+      const width = window.innerWidth || document.documentElement.clientWidth || 0;
+      if (width >= 1101) return 0.8;
+      if (width >= 681) return 0.75;
+      return 0.72;
+    }
+
+    function clampMandalaZoom(value) {
+      return Math.min(1.8, Math.max(mandalaMinZoom(), Math.round(value * 100) / 100));
     }
 
     function setMandalaZoom(nextZoom) {
-      mandalaZoom = Math.min(1.8, Math.max(0.72, Math.round(nextZoom * 100) / 100));
+      mandalaZoom = clampMandalaZoom(nextZoom);
       localStorage.setItem(MANDALA_ZOOM_KEY, String(mandalaZoom));
       applyMandalaZoom();
     }
@@ -2972,8 +3004,22 @@
     function applyMandalaZoom() {
       const grid = document.getElementById("mandalaGrid");
       if (!grid) return;
-      const baseCell = parseFloat(getComputedStyle(grid).getPropertyValue("--mandala-cell-size")) || 74;
-      const baseFont = parseFloat(getComputedStyle(grid).getPropertyValue("--mandala-font-base")) || 13;
+      const clampedZoom = clampMandalaZoom(mandalaZoom);
+      if (clampedZoom !== mandalaZoom) {
+        mandalaZoom = clampedZoom;
+        localStorage.setItem(MANDALA_ZOOM_KEY, String(mandalaZoom));
+      }
+      const css = getComputedStyle(grid);
+      const cssCell = parseFloat(css.getPropertyValue("--mandala-cell-size")) || 74;
+      const cssFont = parseFloat(css.getPropertyValue("--mandala-font-base")) || 13;
+      const viewportWidth = window.innerWidth || document.documentElement.clientWidth || 0;
+      const isDesktopMandala = viewportWidth >= 1101;
+      const baseCell = isDesktopMandala
+        ? Math.min(160, Math.max(cssCell, Math.floor((viewportWidth - 360) / 9)))
+        : cssCell;
+      const baseFont = isDesktopMandala
+        ? Math.min(16, Math.max(cssFont, Math.round(baseCell / 10)))
+        : cssFont;
       grid.style.setProperty("--mandala-zoom", String(mandalaZoom));
       grid.style.setProperty("--mandala-cell", `${Math.round(baseCell * mandalaZoom)}px`);
       grid.style.setProperty("--mandala-font-size", `${Math.round(baseFont * mandalaZoom)}px`);
@@ -3739,6 +3785,7 @@
     }
 
     function renderTabs() {
+      document.body.dataset.view = activeView;
       document.querySelectorAll(".tab-btn").forEach(button => {
         const isViewTab = button.dataset.view === activeView;
         button.classList.toggle("active", isViewTab);
