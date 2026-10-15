@@ -4,7 +4,7 @@ import * as db from '../db.js';
 import { thumbUrl } from '../lazy.js';
 import { iconBtn, onMealsChanged, swipe } from '../ui.js';
 import { pref } from '../prefs.js';
-import { runBackupFlow } from '../flows.js';
+import { backupBanner } from '../banner.js';
 
 const state = { y: null, m: null }; // 달력 보던 달을 기억 (하루 화면에서 돌아와도 유지)
 
@@ -17,6 +17,7 @@ export default function mount(root) {
   const weekRow = h('div', { class: 'weekdays' }, WD.map((d, i) => h('span', { class: i === 0 ? 'sun' : i === 6 ? 'sat' : '' }, d)));
   const grid = h('div', { class: 'grid' });
   const bannerBox = h('div', { class: 'banner-box' });
+  const bn = backupBanner(bannerBox);
   const body = h('div', { class: 'cal-body' }, weekRow, grid);
 
   root.append(
@@ -71,25 +72,10 @@ export default function mount(root) {
     }
     grid.classList.remove('slide-l', 'slide-r');
     if (dir) { void grid.offsetWidth; grid.classList.add(dir > 0 ? 'slide-l' : 'slide-r'); }
-    banner(meals);
+    bn.refresh();
   }
 
-  async function banner(meals) {
-    bannerBox.replaceChildren();
-    if (!meals.length) return;
-    const last = await db.getSetting('lastBackupAt', null);
-    const hidden = await db.getSetting('bannerHiddenAt', 0);
-    if (Date.now() - hidden < 7 * 86400000) return;
-    const first = meals[0].takenAt;
-    const need = last ? Date.now() - last > 14 * 86400000 : Date.now() - first > 3 * 86400000;
-    if (!need) return;
-    bannerBox.append(h('div', { class: 'banner' },
-      h('span', { class: 'bt' }, last ? `백업한 지 ${Math.floor((Date.now() - last) / 86400000)}일 지났어요` : '아직 백업한 적이 없어요'),
-      h('button', { class: 'b-act', onclick: () => runBackupFlow(false) }, '백업'),
-      h('button', { class: 'b-x', 'aria-label': '닫기', onclick: async () => { await db.setSetting('bannerHiddenAt', Date.now()); bannerBox.replaceChildren(); } }, icon('close', 18))));
-  }
-
-  const un = [onMealsChanged(() => draw(0)), (() => { const f = () => draw(0); window.addEventListener('backup-done', f); return () => window.removeEventListener('backup-done', f); })()];
+  const un = [onMealsChanged(() => draw(0)), bn.destroy];
   const retapOff = (() => { const f = ev => { if (ev.detail === 'cal') jump(now.getFullYear(), now.getMonth(), 0); }; window.addEventListener('tab-retap', f); return () => window.removeEventListener('tab-retap', f); })();
   un.push(retapOff);
   draw(0);

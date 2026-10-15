@@ -11,19 +11,26 @@ export async function importFromGallery() {
   const files = await pickFiles({ accept: 'image/*', multiple: true });
   if (!files.length) return;
   const prog = progressDialog('사진 추가 중');
-  let ok = 0, fail = 0;
+  const have = new Set((await db.allMeals()).map(m => m.srcKey).filter(Boolean));
+  let ok = 0, fail = 0, dup = 0;
   for (let i = 0; i < files.length; i++) {
     prog.update(i / files.length, `${i + 1} / ${files.length}장`);
+    const srcKey = `${files[i].name}|${files[i].size}|${files[i].lastModified}`;
+    if (have.has(srcKey)) { dup++; continue; }
     try {
       const t = (await exifTime(files[i])) ?? files[i].lastModified ?? Date.now();
       const { bmp, w, h } = await decode(files[i]);
-      await saveShot(bmp, w, h, t);
+      await saveShot(bmp, w, h, t, { srcKey });
+      have.add(srcKey);
       bmp.close?.();
       ok++;
     } catch { fail++; }
   }
   prog.close();
-  toast({ text: fail ? `${ok}장 추가, ${fail}장은 읽지 못했어요` : `${ok}장 추가했어요` });
+  const parts = [`${ok}장 추가`];
+  if (dup) parts.push(`${dup}장은 이미 있어서 건너뜀`);
+  if (fail) parts.push(`${fail}장은 읽지 못함`);
+  toast({ text: parts.join(', '), ms: 5000 });
 }
 
 export async function runBackupFlow(incremental = false) {

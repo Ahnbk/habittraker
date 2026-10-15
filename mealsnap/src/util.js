@@ -1,4 +1,4 @@
-export const VERSION = '0.2.0';
+export const VERSION = '1.0.0';
 export const pad = n => String(n).padStart(2, '0');
 export const WD = ['일', '월', '화', '수', '목', '금', '토'];
 
@@ -20,10 +20,12 @@ export function h(tag, props, ...kids) {
 
 export const $ = (sel, root = document) => root.querySelector(sel);
 
-export const dateKey = ms => {
-  const d = new Date(ms);
-  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
-};
+const fmtLocal = d => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+// '하루 시작 시각'(예: 4시)이면 새벽 4시 전의 식사는 전날로 묶는다. 저장된 시각 자체는 그대로.
+let dayShift = 0;
+export const setDayStart = hour => { dayShift = hour * 3600000; };
+export const dateKey = ms => fmtLocal(new Date(ms - dayShift));
+export const realDateKey = ms => fmtLocal(new Date(ms));
 export const todayKey = () => dateKey(Date.now());
 export const parseKey = k => {
   const [y, m, d] = k.split('-').map(Number);
@@ -32,7 +34,7 @@ export const parseKey = k => {
 export const addDays = (key, n) => {
   const d = parseKey(key);
   d.setDate(d.getDate() + n);
-  return dateKey(d.getTime());
+  return fmtLocal(d);
 };
 export const timeStr = ms => {
   const d = new Date(ms);
@@ -54,7 +56,7 @@ export const dayTag = key => {
 };
 export const toLocalInput = ms => {
   const d = new Date(ms);
-  return `${dateKey(ms)}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+  return `${fmtLocal(d)}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
 };
 export const fmtBytes = b => {
   if (b < 1024) return `${b}B`;

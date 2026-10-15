@@ -6,7 +6,7 @@ export async function currentPreset() {
   return PRESETS[await db.getSetting('preset', 'std')] || PRESETS.std;
 }
 
-export async function saveShot(source, sw, sh, takenAt = Date.now()) {
+export async function saveShot(source, sw, sh, takenAt = Date.now(), extra = {}) {
   const preset = await currentPreset();
   const { photo, thumb } = await process(source, sw, sh, preset);
   const now = Date.now();
@@ -21,7 +21,8 @@ export async function saveShot(source, sw, sh, takenAt = Date.now()) {
     mime: photo.blob.type,
     w: photo.w,
     h: photo.h,
-    bytes: photo.blob.size
+    bytes: photo.blob.size,
+    ...extra
   };
   await db.addMeal(meta, photo.blob);
   requestPersist();

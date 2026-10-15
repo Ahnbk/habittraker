@@ -1,6 +1,7 @@
 // 백업 = 무압축(store) ZIP 하나. 앱 없이도 열어볼 수 있다.
 //   meta.json / photos/<id>.webp / thumbs/<id>.webp
 import * as db from './db.js';
+import { dateKey } from './util.js';
 
 const enc = new TextEncoder();
 const dec = new TextDecoder();
@@ -139,7 +140,7 @@ export async function createBackup({ incrementalSince = null } = {}, onProgress)
     const tf = `thumbs/${m.id}.${extOf(m.thumb.type)}`;
     items.push({
       id: m.id, takenAt: m.takenAt, tzOffset: m.tzOffset, createdAt: m.createdAt, updatedAt: m.updatedAt,
-      w: m.w, h: m.h, mime: m.mime, photo: pf, thumb: tf
+      w: m.w, h: m.h, mime: m.mime, srcKey: m.srcKey, photo: pf, thumb: tf
     });
     entries.push({ name: pf, data: photo, time: m.takenAt }, { name: tf, data: m.thumb, time: m.takenAt });
     onProgress?.((i + 1) / total * 0.3);
@@ -172,11 +173,9 @@ export async function restoreBackup(file, onProgress) {
       const c = scaled(bmp, bmp.width, bmp.height, THUMB.max);
       thumb = await new Promise(r => c.toBlob(r, 'image/webp', THUMB.q));
     }
-    const d = new Date(it.takenAt);
-    const pad = n => String(n).padStart(2, '0');
     await db.addMeal({
       id: it.id, takenAt: it.takenAt, tzOffset: it.tzOffset,
-      dateKey: `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`,
+      dateKey: dateKey(it.takenAt), srcKey: it.srcKey,
       createdAt: it.createdAt, updatedAt: it.updatedAt || it.createdAt,
       thumb, mime: it.mime, w: it.w, h: it.h, bytes: photo.size
     }, photo, { silent: true });

@@ -28,7 +28,7 @@ export default function mount(root) {
 
   async function draw() {
     const meals = await db.allMeals();
-    const p = Object.fromEntries(await Promise.all(['start', 'calStyle', 'dayLayout', 'tlOrder', 'theme'].map(async k => [k, await pref(k)])));
+    const p = Object.fromEntries(await Promise.all(['start', 'calStyle', 'dayLayout', 'tlOrder', 'theme', 'dayStart', 'shootMode'].map(async k => [k, await pref(k)])));
     const preset = await db.getSetting('preset', 'std');
     const lastBackup = await db.getSetting('lastBackupAt', null);
     const u = await usage();
@@ -47,10 +47,14 @@ export default function mount(root) {
         option('타임라인 순서', '전체 기록을 이어 보는 방향', [
           { value: 'bottom', label: '최근이 아래', sub: '대화방처럼' }, { value: 'top', label: '최근이 위', sub: '' }], p.tlOrder, set('tlOrder')),
         option('화면 색', null, [
-          { value: 'auto', label: '자동', sub: '폰 설정 따름' }, { value: 'light', label: '밝게' }, { value: 'dark', label: '어둡게' }], p.theme, set('theme'))),
+          { value: 'auto', label: '자동', sub: '폰 설정 따름' }, { value: 'light', label: '밝게' }, { value: 'dark', label: '어둡게' }], p.theme, set('theme')),
+        option('하루 시작 시각', '새벽에 먹은 것을 전날로 묶어요 (시각 기록은 그대로)', [
+          { value: 0, label: '자정', sub: '기본' }, { value: 3, label: '오전 3시' }, { value: 4, label: '오전 4시' }, { value: 5, label: '오전 5시' }], p.dayStart, set('dayStart'))),
 
       h('h3', {}, '사진'),
       h('div', { class: 'group' },
+        option('촬영 방식', '카메라가 흐리거나 초점이 늦다면 기본 카메라 앱을 쓰세요', [
+          { value: 'app', label: '앱 카메라', sub: '연속 촬영 · 바로 저장' }, { value: 'system', label: '기본 카메라 앱', sub: '화질 좋음 · 1장씩' }], p.shootMode, set('shootMode')),
         option('화질', '이후 찍는 사진부터 적용 · 하루 5장 기준', Object.entries(PRESETS).map(([k, x]) => ({ value: k, label: x.label, sub: `${x.max}px · ${x.est}` })), preset,
           async v => { await db.setSetting('preset', v); draw(); }),
         row('image', '갤러리에서 사진 추가', '이미 찍어 둔 사진을 찍힌 시각으로 넣기', importFromGallery)),

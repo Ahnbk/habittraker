@@ -1,8 +1,8 @@
-import { h, $, todayKey } from './util.js';
+import { h, $, todayKey, setDayStart } from './util.js';
 import { icon } from './icons.js';
 import * as db from './db.js';
 import { toast } from './ui.js';
-import { openCamera } from './camera.js';
+import { openCamera, systemCamera } from './camera.js';
 import { requestPersist } from './meals.js';
 import { pref, applyTheme, startHash } from './prefs.js';
 import { track, replace, retap } from './nav.js';
@@ -36,11 +36,15 @@ function route() {
   current?.root.remove();
   view.append(root);
   current = { root, depth: r.depth, tab: r.tab, key: r.params?.key, home: !!r.params?.home, unmount: r.mount(root, r.params || {}) };
-  nav.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.tab === r.tab));
+  nav.querySelectorAll('.tab').forEach(t => {
+    const on = t.dataset.tab === r.tab;
+    t.classList.toggle('active', on);
+    if (on) t.setAttribute('aria-current', 'page'); else t.removeAttribute('aria-current');
+  });
 }
 
 async function capture() {
-  const n = await openCamera();
+  const n = (await pref('shootMode')) === 'system' ? await systemCamera() : await openCamera();
   if (n > 0) {
     toast({
       text: `${n}장 저장했어요`, ms: 3000,
@@ -73,6 +77,7 @@ document.addEventListener('visibilitychange', () => {
 
 (async () => {
   await db.allMeals();
+  setDayStart(await pref('dayStart'));
   const start = await pref('start');
   applyTheme(await pref('theme'));
   const fresh = !/^#\/(today|cal|timeline|settings|day\/)/.test(location.hash);
@@ -86,5 +91,9 @@ document.addEventListener('visibilitychange', () => {
 })();
 
 if ('serviceWorker' in navigator && location.protocol !== 'file:') {
+  const hadController = !!navigator.serviceWorker.controller;
+  navigator.serviceWorker.addEventListener('controllerchange', () => {
+    if (hadController) toast({ text: '새 버전이 적용됐어요', action: '다시 열기', onAction: () => location.reload(), ms: 12000 });
+  });
   navigator.serviceWorker.register('./service-worker.js', { scope: './' }).catch(() => {});
 }

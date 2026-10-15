@@ -90,6 +90,19 @@ export async function deleteMeals(ids, { silent = false } = {}) {
 }
 export const deleteMeal = id => deleteMeals([id]);
 
+// 날짜 키만 다시 계산 (하루 시작 시각 변경 시). 내용 변경이 아니므로 updatedAt은 건드리지 않는다.
+export async function rekey(fn) {
+  await allMeals();
+  const db = await open();
+  const tx = db.transaction('meals', 'readwrite');
+  for (const m of cache) {
+    const k = fn(m.takenAt);
+    if (k !== m.dateKey) { m.dateKey = k; tx.objectStore('meals').put(m); }
+  }
+  await txDone(tx);
+  notify();
+}
+
 export async function getPhoto(id) {
   const db = await open();
   const row = await req(db.transaction('photos').objectStore('photos').get(id));
