@@ -2,7 +2,8 @@ import { h, pad, WD, todayKey } from '../util.js';
 import { icon } from '../icons.js';
 import * as db from '../db.js';
 import { thumbUrl } from '../lazy.js';
-import { iconBtn, settingsBtn, onMealsChanged, swipe } from '../ui.js';
+import { iconBtn, onMealsChanged, swipe } from '../ui.js';
+import { pref } from '../prefs.js';
 import { runBackupFlow } from '../flows.js';
 
 const state = { y: null, m: null }; // 달력 보던 달을 기억 (하루 화면에서 돌아와도 유지)
@@ -22,8 +23,7 @@ export default function mount(root) {
     h('header', { class: 'bar' },
       h('div', { class: 'bar-title row' }, title, todayChip),
       iconBtn('left', '이전 달', () => shift(-1)),
-      iconBtn('right', '다음 달', () => shift(1)),
-      settingsBtn()),
+      iconBtn('right', '다음 달', () => shift(1))),
     body, bannerBox);
 
   function jump(y, m, dir) { state.y = y; state.m = m; draw(dir); }
@@ -35,6 +35,8 @@ export default function mount(root) {
 
   async function draw(dir = 0) {
     const meals = await db.allMeals();
+    const plain = (await pref('calStyle')) === 'count';
+    grid.classList.toggle('plain', plain);
     const { y, m } = state;
     const prefix = `${y}-${pad(m + 1)}-`;
     const info = new Map();
@@ -63,7 +65,7 @@ export default function mount(root) {
         class: `cell${e ? ' has' : ''}${key === today ? ' today' : ''}${key > today ? ' future' : ''}`,
         'aria-label': `${m + 1}월 ${d}일${e ? `, 식사 ${e.n}회` : ''}`
       },
-      e && h('img', { src: thumbUrl(e.last), alt: '', draggable: 'false' }),
+      e && !plain && h('img', { src: thumbUrl(e.last), alt: '', draggable: 'false' }),
       h('span', { class: `d${dow === 0 ? ' sun' : dow === 6 ? ' sat' : ''}` }, d),
       e && h('span', { class: 'n' }, e.n)));
     }
@@ -88,6 +90,8 @@ export default function mount(root) {
   }
 
   const un = [onMealsChanged(() => draw(0)), (() => { const f = () => draw(0); window.addEventListener('backup-done', f); return () => window.removeEventListener('backup-done', f); })()];
+  const retapOff = (() => { const f = ev => { if (ev.detail === 'cal') jump(now.getFullYear(), now.getMonth(), 0); }; window.addEventListener('tab-retap', f); return () => window.removeEventListener('tab-retap', f); })();
+  un.push(retapOff);
   draw(0);
   return () => un.forEach(f => f());
 }

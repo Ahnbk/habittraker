@@ -1,10 +1,10 @@
-const CACHE = 'mealsnap-v0.1.0';
+const CACHE = 'mealsnap-v0.2.0';
 const SHELL = [
   './', './index.html', './styles.css', './manifest.webmanifest',
   './icons/icon-192.png', './icons/icon-512.png', './icons/maskable-512.png',
   './src/app.js', './src/util.js', './src/icons.js', './src/db.js', './src/lazy.js', './src/image.js',
   './src/meals.js', './src/ui.js', './src/camera.js', './src/viewer.js', './src/backup.js',
-  './src/storage.js', './src/flows.js',
+  './src/storage.js', './src/flows.js', './src/prefs.js', './src/nav.js',
   './src/views/calendar.js', './src/views/day.js', './src/views/timeline.js', './src/views/settings.js'
 ];
 

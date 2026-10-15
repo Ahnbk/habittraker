@@ -1,9 +1,11 @@
-import { h, $ } from './util.js';
+import { h, $, todayKey } from './util.js';
 import { icon } from './icons.js';
 import * as db from './db.js';
 import { toast } from './ui.js';
 import { openCamera } from './camera.js';
 import { requestPersist } from './meals.js';
+import { pref, applyTheme, startHash } from './prefs.js';
+import { track, replace, retap } from './nav.js';
 import calendar from './views/calendar.js';
 import day from './views/day.js';
 import timeline from './views/timeline.js';
@@ -14,43 +16,70 @@ const nav = $('#nav');
 let current = null;
 
 const ROUTES = [
-  [/^#\/?$/, () => ({ mount: calendar, depth: 1, tab: 'cal' })],
+  [/^#\/today$/, () => ({ mount: day, depth: 1, tab: 'today', params: { key: todayKey(), home: true } })],
+  [/^#\/cal$/, () => ({ mount: calendar, depth: 1, tab: 'cal' })],
   [/^#\/day\/(\d{4}-\d\d-\d\d)$/, m => ({ mount: day, depth: 2, tab: 'cal', params: { key: m[1] } })],
   [/^#\/timeline$/, () => ({ mount: timeline, depth: 1, tab: 'tl' })],
-  [/^#\/settings$/, () => ({ mount: settings, depth: 3, tab: '' })]
+  [/^#\/settings$/, () => ({ mount: settings, depth: 1, tab: 'set' })]
 ];
 
 function route() {
-  const hash = location.hash || '#/';
+  const hash = location.hash;
   let r = null;
   for (const [re, make] of ROUTES) { const m = hash.match(re); if (m) { r = make(m); break; } }
   r ||= ROUTES[0][1]();
+  track(hash);
   const prev = current?.depth ?? 0;
-  const root = h('div', { class: `view ${!prev ? '' : r.depth > prev ? 'in-fwd' : r.depth < prev ? 'in-back' : 'in-fade'}` });
+  const dir = !prev ? '' : r.depth > prev ? 'in-fwd' : r.depth < prev ? 'in-back' : 'in-fade';
+  const root = h('div', { class: `view ${dir}` });
   current?.unmount?.();
   current?.root.remove();
   view.append(root);
-  current = { root, depth: r.depth, unmount: r.mount(root, r.params || {}) };
+  current = { root, depth: r.depth, tab: r.tab, key: r.params?.key, home: !!r.params?.home, unmount: r.mount(root, r.params || {}) };
   nav.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.tab === r.tab));
 }
 
 async function capture() {
   const n = await openCamera();
-  if (n > 0) toast({ text: `${n}장 저장했어요`, ms: 2500 });
+  if (n > 0) {
+    toast({
+      text: `${n}장 저장했어요`, ms: 3000,
+      ...(current?.tab !== 'today' ? { action: '오늘 보기', onAction: () => replace('#/today') } : {})
+    });
+  }
 }
 
+const tab = (hash, key, ico, label) => h('a', {
+  class: 'tab', href: hash, 'data-tab': key,
+  onclick: e => {
+    e.preventDefault();
+    if (location.hash === hash) retap(key);
+    else replace(hash);
+  }
+}, icon(ico, 26), h('span', {}, label));
+
 nav.append(
-  h('a', { class: 'tab', href: '#/', 'data-tab': 'cal' }, icon('calendar', 26), h('span', {}, '달력')),
+  tab('#/today', 'today', 'sun', '오늘'),
+  tab('#/cal', 'cal', 'calendar', '달력'),
   h('button', { id: 'shutter', 'aria-label': '사진 찍기', onclick: capture }, icon('camera', 34)),
-  h('a', { class: 'tab', href: '#/timeline', 'data-tab': 'tl' }, icon('chat', 26), h('span', {}, '타임라인')));
+  tab('#/timeline', 'tl', 'chat', '타임라인'),
+  tab('#/settings', 'set', 'gear', '설정'));
 
 window.addEventListener('hashchange', route);
-route();
+// 자정을 넘겨 다시 열었을 때 "오늘" 화면이 어제에 머물지 않게.
+document.addEventListener('visibilitychange', () => {
+  if (!document.hidden && current?.home && current.key !== todayKey()) route();
+});
 
 (async () => {
   await db.allMeals();
+  const start = await pref('start');
+  applyTheme(await pref('theme'));
+  const fresh = !/^#\/(today|cal|timeline|settings|day\/)/.test(location.hash);
+  if (fresh) history.replaceState(history.state, '', startHash(start));
+  route();
   requestPersist();
-  if (await db.getSetting('autoCamera', false) && !sessionStorage.getItem('opened')) {
+  if (fresh && start === 'camera' && !sessionStorage.getItem('opened')) {
     sessionStorage.setItem('opened', '1');
     capture();
   }

@@ -1,4 +1,4 @@
-export const VERSION = '0.1.0';
+export const VERSION = '0.2.0';
 export const pad = n => String(n).padStart(2, '0');
 export const WD = ['일', '월', '화', '수', '목', '금', '토'];
 

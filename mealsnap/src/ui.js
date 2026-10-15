@@ -148,8 +148,6 @@ export function hideToast() {
 export const iconBtn = (name, label, onclick, cls = '') =>
   h('button', { class: `icon-btn ${cls}`, 'aria-label': label, onclick }, icon(name));
 
-export const settingsBtn = () => iconBtn('gear', '설정', () => { location.hash = '#/settings'; });
-
 export function bar({ left, title, sub, right = [] }) {
   return h('header', { class: 'bar' },
     left,
