@@ -13,5 +13,14 @@ export async function setPref(k, v) {
 export function applyTheme(v) {
   if (v === 'light' || v === 'dark') document.documentElement.dataset.theme = v;
   else delete document.documentElement.dataset.theme;
+  syncBars();
 }
+// APK에서 상태바/내비게이션바 색을 현재 테마에 맞춘다.
+export function syncBars() {
+  const n = window.MealsnapNative;
+  if (!n) return;
+  const t = document.documentElement.dataset.theme;
+  n.setDark(t === 'dark' || (t !== 'light' && matchMedia('(prefers-color-scheme: dark)').matches));
+}
+matchMedia('(prefers-color-scheme: dark)').addEventListener?.('change', syncBars);
 export const startHash = s => ({ today: '#/today', cal: '#/cal', timeline: '#/timeline', camera: '#/today' }[s] || '#/today');

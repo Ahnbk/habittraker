@@ -1,4 +1,4 @@
-import { h, $, todayKey, setDayStart } from './util.js';
+import { h, $, todayKey, setDayStart, native } from './util.js';
 import { icon } from './icons.js';
 import * as db from './db.js';
 import { toast } from './ui.js';
@@ -44,7 +44,7 @@ function route() {
 }
 
 async function capture() {
-  const n = (await pref('shootMode')) === 'system' ? await systemCamera() : await openCamera();
+  const n = (!native() && (await pref('shootMode')) === 'system') ? await systemCamera() : await openCamera();
   if (n > 0) {
     toast({
       text: `${n}장 저장했어요`, ms: 3000,
@@ -90,7 +90,7 @@ document.addEventListener('visibilitychange', () => {
   }
 })();
 
-if ('serviceWorker' in navigator && location.protocol !== 'file:') {
+if ('serviceWorker' in navigator && location.protocol !== 'file:' && !native()) {
   const hadController = !!navigator.serviceWorker.controller;
   navigator.serviceWorker.addEventListener('controllerchange', () => {
     if (hadController) toast({ text: '새 버전이 적용됐어요', action: '다시 열기', onAction: () => location.reload(), ms: 12000 });

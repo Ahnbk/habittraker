@@ -4,12 +4,32 @@ import { icon } from './icons.js';
 /* ---------- 오버레이 스택 (안드로이드 뒤로가기로 닫힘) ---------- */
 const stack = [];
 
+// history.back()은 비동기라서, 닫자마자 새 오버레이를 열면 그 popstate가 새 오버레이를 닫아 버린다.
+// 그래서 되돌리는 중(pendingPops)에는 새 pushState를 뒤로 미룬다.
+let pendingPops = 0;
+let queued = [];
+let popTimer = 0;
+function afterPops(fn) {
+  if (pendingPops > 0) queued.push(fn); else fn();
+}
+function settlePops() {
+  clearTimeout(popTimer);
+  pendingPops = 0;
+  const q = queued;
+  queued = [];
+  q.forEach(f => f());
+}
+
 export function pushOverlay(el, { onClose, locked = false } = {}) {
-  const entry = { el, onClose, locked, disposed: false };
+  const entry = { el, onClose, locked, disposed: false, pushed: false };
   stack.push(entry);
   document.body.append(el);
   requestAnimationFrame(() => requestAnimationFrame(() => el.classList.add('show')));
-  history.pushState({ ov: stack.length }, '');
+  afterPops(() => {
+    if (entry.disposed || !stack.includes(entry)) return;
+    history.pushState({ ov: stack.indexOf(entry) + 1 }, '');
+    entry.pushed = true;
+  });
   return entry;
 }
 function dispose(entry) {
@@ -25,9 +45,19 @@ export function closeOverlay(entry) {
   if (i < 0) return;
   stack.splice(i, 1);
   dispose(entry);
-  if (i === stack.length) history.back(); // 맨 위였다면 쌓아둔 히스토리 한 칸 되돌림
+  if (i === stack.length && entry.pushed) { // 맨 위였다면 쌓아둔 히스토리 한 칸 되돌림
+    pendingPops++;
+    clearTimeout(popTimer);
+    popTimer = setTimeout(settlePops, 600); // popstate가 안 오는 경우의 안전장치
+    history.back();
+  }
 }
 window.addEventListener('popstate', e => {
+  if (pendingPops > 0) {
+    pendingPops--;
+    if (pendingPops === 0) settlePops();
+    return;
+  }
   const depth = e.state?.ov || 0;
   while (stack.length > depth) {
     const top = stack[stack.length - 1];

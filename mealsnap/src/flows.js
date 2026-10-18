@@ -5,7 +5,7 @@ import { recompressOlder, deleteCheck } from './storage.js';
 import { exifTime, decode } from './image.js';
 import { saveShot } from './meals.js';
 import { sheet, progressDialog, choiceSheet, confirmSheet, pickFiles, toast } from './ui.js';
-import { fmtBytes, dateKey } from './util.js';
+import { fmtBytes, dateKey, native } from './util.js';
 
 export async function importFromGallery() {
   const files = await pickFiles({ accept: 'image/*', multiple: true });
@@ -59,6 +59,8 @@ export async function runBackupFlow(incremental = false) {
     if (!incremental) await db.setSetting('lastFullBackupAt', now);
     window.dispatchEvent(new CustomEvent('backup-done'));
   };
+  const N = native();
+  if (N) { nativeBackupSheet(N, file, name, result.count, markDone); return; }
   const canShare = !!(navigator.canShare && navigator.canShare({ files: [file] }));
   // 공유/다운로드는 사용자 탭 직후에만 허용되므로 "준비 완료" 시트의 버튼에서 실행한다.
   sheet({
@@ -144,4 +146,40 @@ export async function runDeleteOldFlow() {
   if (!ok) return;
   await db.deleteMeals(chk.ids);
   toast({ text: `${chk.count}장을 삭제했어요` });
+}
+
+// APK: 파일을 네이티브로 넘겨 다운로드 폴더에 저장하고, 원하면 공유 시트(Drive 등)도 연다.
+async function sendToNative(N, file, share) {
+  if (!N.beginFile(file.name)) throw new Error('파일을 만들 수 없어요');
+  const CH = 384 * 1024;
+  for (let off = 0; off < file.size; off += CH) {
+    const buf = new Uint8Array(await file.slice(off, off + CH).arrayBuffer());
+    let bin = '';
+    for (let i = 0; i < buf.length; i += 0x8000) bin += String.fromCharCode.apply(null, buf.subarray(i, i + 0x8000));
+    if (!N.appendChunk(btoa(bin))) throw new Error('저장 중 오류가 났어요');
+  }
+  const r = N.finishFile(share);
+  if (!String(r).startsWith('ok:')) throw new Error(String(r).replace(/^error:/, ''));
+}
+
+function nativeBackupSheet(N, file, name, count, markDone) {
+  const run = share => async () => {
+    try {
+      await sendToNative(N, file, share);
+      await markDone();
+      toast({ text: share ? '공유 창에서 저장할 곳을 골라 주세요 (다운로드 폴더에도 저장됨)' : '다운로드 폴더에 저장했어요', ms: 6000 });
+    } catch (e) {
+      toast({ text: `저장 실패: ${e.message || e}`, ms: 6000 });
+      return false;
+    }
+  };
+  sheet({
+    title: '백업 파일이 준비됐어요',
+    text: `${count}장 · ${fmtBytes(file.size)}\nDrive 등 폰 밖의 안전한 곳에도 보관해 두세요.`,
+    actions: [
+      { label: '공유 / 저장 (Drive 등)', kind: 'primary', icon: 'share', onClick: run(true) },
+      { label: '다운로드 폴더에 저장', kind: 'ghost', icon: 'download', onClick: run(false) },
+      { label: '닫기', kind: 'ghost' }
+    ]
+  });
 }

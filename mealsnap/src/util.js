@@ -1,4 +1,6 @@
-export const VERSION = '1.0.0';
+export const VERSION = '1.0.1';
+// Android 앱(APK) 안에서 실행 중이면 네이티브 브리지가 있다.
+export const native = () => window.MealsnapNative || null;
 export const pad = n => String(n).padStart(2, '0');
 export const WD = ['일', '월', '화', '수', '목', '금', '토'];
 

@@ -115,12 +115,16 @@ export function openCamera() {
       } catch (e) { onError(e); }
     }
 
+    const onVisible = () => { if (!document.hidden && !entry?.disposed && (!stream || !stream.active)) start(); };
+    document.addEventListener('visibilitychange', onVisible);
+
     const onKey = e => { if (e.key === ' ' || e.key === 'Enter') shoot(); };
     window.addEventListener('keydown', onKey);
 
     entry = pushOverlay(root, {
       onClose: () => {
         window.removeEventListener('keydown', onKey);
+        document.removeEventListener('visibilitychange', onVisible);
         stop();
         if (lastUrl) URL.revokeObjectURL(lastUrl);
         resolve(shots.length);

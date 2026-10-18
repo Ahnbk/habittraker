@@ -1,4 +1,4 @@
-import { h, fmtBytes, fmtAgo, VERSION } from '../util.js';
+import { h, fmtBytes, fmtAgo, VERSION, native } from '../util.js';
 import { icon } from '../icons.js';
 import * as db from '../db.js';
 import { PRESETS } from '../image.js';
@@ -53,7 +53,7 @@ export default function mount(root) {
 
       h('h3', {}, '사진'),
       h('div', { class: 'group' },
-        option('촬영 방식', '카메라가 흐리거나 초점이 늦다면 기본 카메라 앱을 쓰세요', [
+        !native() && option('촬영 방식', '카메라가 흐리거나 초점이 늦다면 기본 카메라 앱을 쓰세요', [
           { value: 'app', label: '앱 카메라', sub: '연속 촬영 · 바로 저장' }, { value: 'system', label: '기본 카메라 앱', sub: '화질 좋음 · 1장씩' }], p.shootMode, set('shootMode')),
         option('화질', '이후 찍는 사진부터 적용 · 하루 5장 기준', Object.entries(PRESETS).map(([k, x]) => ({ value: k, label: x.label, sub: `${x.max}px · ${x.est}` })), preset,
           async v => { await db.setSetting('preset', v); draw(); }),
