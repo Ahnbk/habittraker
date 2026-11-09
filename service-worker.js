@@ -31,6 +31,8 @@ self.addEventListener("activate", event => {
 
 self.addEventListener("fetch", event => {
   if (event.request.method !== "GET") return;
+  // 하위 앱(mealsnap/)은 자체 서비스워커가 처리한다.
+  if (new URL(event.request.url).pathname.includes("/mealsnap/")) return;
 
   if (event.request.mode === "navigate") {
     event.respondWith(

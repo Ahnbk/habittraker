@@ -3,3 +3,8 @@ private-data/
 *.log
 .DS_Store
 Thumbs.db
+
+# mealsnap: 개인 사진/백업은 올리지 않음
+mealsnap/*.zip
+mealsnap/**/*.zip
+mealsnap/private-data/
